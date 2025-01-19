@@ -1,1 +1,13 @@
-<svg fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1155 1000"><path d="m577.3 0 577.4 1000H0z" fill="#fff"/></svg>
+<svg fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1200">
+    <!-- Base Circle Flower Shape -->
+    <circle cx="600" cy="600" r="580" fill="#FFB3B3" />
+
+    <!-- Petals -->
+    <path d="M600 200 C500 100, 700 100, 600 200" fill="#FF5C5C" />
+    <path d="M200 600 C100 500, 100 700, 200 600" fill="#FF5C5C" />
+    <path d="M600 1000 C500 1100, 700 1100, 600 1000" fill="#FF5C5C" />
+    <path d="M1000 600 C1100 500, 1100 700, 1000 600" fill="#FF5C5C" />
+
+    <!-- Heart Shape in Center -->
+    <path d="M600 600 C500 450, 400 550, 600 800 C800 550, 700 450, 600 600 Z" fill="#E91E63" />
+</svg>
