@@ -7,8 +7,22 @@ import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { User } from "@/types/user";
 import userData from "@/data/users-data.json";
+import InfiniteScroll from "react-infinite-scroll-component";
 
 export default function SearchPage() {
+  // State để lưu số lượng user đang hiển thị
+  const [displayCount, setDisplayCount] = useState(5);
+
+  // Hàm load thêm data
+  const loadMore = () => {
+    setTimeout(() => {
+      setDisplayCount((prev) => prev + 5);
+    }, 500); // Thêm delay 500ms để tạo cảm giác loading
+  };
+
+  // Lấy danh sách user hiện tại
+  const currentUsers = userData.users.slice(0, displayCount);
+
   return (
     <div className="min-h-screen bg-white">
       <div className="mx-auto max-w-2xl px-4">
@@ -45,61 +59,69 @@ export default function SearchPage() {
               Gợi ý theo dõi
             </div>
 
-            {/* User List */}
-            <div className="space-y-4">
-              {userData.users.slice(0, 5).map((user) => (
-                <div
-                  key={user.id}
-                  className="flex items-start justify-between border-b border-neutral-200 pb-4 last:border-0"
-                >
-                  <div className="flex gap-3">
-                    <Avatar className="h-10 w-10">
-                      <AvatarImage src={user.avatar} alt={user.displayName} />
-                      <AvatarFallback>
-                        {user.displayName
-                          .split(" ")
-                          .map((name) => name[0])
-                          .join("")}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex flex-col gap-0.5">
-                      {/* Tên hiển thị và verified */}
-                      <div className="flex items-center gap-1">
-                        <span className="font-medium text-neutral-950">
-                          {user.displayName}
-                        </span>
-                        {user.isVerified && (
-                          <span className="text-xs font-medium text-blue-500">
-                            verified
-                          </span>
-                        )}
-                      </div>
-                      {/* Tên người dùng */}
-                      <span className="text-sm text-neutral-500">
-                        {user.username}
-                      </span>
-                      {/* Bio */}
-                      <span className="text-sm text-neutral-500">
-                        {user.bio}
-                      </span>
-                      {/* Số người theo dõi */}
-                      <span className="text-sm text-neutral-500">
-                        {user.followers >= 1000
-                          ? `${(user.followers / 1000).toFixed(1)}K`
-                          : user.followers.toLocaleString()}{" "}
-                        người theo dõi
-                      </span>
-                    </div>
-                  </div>
-                  <Button
-                    variant="outline"
-                    className="h-8 rounded-full border-neutral-200 text-sm font-medium text-neutral-950 hover:bg-neutral-100"
-                  >
-                    Theo dõi
-                  </Button>
+            {/* User List with Infinite Scroll */}
+            <InfiniteScroll
+              dataLength={currentUsers.length}
+              next={loadMore}
+              hasMore={currentUsers.length < userData.users.length}
+              loader={
+                <div className="text-center py-4 text-sm text-neutral-500">
+                  Đang tải...
                 </div>
-              ))}
-            </div>
+              }
+              scrollableTarget="scrollableDiv"
+            >
+              <div className="space-y-4">
+                {currentUsers.map((user) => (
+                  <div
+                    key={user.id}
+                    className="flex items-start justify-between border-b border-neutral-200 pb-4 last:border-0"
+                  >
+                    <div className="flex gap-3">
+                      <Avatar className="h-10 w-10">
+                        <AvatarImage src={user.avatar} alt={user.displayName} />
+                        <AvatarFallback>
+                          {user.displayName
+                            .split(" ")
+                            .map((name) => name[0])
+                            .join("")}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex flex-col gap-0.5">
+                        <div className="flex items-center gap-1">
+                          <span className="font-medium text-neutral-950">
+                            {user.displayName}
+                          </span>
+                          {user.isVerified && (
+                            <span className="text-xs font-medium text-blue-500">
+                              verified
+                            </span>
+                          )}
+                        </div>
+                        <span className="text-sm text-neutral-500">
+                          {user.username}
+                        </span>
+                        <span className="text-sm text-neutral-500">
+                          {user.bio}
+                        </span>
+                        <span className="text-sm text-neutral-500">
+                          {user.followers >= 1000
+                            ? `${(user.followers / 1000).toFixed(1)}K`
+                            : user.followers.toLocaleString()}{" "}
+                          người theo dõi
+                        </span>
+                      </div>
+                    </div>
+                    <Button
+                      variant="outline"
+                      className="h-8 rounded-full border-neutral-200 text-sm font-medium text-neutral-950 hover:bg-neutral-100"
+                    >
+                      Theo dõi
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </InfiniteScroll>
           </div>
         </div>
       </div>
