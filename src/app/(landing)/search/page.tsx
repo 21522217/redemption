@@ -10,41 +10,52 @@ import userData from "@/data/users-data.json";
 import InfiniteScroll from "react-infinite-scroll-component";
 
 export default function SearchPage() {
-  // State để lưu số lượng user đang hiển thị
+  // State for displayed users count and search query
   const [displayCount, setDisplayCount] = useState(5);
+  const [searchQuery, setSearchQuery] = useState("");
 
-  // Hàm load thêm data
+  // Load more data function
   const loadMore = () => {
     setTimeout(() => {
       setDisplayCount((prev) => prev + 5);
-    }, 500); // Thêm delay 500ms để tạo cảm giác loading
+    }, 500);
   };
 
-  // Lấy danh sách user hiện tại
-  const currentUsers = userData.users.slice(0, displayCount);
+  // Filter users based on search query
+  const filteredUsers = userData.users.filter(
+    (user) =>
+      user.displayName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      user.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      user.bio.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // Get current users to display
+  const currentUsers = filteredUsers.slice(0, displayCount);
 
   return (
     <div className="min-h-screen bg-white">
       <div className="mx-auto max-w-2xl px-4">
         {/* Search Header */}
         <div className="flex items-center justify-between py-3">
-          <h1 className="text-xl font-semibold text-neutral-950">Tìm kiếm</h1>
+          <h1 className="text-xl font-semibold text-neutral-950">Search</h1>
           <button className="rounded-full p-2 hover:bg-neutral-100">
             <span className="text-2xl">⋯</span>
           </button>
         </div>
 
         {/* Main Content Card */}
-        <div className="rounded-[1.5rem] bg-white p-4 shadow-[0_0_1px_rgba(0,0,0,0.3)]">
+        <div className="rounded-2xl bg-white p-4 shadow-[0_2px_12px_rgba(0,0,0,0.05)] border border-neutral-200">
           {/* Search Input */}
           <div className="relative mb-6">
-            <div className="relative rounded-2xl border border-neutral-200 bg-neutral-100">
+            <div className="relative rounded-2xl border border-neutral-300 bg-neutral-100">
               <div className="absolute inset-y-0 left-3 flex items-center">
                 <Search className="h-5 w-5 text-neutral-500" />
               </div>
               <Input
                 type="text"
-                placeholder="Tìm kiếm"
+                placeholder="Search"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 className="h-11 border-0 bg-transparent pl-10 pr-10 text-neutral-950 placeholder:text-neutral-500 focus-visible:ring-0 focus-visible:ring-offset-0"
               />
               <div className="absolute inset-y-0 right-3 flex items-center">
@@ -56,17 +67,17 @@ export default function SearchPage() {
           {/* Search Results */}
           <div className="space-y-4">
             <div className="text-sm font-medium text-neutral-500">
-              Gợi ý theo dõi
+              Suggested follows
             </div>
 
             {/* User List with Infinite Scroll */}
             <InfiniteScroll
               dataLength={currentUsers.length}
               next={loadMore}
-              hasMore={currentUsers.length < userData.users.length}
+              hasMore={currentUsers.length < filteredUsers.length}
               loader={
                 <div className="text-center py-4 text-sm text-neutral-500">
-                  Đang tải...
+                  Loading...
                 </div>
               }
               scrollableTarget="scrollableDiv"
@@ -75,7 +86,7 @@ export default function SearchPage() {
                 {currentUsers.map((user) => (
                   <div
                     key={user.id}
-                    className="flex items-start justify-between border-b border-neutral-200 pb-4 last:border-0"
+                    className="flex items-start justify-between border-b border-neutral-300 pb-4 last:border-0"
                   >
                     <div className="flex gap-3">
                       <Avatar className="h-10 w-10">
@@ -108,7 +119,7 @@ export default function SearchPage() {
                           {user.followers >= 1000
                             ? `${(user.followers / 1000).toFixed(1)}K`
                             : user.followers.toLocaleString()}{" "}
-                          người theo dõi
+                          followers
                         </span>
                       </div>
                     </div>
@@ -116,7 +127,7 @@ export default function SearchPage() {
                       variant="outline"
                       className="h-8 rounded-full border-neutral-200 text-sm font-medium text-neutral-950 hover:bg-neutral-100"
                     >
-                      Theo dõi
+                      Follow
                     </Button>
                   </div>
                 ))}
