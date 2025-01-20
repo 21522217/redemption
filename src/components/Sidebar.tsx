@@ -41,6 +41,7 @@ const Sidebar = () => {
         <Button
           variant="ghost"
           className="text-muted-foreground hover:text-foreground"
+          onClick={() => router.push("/search")}
         >
           <FaSearch />
         </Button>
