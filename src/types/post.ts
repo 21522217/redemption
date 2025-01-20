@@ -1,17 +1,10 @@
+import { Media } from "./media";
+
 export interface Post {
   id: string;
   userId: string;
   content: string;
-  media?: {
-    type: "image" | "video";
-    url: string;
-    aspectRatio?: number; // Mặc định 16:9 cho video và hình
-    width?: number;
-    height?: number;
-    thumbnail?: string; // Chỉ dùng cho video
-    duration?: number; // Độ dài video (giây)
-    alt?: string;
-  }[];
+  media?: Media[];
   createdAt: string;
   stats: {
     likes: number;

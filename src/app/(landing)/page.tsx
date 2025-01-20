@@ -19,6 +19,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuItem,
 } from "@/components/ui-thread/dropdown-menu";
+import { MediaGallery } from "@/components/ui-thread/media-gallery";
 
 // Verified Badge component giống search page
 const VerifiedBadge = () => (
@@ -48,8 +49,8 @@ export default function Page() {
       <div className="mx-auto w-full max-w-2xl min-w-[680px] px-4">
         {/* Header giống search page */}
         <div className="relative flex items-center justify-center py-3">
-          <h1 className="text-[28px] font-normal text-neutral-950">Home</h1>
-          <DropdownMenu>
+          {/* <h1 className="text-[28px] font-normal text-neutral-950">Home</h1> */}
+          {/* <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
                 variant="ghost"
@@ -72,7 +73,7 @@ export default function Page() {
               <DropdownMenuItem>Cài đặt bảng tin</DropdownMenuItem>
               <DropdownMenuItem>Lọc nội dung</DropdownMenuItem>
             </DropdownMenuContent>
-          </DropdownMenu>
+          </DropdownMenu> */}
         </div>
 
         {/* Main Content Card */}
@@ -168,7 +169,17 @@ export default function Page() {
                             <p className="text-[15px] leading-normal mb-3">
                               {post.content}
                             </p>
-                            <div className="flex items-center gap-6">
+
+                            {post.media && post.media.length > 0 && (
+                              <MediaGallery 
+                                media={post.media.map(m => ({
+                                  ...m,
+                                  type: m.type as "image" | "video"
+                                }))} 
+                              />
+                            )}
+
+                            <div className="flex items-center gap-6 mt-3">
                               <Button
                                 variant="ghost"
                                 size="sm"
