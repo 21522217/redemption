@@ -23,8 +23,11 @@ import {
   FaList,
   FaChevronRight,
 } from "react-icons/fa";
+import { useRouter } from "next/navigation";
 
 const Sidebar = () => {
+  const router = useRouter();
+
   return (
     <div className="fixed flex flex-col min-h-screen w-[50px] gap-6 p-2 justify-between items-center bg-primary">
       <DynamicImage src={"/redemption.png"} alt="X" className="object-cover" />
@@ -56,6 +59,7 @@ const Sidebar = () => {
         <Button
           variant="ghost"
           className="text-muted-foreground hover:text-foreground"
+          onClick={() => router.push("/profile")}
         >
           <FaUser />
         </Button>
