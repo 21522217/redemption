@@ -29,7 +29,7 @@ const Sidebar = () => {
   const router = useRouter();
 
   return (
-    <div className="fixed flex flex-col min-h-screen w-[50px] gap-6 p-2 justify-between items-center bg-primary">
+    <div className="fixed flex flex-col min-h-screen w-[50px] gap-6 p-2 justify-between items-center">
       <DynamicImage src={"/redemption.png"} alt="X" className="object-cover" />
       <div className="flex flex-col">
         <Button
