@@ -47,7 +47,6 @@ export function MediaGallery({ media, className }: MediaGalleryProps) {
     const handleGlobalMouseUp = () => {
       if (isDragging && scrollRef.current) {
         setTransform(0);
-        const momentum = speed * 100;
         let currentSpeed = speed;
         const decelerate = () => {
           if (Math.abs(currentSpeed) > 0.1 && scrollRef.current) {

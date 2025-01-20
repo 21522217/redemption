@@ -9,7 +9,7 @@ import {
 import { Button } from "@/components/ui-thread/button";
 import { Input } from "@/components/ui-thread/input";
 import { useState, useEffect } from "react";
-import { User } from "@/types/user";
+// import { User } from "@/types/user";
 import userData from "@/data/users-data.json";
 import InfiniteScroll from "react-infinite-scroll-component";
 import {

@@ -13,12 +13,6 @@ import { useState } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
 import postsData from "@/data/posts-data.json";
 import usersData from "@/data/users-data.json";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-  DropdownMenuItem,
-} from "@/components/ui-thread/dropdown-menu";
 import { MediaGallery } from "@/components/ui-thread/media-gallery";
 
 // Verified Badge component giống search page
