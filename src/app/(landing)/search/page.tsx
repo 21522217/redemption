@@ -34,20 +34,32 @@ export default function SearchPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      <div className="mx-auto max-w-2xl px-4">
-        {/* Search Header */}
-        <div className="flex items-center justify-between py-3">
-          <h1 className="text-xl font-semibold text-neutral-950">Search</h1>
-          <button className="rounded-full p-2 hover:bg-neutral-100">
-            <span className="text-2xl">⋯</span>
+      <div className="mx-auto w-full max-w-2xl min-w-[680px] px-4">
+        {/* Search Header - Centered with dots */}
+        <div className="relative flex items-center justify-center py-3">
+          <h1 className="text-[28px] font-normal text-neutral-950">Search</h1>
+          <button className="absolute right-0 rounded-full p-2 shadow-[0_2px_12px_rgba(0,0,0,0.05)] border border-neutral-200 bg-white hover:bg-neutral-50">
+            <div className="flex h-5 w-5 items-center justify-center">
+              <svg
+                width="20"
+                height="4"
+                viewBox="0 0 20 4"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <circle cx="3" cy="2" r="2" fill="black" />
+                <circle cx="10" cy="2" r="2" fill="black" />
+                <circle cx="17" cy="2" r="2" fill="black" />
+              </svg>
+            </div>
           </button>
         </div>
 
         {/* Main Content Card */}
         <div className="rounded-2xl bg-white p-4 shadow-[0_2px_12px_rgba(0,0,0,0.05)] border border-neutral-200">
-          {/* Search Input */}
+          {/* Search Input - Lighter border */}
           <div className="relative mb-6">
-            <div className="relative rounded-2xl border border-neutral-300 bg-neutral-100">
+            <div className="relative rounded-2xl border border-neutral-200 bg-neutral-50">
               <div className="absolute inset-y-0 left-3 flex items-center">
                 <Search className="h-5 w-5 text-neutral-500" />
               </div>
