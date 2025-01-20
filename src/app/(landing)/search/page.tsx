@@ -1,9 +1,13 @@
 "use client";
 
 import { Search, SlidersHorizontal } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/components/ui-thread/avatar";
+import { Button } from "@/components/ui-thread/button";
+import { Input } from "@/components/ui-thread/input";
 import { useState, useEffect } from "react";
 import { User } from "@/types/user";
 import userData from "@/data/users-data.json";
@@ -13,8 +17,8 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
   DropdownMenuItem,
-} from "@/components/ui/dropdown-menu";
-import { Card, CardHeader, CardContent } from "@/components/ui/card";
+} from "@/components/ui-thread/dropdown-menu";
+import { Card, CardHeader, CardContent } from "@/components/ui-thread/card";
 import {
   Sheet,
   SheetContent,
@@ -22,8 +26,20 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from "@/components/ui/sheet";
-import { Separator } from "@/components/ui/separator";
+} from "@/components/ui-thread/sheet";
+import { Separator } from "@/components/ui-thread/separator";
+
+// Thêm component Verified Badge - giống như trang chủ
+const VerifiedBadge = () => (
+  <svg
+    aria-label="Verified"
+    className="h-4 w-4 text-blue-500"
+    fill="currentColor"
+    viewBox="0 0 24 24"
+  >
+    <path d="M12.01 1.49c-5.8 0-10.5 4.7-10.5 10.5s4.7 10.5 10.5 10.5 10.5-4.7 10.5-10.5-4.7-10.5-10.5-10.5zm-1.73 15.2L6.8 13.2l1.4-1.4 2.07 2.08 5.52-5.52 1.4 1.4-6.9 6.92z" />
+  </svg>
+);
 
 export default function SearchPage() {
   // States for search functionality
@@ -228,11 +244,7 @@ export default function SearchPage() {
                                 <span className="font-bold text-neutral-950">
                                   {user.displayName}
                                 </span>
-                                {user.isVerified && (
-                                  <span className="text-xs font-medium text-blue-500">
-                                    verified
-                                  </span>
-                                )}
+                                {user.isVerified && <VerifiedBadge />}
                               </div>
                               <span className="text-sm font-normal text-neutral-400">
                                 @{user.username}

@@ -21,6 +21,18 @@ import {
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 
+// Thêm component Verified Badge
+const VerifiedBadge = () => (
+  <svg
+    aria-label="Verified"
+    className="h-4 w-4 text-blue-500"
+    fill="currentColor"
+    viewBox="0 0 24 24"
+  >
+    <path d="M12.01 1.49c-5.8 0-10.5 4.7-10.5 10.5s4.7 10.5 10.5 10.5 10.5-4.7 10.5-10.5-4.7-10.5-10.5-10.5zm-1.73 15.2L6.8 13.2l1.4-1.4 2.07 2.08 5.52-5.52 1.4 1.4-6.9 6.92z" />
+  </svg>
+);
+
 export default function Page() {
   const [displayCount, setDisplayCount] = useState(5);
   const posts = postsData.posts;
@@ -65,16 +77,16 @@ export default function Page() {
           </DropdownMenu>
         </div>
 
-        {/* Create post card */}
-        <Card className="mb-4">
-          <CardHeader className="flex-row gap-4 space-y-0 pb-4">
-            <Avatar>
+        {/* Create post card - Chỉnh lại padding và border */}
+        <Card className="mb-4 border-neutral-100">
+          <CardHeader className="flex-row gap-4 space-y-0 p-4">
+            <Avatar className="h-9 w-9">
               <AvatarImage src="/default-avt.jpg" alt="User avatar" />
               <AvatarFallback>U</AvatarFallback>
             </Avatar>
             <Button
               variant="outline"
-              className="h-10 w-full justify-start px-4 text-muted-foreground"
+              className="h-9 w-full justify-start px-4 text-muted-foreground border-neutral-200 hover:bg-neutral-50"
             >
               What&apos;s on your mind?
             </Button>
@@ -118,14 +130,14 @@ export default function Page() {
             </div>
           }
         >
-          <div className="space-y-4">
+          <div className="space-y-3">
             {currentPosts.map((post) => {
               const user = usersData.users.find((u) => u.id === post.userId)!;
               return (
-                <Card key={post.id}>
-                  <CardHeader className="pb-4">
-                    <div className="flex items-start gap-4">
-                      <Avatar>
+                <Card key={post.id} className="border-neutral-100">
+                  <CardHeader className="p-4 pb-3">
+                    <div className="flex items-start gap-3">
+                      <Avatar className="h-9 w-9">
                         <AvatarImage src={user.avatar} alt={user.displayName} />
                         <AvatarFallback>
                           {user.displayName
@@ -135,57 +147,54 @@ export default function Page() {
                         </AvatarFallback>
                       </Avatar>
                       <div className="flex-1 space-y-1">
-                        <div className="flex items-center gap-2">
-                          <span className="font-semibold">
+                        <div className="flex items-center gap-1">
+                          <span className="font-semibold text-[15px]">
                             {user.displayName}
                           </span>
-                          {user.isVerified && (
-                            <span className="text-xs text-blue-500">✓</span>
-                          )}
-                          <span className="text-sm text-muted-foreground">
-                            • 2h
-                          </span>
+                          {user.isVerified && <VerifiedBadge />}
                         </div>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-[15px] text-neutral-500">
                           @{user.username}
                         </p>
                       </div>
                     </div>
                   </CardHeader>
 
-                  <CardContent className="pb-4">
-                    <p>{post.content}</p>
+                  <CardContent className="px-4 pb-3">
+                    <p className="text-[15px] leading-normal">{post.content}</p>
                   </CardContent>
 
-                  <CardFooter>
-                    <div className="flex w-full items-center justify-between">
-                      <div className="flex gap-4">
-                        <Button variant="ghost" size="sm" className="gap-2">
-                          <Heart
-                            className={`h-4 w-4 ${
-                              post.isLiked ? "fill-current text-red-500" : ""
-                            }`}
-                          />
-                          <span className="text-xs">
-                            {post.stats.likes.toLocaleString()}
-                          </span>
-                        </Button>
-                        <Button variant="ghost" size="sm" className="gap-2">
-                          <MessageCircle className="h-4 w-4" />
-                          <span className="text-xs">
-                            {post.stats.replies.toLocaleString()}
-                          </span>
-                        </Button>
-                        <Button variant="ghost" size="sm" className="gap-2">
-                          <Repeat2 className="h-4 w-4" />
-                          <span className="text-xs">
-                            {post.stats.reposts.toLocaleString()}
-                          </span>
-                        </Button>
-                        <Button variant="ghost" size="sm">
-                          <Share className="h-4 w-4" />
-                        </Button>
-                      </div>
+                  <CardFooter className="px-4 pb-3">
+                    <div className="flex w-full items-center gap-6">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-9 px-0 hover:text-red-500"
+                      >
+                        <Heart
+                          className={`h-[18px] w-[18px] ${
+                            post.isLiked ? "fill-red-500 text-red-500" : ""
+                          }`}
+                        />
+                        <span className="ml-1 text-sm">
+                          {post.stats.likes.toLocaleString()}
+                        </span>
+                      </Button>
+                      <Button variant="ghost" size="sm" className="h-9 px-0">
+                        <MessageCircle className="h-[18px] w-[18px]" />
+                        <span className="ml-1 text-sm">
+                          {post.stats.replies.toLocaleString()}
+                        </span>
+                      </Button>
+                      <Button variant="ghost" size="sm" className="h-9 px-0">
+                        <Repeat2 className="h-[18px] w-[18px]" />
+                        <span className="ml-1 text-sm">
+                          {post.stats.reposts.toLocaleString()}
+                        </span>
+                      </Button>
+                      <Button variant="ghost" size="sm" className="h-9 px-0">
+                        <Share className="h-[18px] w-[18px]" />
+                      </Button>
                     </div>
                   </CardFooter>
                 </Card>
