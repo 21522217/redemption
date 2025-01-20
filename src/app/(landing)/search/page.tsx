@@ -35,17 +35,17 @@ export default function SearchPage() {
         </div>
 
         {/* Main Content Card */}
-        <div className="rounded-[2rem] bg-white p-4 shadow-[0_0_1px_rgba(0,0,0,0.3)]">
+        <div className="rounded-[1.5rem] bg-white p-4 shadow-[0_0_1px_rgba(0,0,0,0.3)]">
           {/* Search Input */}
           <div className="relative mb-6">
-            <div className="relative rounded-full border border-neutral-200 bg-neutral-100">
+            <div className="relative rounded-2xl border border-neutral-200 bg-neutral-100">
               <div className="absolute inset-y-0 left-3 flex items-center">
                 <Search className="h-5 w-5 text-neutral-500" />
               </div>
               <Input
                 type="text"
                 placeholder="Tìm kiếm"
-                className="border-0 bg-transparent pl-10 pr-10 text-neutral-950 placeholder:text-neutral-500 focus-visible:ring-0 focus-visible:ring-offset-0"
+                className="h-11 border-0 bg-transparent pl-10 pr-10 text-neutral-950 placeholder:text-neutral-500 focus-visible:ring-0 focus-visible:ring-offset-0"
               />
               <div className="absolute inset-y-0 right-3 flex items-center">
                 <SlidersHorizontal className="h-5 w-5 text-neutral-500" />
@@ -89,7 +89,7 @@ export default function SearchPage() {
                       </Avatar>
                       <div className="flex flex-col gap-0.5">
                         <div className="flex items-center gap-1">
-                          <span className="font-medium text-neutral-950">
+                          <span className="font-bold text-neutral-950">
                             {user.displayName}
                           </span>
                           {user.isVerified && (
@@ -98,13 +98,13 @@ export default function SearchPage() {
                             </span>
                           )}
                         </div>
-                        <span className="text-sm text-neutral-500">
-                          {user.username}
+                        <span className="text-sm font-normal text-neutral-400">
+                          @{user.username}
                         </span>
-                        <span className="text-sm text-neutral-500">
+                        <span className="text-sm font-normal text-neutral-600">
                           {user.bio}
                         </span>
-                        <span className="text-sm text-neutral-500">
+                        <span className="text-sm font-normal text-neutral-400">
                           {user.followers >= 1000
                             ? `${(user.followers / 1000).toFixed(1)}K`
                             : user.followers.toLocaleString()}{" "}
