@@ -1,0 +1,87 @@
+{
+  "comments": [
+    {
+      "id": "1",
+      "postId": "1",
+      "userId": "15", 
+      "content": "The colors in this shot are absolutely stunning! 😍",
+      "createdAt": "2024-03-15T15:35:00Z",
+      "likes": 245
+    },
+    {
+      "id": "2",
+      "postId": "1",
+      "userId": "7", 
+      "content": "Love the composition! What camera settings did you use?",
+      "createdAt": "2024-03-15T15:40:00Z",
+      "likes": 123
+    },
+    {
+      "id": "3",
+      "postId": "1",
+      "userId": "16", 
+      "content": "The golden hour never disappoints 🌅",
+      "createdAt": "2024-03-15T15:45:00Z",
+      "likes": 89
+    },
+    {
+      "id": "4",
+      "postId": "2", 
+      "userId": "14", 
+      "content": "Can't wait to hear it! Your last track was fire 🔥",
+      "createdAt": "2024-03-15T14:25:00Z",
+      "likes": 567
+    },
+    {
+      "id": "5",
+      "postId": "2",
+      "userId": "5", 
+      "content": "@tom_music Thanks! This one's going to be even better 😊",
+      "replyTo": "4",
+      "createdAt": "2024-03-15T14:30:00Z",
+      "likes": 234
+    },
+    {
+      "id": "6",
+      "postId": "3", 
+      "userId": "11", 
+      "content": "The plating looks incredible! Would love to collaborate sometime 👨‍🍳",
+      "createdAt": "2024-03-15T13:20:00Z",
+      "likes": 345
+    },
+    {
+      "id": "7",
+      "postId": "3",
+      "userId": "20", 
+      "content": "@maya_food Absolutely! DM me and we can plan something 🤝",
+      "replyTo": "6",
+      "createdAt": "2024-03-15T13:25:00Z",
+      "likes": 178
+    },
+    {
+      "id": "8",
+      "postId": "6", 
+      "userId": "21", 
+      "content": "That rose gold shade is everything! 😍 Perfect for spring",
+      "createdAt": "2024-03-15T10:25:00Z",
+      "likes": 789
+    },
+    {
+      "id": "9",
+      "postId": "6",
+      "userId": "13", 
+      "content": "@lisa_fashion Right? It's my favorite from the collection! 💄",
+      "replyTo": "8",
+      "createdAt": "2024-03-15T10:30:00Z",
+      "likes": 456
+    },
+    {
+      "id": "10",
+      "postId": "7", 
+      "userId": "9", 
+      "content": "Your travel photos always give me wanderlust! 🌎 The temple shot is incredible",
+      "createdAt": "2024-03-15T09:20:00Z",
+      "likes": 567
+    }
+  ]
+}

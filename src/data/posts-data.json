@@ -1,0 +1,336 @@
+{
+  "posts": [
+    {
+      "id": "1",
+      "userId": "2",
+      "content": "Just captured this stunning sunset at the beach! 🌅 What do you think about the composition? #Photography #Nature",
+      "media": [
+        {
+          "type": "image",
+          "url": "/default-image-post.jpg",
+          "aspectRatio": 1.78,
+          "width": 1920,
+          "height": 1080,
+          "alt": "Stunning beach sunset"
+        }
+      ],
+      "createdAt": "2024-03-15T15:30:00Z",
+      "stats": {
+        "likes": 3400,
+        "replies": 89,
+        "reposts": 12
+      },
+      "isLiked": false
+    },
+    {
+      "id": "2",
+      "userId": "5",
+      "content": "Working on something special! Can't wait to share it with you all 🎵 #NewMusic #Studio",
+      "media": [
+        {
+          "type": "video",
+          "url": "/default-video-post.mp4",
+          "thumbnail": "/default-image-post.jpg",
+          "aspectRatio": 1.78,
+          "duration": 45,
+          "width": 1920,
+          "height": 1080
+        }
+      ],
+      "createdAt": "2024-03-15T14:20:00Z",
+      "stats": {
+        "likes": 5600,
+        "replies": 234,
+        "reposts": 45,
+        "views": 12500
+      },
+      "isLiked": true
+    },
+    {
+      "id": "3",
+      "userId": "20",
+      "content": "Behind the scenes of today's cooking class! Teaching the art of French cuisine 👨‍🍳 #Cooking #ChefLife",
+      "media": [
+        {
+          "type": "image",
+          "url": "/default-image-post.jpg",
+          "aspectRatio": 1.78,
+          "width": 1920,
+          "height": 1080,
+          "alt": "Cooking class preparation"
+        },
+        {
+          "type": "video",
+          "url": "/default-video-post.mp4",
+          "thumbnail": "/default-image-post.jpg",
+          "aspectRatio": 1.78,
+          "duration": 30,
+          "width": 1920,
+          "height": 1080
+        }
+      ],
+      "createdAt": "2024-03-15T13:15:00Z",
+      "stats": {
+        "likes": 2300,
+        "replies": 156,
+        "reposts": 34,
+        "views": 8900
+      },
+      "isLiked": false
+    },
+    {
+      "id": "4",
+      "userId": "30",
+      "content": "Latest project sneak peek! 🎬 The lighting in these shots took forever to get right #Filmmaking",
+      "media": [
+        {
+          "type": "video",
+          "url": "/default-video-post.mp4",
+          "thumbnail": "/default-image-post.jpg",
+          "aspectRatio": 1.78,
+          "duration": 60,
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "type": "video",
+          "url": "/default-video-post.mp4",
+          "thumbnail": "/default-image-post.jpg",
+          "aspectRatio": 1.78,
+          "duration": 45,
+          "width": 1920,
+          "height": 1080
+        }
+      ],
+      "createdAt": "2024-03-15T12:45:00Z",
+      "stats": {
+        "likes": 4200,
+        "replies": 178,
+        "reposts": 56,
+        "views": 15600
+      },
+      "isLiked": true
+    },
+    {
+      "id": "5",
+      "userId": "35",
+      "content": "Today's photoshoot with the most adorable client! 🐕 #PetPhotography #DogsOfInstagram",
+      "media": [
+        {
+          "type": "image",
+          "url": "/default-image-post.jpg",
+          "aspectRatio": 1.78,
+          "width": 1920,
+          "height": 1080,
+          "alt": "Cute dog portrait"
+        }
+      ],
+      "createdAt": "2024-03-15T11:30:00Z",
+      "stats": {
+        "likes": 6700,
+        "replies": 245,
+        "reposts": 89
+      },
+      "isLiked": false
+    },
+    {
+      "id": "6",
+      "userId": "13",
+      "content": "Spring makeup collection 2024! 💄✨ Swipe to see all the new shades and tutorials! Which one is your favorite? #BeautyTutorial #MakeupArtist",
+      "media": [
+        {
+          "type": "image",
+          "url": "/default-image-post.jpg",
+          "aspectRatio": 1.78,
+          "width": 1920,
+          "height": 1080,
+          "alt": "Makeup collection overview"
+        },
+        {
+          "type": "image",
+          "url": "/default-image-post.jpg",
+          "aspectRatio": 1.78,
+          "width": 1920,
+          "height": 1080,
+          "alt": "Makeup swatches"
+        },
+        {
+          "type": "video",
+          "url": "/default-video-post.mp4",
+          "thumbnail": "/default-image-post.jpg",
+          "aspectRatio": 1.78,
+          "duration": 45,
+          "width": 1920,
+          "height": 1080
+        }
+      ],
+      "createdAt": "2024-03-15T10:20:00Z",
+      "stats": {
+        "likes": 8900,
+        "replies": 342,
+        "reposts": 156,
+        "views": 25600
+      },
+      "isLiked": true
+    },
+    {
+      "id": "7",
+      "userId": "15",
+      "content": "Exploring hidden gems in Bali! 🌴 From secret waterfalls to ancient temples, every corner tells a story. Full travel guide coming soon! #TravelBlog #Bali #Wanderlust",
+      "media": [
+        {
+          "type": "image",
+          "url": "/default-image-post.jpg",
+          "aspectRatio": 1.78,
+          "width": 1920,
+          "height": 1080,
+          "alt": "Bali waterfall"
+        },
+        {
+          "type": "image",
+          "url": "/default-image-post.jpg",
+          "aspectRatio": 1.78,
+          "width": 1920,
+          "height": 1080,
+          "alt": "Ancient temple"
+        },
+        {
+          "type": "image",
+          "url": "/default-image-post.jpg",
+          "aspectRatio": 1.78,
+          "width": 1920,
+          "height": 1080,
+          "alt": "Beach sunset"
+        },
+        {
+          "type": "image",
+          "url": "/default-image-post.jpg",
+          "aspectRatio": 1.78,
+          "width": 1920,
+          "height": 1080,
+          "alt": "Local market"
+        }
+      ],
+      "createdAt": "2024-03-15T09:15:00Z",
+      "stats": {
+        "likes": 12400,
+        "replies": 567,
+        "reposts": 234
+      },
+      "isLiked": false
+    },
+    {
+      "id": "8",
+      "userId": "8",
+      "content": "Epic gaming session highlights! 🎮 Watch till the end for the most insane play! Thanks for joining the stream everyone! #Gaming #Twitch #StreamHighlights",
+      "media": [
+        {
+          "type": "video",
+          "url": "/default-video-post.mp4",
+          "thumbnail": "/default-image-post.jpg",
+          "aspectRatio": 1.78,
+          "duration": 60,
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "type": "video",
+          "url": "/default-video-post.mp4",
+          "thumbnail": "/default-image-post.jpg",
+          "aspectRatio": 1.78,
+          "duration": 30,
+          "width": 1920,
+          "height": 1080
+        }
+      ],
+      "createdAt": "2024-03-15T08:30:00Z",
+      "stats": {
+        "likes": 15600,
+        "replies": 789,
+        "reposts": 445,
+        "views": 45600
+      },
+      "isLiked": true
+    },
+    {
+      "id": "9",
+      "userId": "90",
+      "content": "Behind the scenes of our latest commercial shoot! 🎬 From storyboard to final cut - swipe to see the magic happen! #Filmmaking #BTS #Commercial",
+      "media": [
+        {
+          "type": "video",
+          "url": "/default-video-post.mp4",
+          "thumbnail": "/default-image-post.jpg",
+          "aspectRatio": 1.78,
+          "duration": 45,
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "type": "image",
+          "url": "/default-image-post.jpg",
+          "aspectRatio": 1.78,
+          "width": 1920,
+          "height": 1080,
+          "alt": "Storyboard"
+        },
+        {
+          "type": "image",
+          "url": "/default-image-post.jpg",
+          "aspectRatio": 1.78,
+          "width": 1920,
+          "height": 1080,
+          "alt": "Camera setup"
+        }
+      ],
+      "createdAt": "2024-03-15T07:45:00Z",
+      "stats": {
+        "likes": 9800,
+        "replies": 456,
+        "reposts": 234,
+        "views": 28900
+      },
+      "isLiked": false
+    },
+    {
+      "id": "10",
+      "userId": "91",
+      "content": "Latest glass art installation process! 🎨 From concept sketches to final piece. Each piece tells a unique story through light and color. #GlassArt #ArtInstallation #Process",
+      "media": [
+        {
+          "type": "image",
+          "url": "/default-image-post.jpg",
+          "aspectRatio": 1.78,
+          "width": 1920,
+          "height": 1080,
+          "alt": "Concept sketch"
+        },
+        {
+          "type": "image",
+          "url": "/default-image-post.jpg",
+          "aspectRatio": 1.78,
+          "width": 1920,
+          "height": 1080,
+          "alt": "Work in progress"
+        },
+        {
+          "type": "video",
+          "url": "/default-video-post.mp4",
+          "thumbnail": "/default-image-post.jpg",
+          "aspectRatio": 1.78,
+          "duration": 30,
+          "width": 1920,
+          "height": 1080
+        }
+      ],
+      "createdAt": "2024-03-15T06:30:00Z",
+      "stats": {
+        "likes": 7800,
+        "replies": 345,
+        "reposts": 167,
+        "views": 19800
+      },
+      "isLiked": true
+    }
+  ]
+}
