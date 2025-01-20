@@ -4,30 +4,54 @@ import { Search, SlidersHorizontal } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { User } from "@/types/user";
 import userData from "@/data/users-data.json";
 import InfiniteScroll from "react-infinite-scroll-component";
 
 export default function SearchPage() {
-  // State for displayed users count and search query
+  // States for search functionality
   const [displayCount, setDisplayCount] = useState(5);
   const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
+  const [filteredUsers, setFilteredUsers] = useState(userData.users);
 
-  // Load more data function
+  // Debounce search query
+  useEffect(() => {
+    setIsSearching(true);
+    const timer = setTimeout(() => {
+      setDebouncedQuery(searchQuery);
+    }, 500); // 500ms delay
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  // Filter users when debounced query changes
+  useEffect(() => {
+    const filterUsers = () => {
+      const filtered = userData.users.filter(
+        (user) =>
+          user.displayName
+            .toLowerCase()
+            .includes(debouncedQuery.toLowerCase()) ||
+          user.username.toLowerCase().includes(debouncedQuery.toLowerCase()) ||
+          user.bio.toLowerCase().includes(debouncedQuery.toLowerCase())
+      );
+      setFilteredUsers(filtered);
+      setIsSearching(false);
+    };
+
+    // Simulate API call delay
+    setTimeout(filterUsers, 300);
+  }, [debouncedQuery]);
+
+  // Load more function
   const loadMore = () => {
     setTimeout(() => {
       setDisplayCount((prev) => prev + 5);
     }, 500);
   };
-
-  // Filter users based on search query
-  const filteredUsers = userData.users.filter(
-    (user) =>
-      user.displayName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.bio.toLowerCase().includes(searchQuery.toLowerCase())
-  );
 
   // Get current users to display
   const currentUsers = filteredUsers.slice(0, displayCount);
@@ -79,70 +103,94 @@ export default function SearchPage() {
           {/* Search Results */}
           <div className="space-y-4">
             <div className="text-sm font-medium text-neutral-500">
-              Suggested follows
+              {isSearching ? "Searching..." : "Suggested follows"}
             </div>
 
-            {/* User List with Infinite Scroll */}
             <InfiniteScroll
               dataLength={currentUsers.length}
               next={loadMore}
               hasMore={currentUsers.length < filteredUsers.length}
               loader={
                 <div className="text-center py-4 text-sm text-neutral-500">
-                  Loading...
+                  Loading more users...
                 </div>
               }
               scrollableTarget="scrollableDiv"
             >
               <div className="space-y-4">
-                {currentUsers.map((user) => (
-                  <div
-                    key={user.id}
-                    className="flex items-start justify-between border-b border-neutral-300 pb-4 last:border-0"
-                  >
-                    <div className="flex gap-3">
-                      <Avatar className="h-10 w-10">
-                        <AvatarImage src={user.avatar} alt={user.displayName} />
-                        <AvatarFallback>
-                          {user.displayName
-                            .split(" ")
-                            .map((name) => name[0])
-                            .join("")}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex flex-col gap-0.5">
-                        <div className="flex items-center gap-1">
-                          <span className="font-bold text-neutral-950">
-                            {user.displayName}
-                          </span>
-                          {user.isVerified && (
-                            <span className="text-xs font-medium text-blue-500">
-                              verified
-                            </span>
-                          )}
+                {isSearching
+                  ? // Loading skeleton - 10 items
+                    Array(10)
+                      .fill(0)
+                      .map((_, index) => (
+                        <div
+                          key={index}
+                          className="animate-pulse flex items-start justify-between border-b border-neutral-300 pb-4 last:border-0"
+                        >
+                          <div className="flex gap-3">
+                            <div className="h-10 w-10 rounded-full bg-neutral-200" />
+                            <div className="flex flex-col gap-2">
+                              <div className="h-4 w-24 bg-neutral-200 rounded" />
+                              <div className="h-3 w-16 bg-neutral-200 rounded" />
+                              <div className="h-3 w-32 bg-neutral-200 rounded" />
+                            </div>
+                          </div>
+                          {/* Skeleton cho nút Follow */}
+                          <div className="h-9 w-[104px] bg-neutral-200 rounded-[20px]" />
                         </div>
-                        <span className="text-sm font-normal text-neutral-400">
-                          @{user.username}
-                        </span>
-                        <span className="text-sm font-normal text-neutral-600">
-                          {user.bio}
-                        </span>
-                        <span className="text-sm font-normal text-neutral-400">
-                          {user.followers >= 1000
-                            ? `${(user.followers / 1000).toFixed(1)}K`
-                            : user.followers.toLocaleString()}{" "}
-                          followers
-                        </span>
+                      ))
+                  : // Actual user list
+                    currentUsers.map((user) => (
+                      <div
+                        key={user.id}
+                        className="flex items-start justify-between border-b border-neutral-300 pb-4 last:border-0"
+                      >
+                        <div className="flex gap-3">
+                          <Avatar className="h-10 w-10">
+                            <AvatarImage
+                              src={user.avatar}
+                              alt={user.displayName}
+                            />
+                            <AvatarFallback>
+                              {user.displayName
+                                .split(" ")
+                                .map((name) => name[0])
+                                .join("")}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex flex-col gap-0.5">
+                            <div className="flex items-center gap-1">
+                              <span className="font-bold text-neutral-950">
+                                {user.displayName}
+                              </span>
+                              {user.isVerified && (
+                                <span className="text-xs font-medium text-blue-500">
+                                  verified
+                                </span>
+                              )}
+                            </div>
+                            <span className="text-sm font-normal text-neutral-400">
+                              @{user.username}
+                            </span>
+                            <span className="text-sm font-normal text-neutral-600">
+                              {user.bio}
+                            </span>
+                            <span className="text-sm font-normal text-neutral-400">
+                              {user.followers >= 1000
+                                ? `${(user.followers / 1000).toFixed(1)}K`
+                                : user.followers.toLocaleString()}{" "}
+                              followers
+                            </span>
+                          </div>
+                        </div>
+                        <Button
+                          variant="outline"
+                          className="h-9 px-8 rounded-[20px] border-neutral-200 text-sm font-medium text-neutral-950 hover:bg-neutral-100"
+                        >
+                          Follow
+                        </Button>
                       </div>
-                    </div>
-                    <Button
-                      variant="outline"
-                      className="h-8 rounded-full border-neutral-200 text-sm font-medium text-neutral-950 hover:bg-neutral-100"
-                    >
-                      Follow
-                    </Button>
-                  </div>
-                ))}
+                    ))}
               </div>
             </InfiniteScroll>
           </div>
