@@ -46,11 +46,11 @@ export default function SearchPage() {
     setTimeout(filterUsers, 200);
   }, [debouncedQuery]);
 
-  // Load more function với delay ngắn hơn
+  // Load more function với delay
   const loadMore = () => {
     setTimeout(() => {
       setDisplayCount((prev) => prev + 5);
-    }, 300); // Giảm từ 500ms xuống 300ms
+    }, 350); // Thêm delay 200ms khi load more
   };
 
   // Get current users to display
@@ -110,21 +110,37 @@ export default function SearchPage() {
                 : "Suggested follows"}
             </div>
 
-            <InfiniteScroll
-              dataLength={currentUsers.length}
-              next={loadMore}
-              hasMore={currentUsers.length < filteredUsers.length}
-              loader={
-                <div className="text-center py-4 text-sm text-neutral-500">
-                  Loading more users...
-                </div>
-              }
-              scrollableTarget="scrollableDiv"
-            >
-              <div className="space-y-4">
-                {isSearching
-                  ? // Loading skeleton - 10 items
-                    Array(10)
+            {isSearching ? (
+              // Loading skeleton - 10 items khi search
+              Array(10)
+                .fill(0)
+                .map((_, index) => (
+                  <div
+                    key={index}
+                    className="animate-pulse flex items-start justify-between border-b border-neutral-300 pb-4 last:border-0"
+                  >
+                    <div className="flex gap-3">
+                      <div className="h-10 w-10 rounded-full bg-neutral-200" />
+                      <div className="flex flex-col gap-1.5">
+                        <div className="h-5 w-44 bg-neutral-200 rounded" />
+                        <div className="h-4 w-32 bg-neutral-200 rounded" />
+                        <div className="h-4 w-[360px] bg-neutral-200 rounded" />
+                        <div className="h-4 w-28 bg-neutral-200 rounded" />
+                      </div>
+                    </div>
+                    <div className="h-9 w-[104px] bg-neutral-200 rounded-xl" />
+                  </div>
+                ))
+            ) : (
+              // Actual user list
+              <InfiniteScroll
+                dataLength={currentUsers.length}
+                next={loadMore}
+                hasMore={currentUsers.length < filteredUsers.length}
+                loader={
+                  // Loading skeleton - 5 items khi scroll
+                  <div className="space-y-4 py-4">
+                    {Array(5)
                       .fill(0)
                       .map((_, index) => (
                         <div
@@ -133,68 +149,75 @@ export default function SearchPage() {
                         >
                           <div className="flex gap-3">
                             <div className="h-10 w-10 rounded-full bg-neutral-200" />
-                            <div className="flex flex-col gap-2">
-                              <div className="h-4 w-24 bg-neutral-200 rounded" />
-                              <div className="h-3 w-16 bg-neutral-200 rounded" />
-                              <div className="h-3 w-32 bg-neutral-200 rounded" />
+                            <div className="flex flex-col gap-1.5">
+                              <div className="h-5 w-44 bg-neutral-200 rounded" />
+                              <div className="h-4 w-32 bg-neutral-200 rounded" />
+                              <div className="h-4 w-[360px] bg-neutral-200 rounded" />
+                              <div className="h-4 w-28 bg-neutral-200 rounded" />
                             </div>
                           </div>
+                          <div className="h-9 w-[104px] bg-neutral-200 rounded-xl" />
                         </div>
-                      ))
-                  : // Actual user list
-                    currentUsers.map((user) => (
-                      <div
-                        key={user.id}
-                        className="flex items-start justify-between border-b border-neutral-300 pb-4 last:border-0"
-                      >
-                        <div className="flex gap-3">
-                          <Avatar className="h-10 w-10">
-                            <AvatarImage
-                              src={user.avatar}
-                              alt={user.displayName}
-                            />
-                            <AvatarFallback>
-                              {user.displayName
-                                .split(" ")
-                                .map((name) => name[0])
-                                .join("")}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div className="flex flex-col gap-0.5">
-                            <div className="flex items-center gap-1">
-                              <span className="font-bold text-neutral-950">
-                                {user.displayName}
+                      ))}
+                  </div>
+                }
+                scrollableTarget="scrollableDiv"
+              >
+                <div className="space-y-4">
+                  {currentUsers.map((user) => (
+                    <div
+                      key={user.id}
+                      className="flex items-start justify-between border-b border-neutral-300 pb-4 last:border-0"
+                    >
+                      <div className="flex gap-3">
+                        <Avatar className="h-10 w-10">
+                          <AvatarImage
+                            src={user.avatar}
+                            alt={user.displayName}
+                          />
+                          <AvatarFallback>
+                            {user.displayName
+                              .split(" ")
+                              .map((name) => name[0])
+                              .join("")}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex flex-col gap-0.5">
+                          <div className="flex items-center gap-1">
+                            <span className="font-bold text-neutral-950">
+                              {user.displayName}
+                            </span>
+                            {user.isVerified && (
+                              <span className="text-xs font-medium text-blue-500">
+                                verified
                               </span>
-                              {user.isVerified && (
-                                <span className="text-xs font-medium text-blue-500">
-                                  verified
-                                </span>
-                              )}
-                            </div>
-                            <span className="text-sm font-normal text-neutral-400">
-                              @{user.username}
-                            </span>
-                            <span className="text-sm font-normal text-neutral-600">
-                              {user.bio}
-                            </span>
-                            <span className="text-sm font-normal text-neutral-400">
-                              {user.followers >= 1000
-                                ? `${(user.followers / 1000).toFixed(1)}K`
-                                : user.followers.toLocaleString()}{" "}
-                              followers
-                            </span>
+                            )}
                           </div>
+                          <span className="text-sm font-normal text-neutral-400">
+                            @{user.username}
+                          </span>
+                          <span className="text-sm font-normal text-neutral-600">
+                            {user.bio}
+                          </span>
+                          <span className="text-sm font-normal text-neutral-400">
+                            {user.followers >= 1000
+                              ? `${(user.followers / 1000).toFixed(1)}K`
+                              : user.followers.toLocaleString()}{" "}
+                            followers
+                          </span>
                         </div>
-                        <Button
-                          variant="outline"
-                          className="h-9 px-8 rounded-xl border-neutral-200 text-sm font-medium text-neutral-950 hover:bg-neutral-100"
-                        >
-                          Follow
-                        </Button>
                       </div>
-                    ))}
-              </div>
-            </InfiniteScroll>
+                      <Button
+                        variant="outline"
+                        className="h-9 px-8 rounded-xl border-neutral-200 text-sm font-medium text-neutral-950 hover:bg-neutral-100"
+                      >
+                        Follow
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </InfiniteScroll>
+            )}
           </div>
         </div>
       </div>
