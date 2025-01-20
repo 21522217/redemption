@@ -22,7 +22,7 @@ export default function SearchPage() {
     setIsSearching(true);
     const timer = setTimeout(() => {
       setDebouncedQuery(searchQuery);
-    }, 500); // 500ms delay
+    }, 300); // Giảm từ 500ms xuống 300ms
 
     return () => clearTimeout(timer);
   }, [searchQuery]);
@@ -42,15 +42,15 @@ export default function SearchPage() {
       setIsSearching(false);
     };
 
-    // Simulate API call delay
-    setTimeout(filterUsers, 300);
+    // Giảm delay API từ 300ms xuống 200ms
+    setTimeout(filterUsers, 200);
   }, [debouncedQuery]);
 
-  // Load more function
+  // Load more function với delay ngắn hơn
   const loadMore = () => {
     setTimeout(() => {
       setDisplayCount((prev) => prev + 5);
-    }, 500);
+    }, 300); // Giảm từ 500ms xuống 300ms
   };
 
   // Get current users to display
@@ -103,7 +103,11 @@ export default function SearchPage() {
           {/* Search Results */}
           <div className="space-y-4">
             <div className="text-sm font-medium text-neutral-500">
-              {isSearching ? "Searching..." : "Suggested follows"}
+              {isSearching
+                ? "Searching..."
+                : searchQuery
+                ? ""
+                : "Suggested follows"}
             </div>
 
             <InfiniteScroll
@@ -135,8 +139,6 @@ export default function SearchPage() {
                               <div className="h-3 w-32 bg-neutral-200 rounded" />
                             </div>
                           </div>
-                          {/* Skeleton cho nút Follow */}
-                          <div className="h-9 w-[104px] bg-neutral-200 rounded-xl" />
                         </div>
                       ))
                   : // Actual user list
