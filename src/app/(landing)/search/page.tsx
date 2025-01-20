@@ -136,7 +136,7 @@ export default function SearchPage() {
                             </div>
                           </div>
                           {/* Skeleton cho nút Follow */}
-                          <div className="h-9 w-[104px] bg-neutral-200 rounded-[20px]" />
+                          <div className="h-9 w-[104px] bg-neutral-200 rounded-xl" />
                         </div>
                       ))
                   : // Actual user list
@@ -185,7 +185,7 @@ export default function SearchPage() {
                         </div>
                         <Button
                           variant="outline"
-                          className="h-9 px-8 rounded-[20px] border-neutral-200 text-sm font-medium text-neutral-950 hover:bg-neutral-100"
+                          className="h-9 px-8 rounded-xl border-neutral-200 text-sm font-medium text-neutral-950 hover:bg-neutral-100"
                         >
                           Follow
                         </Button>
