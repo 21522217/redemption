@@ -222,10 +222,10 @@ export default function SearchPage() {
                   }
                   scrollableTarget="scrollableDiv"
                 >
-                  <div className="space-y-4">
+                  <div className="space-y-0">
                     {currentUsers.map((user, index) => (
                       <div key={user.id}>
-                        <div className="flex items-start justify-between pb-4">
+                        <div className="flex items-start justify-between py-4">
                           <div className="flex gap-3">
                             <Avatar className="h-10 w-10">
                               <AvatarImage
@@ -268,7 +268,7 @@ export default function SearchPage() {
                           </Button>
                         </div>
                         {index < currentUsers.length - 1 && (
-                          <Separator className="my-4" />
+                          <Separator className="bg-neutral-200" />
                         )}
                       </div>
                     ))}

@@ -1,14 +1,13 @@
 "use client";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-} from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/components/ui-thread/avatar";
+import { Button } from "@/components/ui-thread/button";
+import { Card, CardContent, CardHeader } from "@/components/ui-thread/card";
+import { Separator } from "@/components/ui-thread/separator";
 import { Heart, MessageCircle, Repeat2, Share } from "lucide-react";
 import { useState } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
@@ -19,9 +18,9 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
   DropdownMenuItem,
-} from "@/components/ui/dropdown-menu";
+} from "@/components/ui-thread/dropdown-menu";
 
-// Thêm component Verified Badge
+// Verified Badge component giống search page
 const VerifiedBadge = () => (
   <svg
     aria-label="Verified"
@@ -38,7 +37,6 @@ export default function Page() {
   const posts = postsData.posts;
   const currentPosts = posts.slice(0, displayCount);
 
-  // Load more function với delay
   const loadMore = () => {
     setTimeout(() => {
       setDisplayCount((prev) => prev + 5);
@@ -48,7 +46,7 @@ export default function Page() {
   return (
     <div className="min-h-screen bg-white">
       <div className="mx-auto w-full max-w-2xl min-w-[680px] px-4">
-        {/* Header - Centered with dots */}
+        {/* Header giống search page */}
         <div className="relative flex items-center justify-center py-3">
           <h1 className="text-[28px] font-normal text-neutral-950">Home</h1>
           <DropdownMenu>
@@ -77,131 +75,157 @@ export default function Page() {
           </DropdownMenu>
         </div>
 
-        {/* Create post card - Chỉnh lại padding và border */}
-        <Card className="mb-4 border-neutral-100">
-          <CardHeader className="flex-row gap-4 space-y-0 p-4">
-            <Avatar className="h-9 w-9">
-              <AvatarImage src="/default-avt.jpg" alt="User avatar" />
-              <AvatarFallback>U</AvatarFallback>
-            </Avatar>
-            <Button
-              variant="outline"
-              className="h-9 w-full justify-start px-4 text-muted-foreground border-neutral-200 hover:bg-neutral-50"
-            >
-              What&apos;s on your mind?
-            </Button>
-          </CardHeader>
-        </Card>
-
-        {/* Posts feed with infinite scroll */}
-        <InfiniteScroll
-          dataLength={currentPosts.length}
-          next={loadMore}
-          hasMore={currentPosts.length < posts.length}
-          loader={
-            // Loading skeleton - 5 items khi scroll
-            <div className="space-y-4 py-4">
-              {Array(5)
-                .fill(0)
-                .map((_, index) => (
-                  <Card key={index} className="animate-pulse">
-                    <CardHeader className="pb-4">
-                      <div className="flex items-start gap-4">
-                        <div className="h-10 w-10 rounded-full bg-neutral-200" />
-                        <div className="flex-1 space-y-2">
-                          <div className="h-5 w-44 bg-neutral-200 rounded" />
-                          <div className="h-4 w-32 bg-neutral-200 rounded" />
-                        </div>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="pb-4">
-                      <div className="h-20 w-full bg-neutral-200 rounded" />
-                    </CardContent>
-                    <CardFooter>
-                      <div className="flex gap-4">
-                        <div className="h-8 w-20 bg-neutral-200 rounded" />
-                        <div className="h-8 w-20 bg-neutral-200 rounded" />
-                        <div className="h-8 w-20 bg-neutral-200 rounded" />
-                        <div className="h-8 w-8 bg-neutral-200 rounded" />
-                      </div>
-                    </CardFooter>
-                  </Card>
-                ))}
+        {/* Main Content Card */}
+        <Card className="p-4">
+          {/* Create post card - Chỉnh lại UI */}
+          <CardHeader className="flex-row items-start space-y-0 p-0 pb-4">
+            <div className="flex w-full gap-3">
+              <Avatar className="h-10 w-10">
+                <AvatarImage src="/default-avt.jpg" alt="User avatar" />
+                <AvatarFallback>U</AvatarFallback>
+              </Avatar>
+              <div className="flex-1">
+                <Button
+                  variant="ghost"
+                  className="h-auto w-full justify-start px-0 text-[15px] font-normal text-neutral-500 hover:bg-transparent"
+                >
+                  Có gì mới?
+                </Button>
+              </div>
+              <Button
+                variant="outline"
+                className="h-9 px-8 rounded-xl border-neutral-200 text-sm font-medium text-neutral-950 hover:bg-neutral-100"
+              >
+                Đăng
+              </Button>
             </div>
-          }
-        >
-          <div className="space-y-3">
-            {currentPosts.map((post) => {
-              const user = usersData.users.find((u) => u.id === post.userId)!;
-              return (
-                <Card key={post.id} className="border-neutral-100">
-                  <CardHeader className="p-4 pb-3">
-                    <div className="flex items-start gap-3">
-                      <Avatar className="h-9 w-9">
-                        <AvatarImage src={user.avatar} alt={user.displayName} />
-                        <AvatarFallback>
-                          {user.displayName
-                            .split(" ")
-                            .map((name) => name[0])
-                            .join("")}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1 space-y-1">
-                        <div className="flex items-center gap-1">
-                          <span className="font-semibold text-[15px]">
-                            {user.displayName}
-                          </span>
-                          {user.isVerified && <VerifiedBadge />}
-                        </div>
-                        <p className="text-[15px] text-neutral-500">
-                          @{user.username}
-                        </p>
-                      </div>
-                    </div>
-                  </CardHeader>
+          </CardHeader>
 
-                  <CardContent className="px-4 pb-3">
-                    <p className="text-[15px] leading-normal">{post.content}</p>
-                  </CardContent>
+          <Separator className="bg-neutral-200 mb-4" />
 
-                  <CardFooter className="px-4 pb-3">
-                    <div className="flex w-full items-center gap-6">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-9 px-0 hover:text-red-500"
+          {/* Posts feed */}
+          <CardContent className="p-0">
+            <InfiniteScroll
+              dataLength={currentPosts.length}
+              next={loadMore}
+              hasMore={currentPosts.length < posts.length}
+              loader={
+                <div className="space-y-4 py-4">
+                  {Array(5)
+                    .fill(0)
+                    .map((_, index) => (
+                      <div
+                        key={index}
+                        className="animate-pulse flex flex-col gap-4 pb-4"
                       >
-                        <Heart
-                          className={`h-[18px] w-[18px] ${
-                            post.isLiked ? "fill-red-500 text-red-500" : ""
-                          }`}
-                        />
-                        <span className="ml-1 text-sm">
-                          {post.stats.likes.toLocaleString()}
-                        </span>
-                      </Button>
-                      <Button variant="ghost" size="sm" className="h-9 px-0">
-                        <MessageCircle className="h-[18px] w-[18px]" />
-                        <span className="ml-1 text-sm">
-                          {post.stats.replies.toLocaleString()}
-                        </span>
-                      </Button>
-                      <Button variant="ghost" size="sm" className="h-9 px-0">
-                        <Repeat2 className="h-[18px] w-[18px]" />
-                        <span className="ml-1 text-sm">
-                          {post.stats.reposts.toLocaleString()}
-                        </span>
-                      </Button>
-                      <Button variant="ghost" size="sm" className="h-9 px-0">
-                        <Share className="h-[18px] w-[18px]" />
-                      </Button>
+                        <div className="flex gap-3">
+                          <div className="h-10 w-10 rounded-full bg-neutral-200" />
+                          <div className="flex flex-col gap-1.5">
+                            <div className="h-5 w-44 bg-neutral-200 rounded" />
+                            <div className="h-4 w-32 bg-neutral-200 rounded" />
+                          </div>
+                        </div>
+                        <div className="h-24 w-full bg-neutral-200 rounded" />
+                        <div className="flex gap-4">
+                          <div className="h-8 w-16 bg-neutral-200 rounded" />
+                          <div className="h-8 w-16 bg-neutral-200 rounded" />
+                          <div className="h-8 w-16 bg-neutral-200 rounded" />
+                          <div className="h-8 w-8 bg-neutral-200 rounded" />
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              }
+            >
+              <div className="space-y-0">
+                {currentPosts.map((post, index) => {
+                  const user = usersData.users.find(
+                    (u) => u.id === post.userId
+                  )!;
+                  return (
+                    <div key={post.id}>
+                      <div className="py-4">
+                        <div className="flex gap-3">
+                          <Avatar className="h-10 w-10">
+                            <AvatarImage
+                              src={user.avatar}
+                              alt={user.displayName}
+                            />
+                            <AvatarFallback>
+                              {user.displayName
+                                .split(" ")
+                                .map((name) => name[0])
+                                .join("")}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1">
+                            <div className="flex items-center gap-1 mb-0.5">
+                              <span className="font-bold text-neutral-950">
+                                {user.displayName}
+                              </span>
+                              {user.isVerified && <VerifiedBadge />}
+                            </div>
+                            <p className="text-[15px] leading-normal mb-3">
+                              {post.content}
+                            </p>
+                            <div className="flex items-center gap-6">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-9 px-0 hover:text-red-500"
+                              >
+                                <Heart
+                                  className={`h-[18px] w-[18px] ${
+                                    post.isLiked
+                                      ? "fill-red-500 text-red-500"
+                                      : ""
+                                  }`}
+                                />
+                                <span className="ml-1 text-sm">
+                                  {post.stats.likes.toLocaleString()}
+                                </span>
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-9 px-0"
+                              >
+                                <MessageCircle className="h-[18px] w-[18px]" />
+                                <span className="ml-1 text-sm">
+                                  {post.stats.replies.toLocaleString()}
+                                </span>
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-9 px-0"
+                              >
+                                <Repeat2 className="h-[18px] w-[18px]" />
+                                <span className="ml-1 text-sm">
+                                  {post.stats.reposts.toLocaleString()}
+                                </span>
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-9 px-0"
+                              >
+                                <Share className="h-[18px] w-[18px]" />
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      {index < currentPosts.length - 1 && (
+                        <Separator className="bg-neutral-200" />
+                      )}
                     </div>
-                  </CardFooter>
-                </Card>
-              );
-            })}
-          </div>
-        </InfiniteScroll>
+                  );
+                })}
+              </div>
+            </InfiniteScroll>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
