@@ -1,11 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { Chrome } from "lucide-react";
-
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -20,10 +18,12 @@ import {
   signupFormSchema,
   type SignupFormValues,
 } from "@/lib/validations/auth";
+import useSignUp from "@/lib/firebase/signup";
+import { useLoading } from "@/contexts/LoadingContext";
 
 export default function SignupForm() {
-  const [isLoading, setIsLoading] = useState(false);
-
+  const { isLoading } = useLoading();
+  const { signUp } = useSignUp();
   const form = useForm<SignupFormValues>({
     resolver: zodResolver(signupFormSchema),
     defaultValues: {
@@ -33,23 +33,20 @@ export default function SignupForm() {
     },
   });
 
-  async function onSubmit(data: SignupFormValues) {
-    setIsLoading(true);
+  const onSubmit: SubmitHandler<SignupFormValues> = async (data) => {
     try {
-      // Here you would typically make an API call to create the account
-      console.log(data);
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await signUp({
+        email: data.email,
+        password: data.password,
+      });
     } catch (error) {
       console.error(error);
-    } finally {
-      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center px-4">
-      <div className=" w-[400px] space-y-6">
+      <div className="w-[400px] space-y-6">
         <div className="flex flex-col items-center space-y-6">
           <h1 className="text-xl font-semibold text-white">
             Create your account
@@ -66,65 +63,49 @@ export default function SignupForm() {
           <div className="flex w-full items-center gap-2">
             <Separator className="flex-1" />
             <span className="text-sm text-zinc-400">or</span>
-            <Separator className="flex-1 " />
+            <Separator className="flex-1" />
           </div>
 
           <Form {...form}>
             <form
-              onSubmit={form.handleSubmit(onSubmit)}
+              onSubmit={(e) => {
+                e.preventDefault();
+                form.handleSubmit(onSubmit)(e);
+              }}
               className="w-full space-y-4"
             >
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <Input
-                        placeholder="Email address"
-                        type="email"
-                        {...field}
-                        className="h-12  text-white placeholder:text-zinc-400"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <Input
-                        type="password"
-                        placeholder="Password"
-                        {...field}
-                        className="h-12 bg-zinc-800 text-white placeholder:text-zinc-400 focus-visible:ring-zinc-500"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="confirmPassword"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <Input
-                        type="password"
-                        placeholder="Confirm password"
-                        {...field}
-                        className="h-12 bg-zinc-800 text-white placeholder:text-zinc-400 focus-visible:ring-zinc-500"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              {(["email", "password", "confirmPassword"] as const).map(
+                (name, index) => (
+                  <FormField
+                    key={index}
+                    control={form.control}
+                    name={name}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input
+                            type={name === "email" ? "email" : "password"}
+                            placeholder={
+                              name === "email"
+                                ? "Email address"
+                                : name === "password"
+                                ? "Password"
+                                : "Confirm password"
+                            }
+                            {...field}
+                            className={`h-12 ${
+                              name === "email"
+                                ? "text-white placeholder:text-zinc-400"
+                                : "bg-zinc-800 text-white placeholder:text-zinc-400 focus-visible:ring-zinc-500"
+                            }`}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )
+              )}
               <Button
                 type="submit"
                 className="h-12 w-full bg-white text-black hover:bg-zinc-200"

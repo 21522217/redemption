@@ -9,7 +9,6 @@ import {
 import { Button } from "@/components/ui-thread/button";
 import { Input } from "@/components/ui-thread/input";
 import { useState, useEffect } from "react";
-// import { User } from "@/types/user";
 import userData from "@/data/users-data.json";
 import InfiniteScroll from "react-infinite-scroll-component";
 import {
@@ -29,7 +28,6 @@ import {
 } from "@/components/ui-thread/sheet";
 import { Separator } from "@/components/ui-thread/separator";
 
-// Thêm component Verified Badge - giống như trang chủ
 const VerifiedBadge = () => (
   <svg
     aria-label="Verified"
@@ -42,24 +40,21 @@ const VerifiedBadge = () => (
 );
 
 export default function SearchPage() {
-  // States for search functionality
   const [displayCount, setDisplayCount] = useState(5);
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const [filteredUsers, setFilteredUsers] = useState(userData.users);
 
-  // Debounce search query
   useEffect(() => {
     setIsSearching(true);
     const timer = setTimeout(() => {
       setDebouncedQuery(searchQuery);
-    }, 300); // Giảm từ 500ms xuống 300ms
+    }, 300);
 
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  // Filter users when debounced query changes
   useEffect(() => {
     const filterUsers = () => {
       const filtered = userData.users.filter(
@@ -74,24 +69,20 @@ export default function SearchPage() {
       setIsSearching(false);
     };
 
-    // Giảm delay API từ 300ms xuống 200ms
     setTimeout(filterUsers, 200);
   }, [debouncedQuery]);
 
-  // Load more function với delay
   const loadMore = () => {
     setTimeout(() => {
       setDisplayCount((prev) => prev + 5);
-    }, 350); // Thêm delay 200ms khi load more
+    }, 350);
   };
 
-  // Get current users to display
   const currentUsers = filteredUsers.slice(0, displayCount);
 
   return (
     <div className="min-h-screen bg-white">
       <div className="mx-auto w-full max-w-2xl min-w-[680px] px-4">
-        {/* Search Header - Centered with dots */}
         <div className="relative flex items-center justify-center py-3">
           <h1 className="text-[28px] font-normal text-neutral-950">Search</h1>
           <DropdownMenu>
@@ -120,10 +111,8 @@ export default function SearchPage() {
           </DropdownMenu>
         </div>
 
-        {/* Main Content Card */}
         <Card className="p-4">
           <CardHeader className="p-0">
-            {/* Search Input */}
             <div className="relative mb-6">
               <div className="relative rounded-2xl border border-neutral-200 bg-neutral-50">
                 <div className="absolute inset-y-0 left-3 flex items-center">
@@ -159,7 +148,6 @@ export default function SearchPage() {
             </div>
           </CardHeader>
           <CardContent className="p-0">
-            {/* Search Results */}
             <div className="space-y-4">
               <div className="text-sm font-medium text-neutral-500">
                 {isSearching
@@ -170,7 +158,6 @@ export default function SearchPage() {
               </div>
 
               {isSearching ? (
-                // Loading skeleton - 10 items khi search
                 Array(10)
                   .fill(0)
                   .map((_, index) => (
@@ -191,13 +178,11 @@ export default function SearchPage() {
                     </div>
                   ))
               ) : (
-                // Actual user list
                 <InfiniteScroll
                   dataLength={currentUsers.length}
                   next={loadMore}
                   hasMore={currentUsers.length < filteredUsers.length}
                   loader={
-                    // Loading skeleton - 5 items khi scroll
                     <div className="space-y-4 py-4">
                       {Array(5)
                         .fill(0)

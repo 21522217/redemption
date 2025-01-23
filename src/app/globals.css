@@ -4,7 +4,6 @@
 
 @layer base {
   :root[data-theme="dark"] {
-    /* --background: 229 100% 62%; */
     --background: 229 41% 4%;
     --foreground: 229 23% 99%;
     --muted: 229 12% 14%;
@@ -13,11 +12,10 @@
     --popover-foreground: 0 0% 100%;
     --card: 229 41% 5%;
     --card-foreground: 0 0% 100%;
-    --border: 215 27.9% 16.9%;
-    --input: 215 27.9% 16.9%;
-    /* --primary: 229 41% 4%; */
-    --primary: 229 100% 62%;
-    --primary-foreground: 0 0% 100%;
+    --border: 215 28% 17%;
+    --input: 215 28% 17%;
+    --primary: 0 0% 100%;
+    --primary-foreground: 0 0% 0%;
     --secondary: 229 14% 8%;
     --secondary-foreground: 229 14% 68%;
     --accent: 229 23% 17%;
@@ -59,40 +57,8 @@
     --chart-4: 229 20% 93%;
     --chart-5: 229 103% 62%;
   }
-}
 
-@layer base {
-  * {
-    @apply border-border;
+  body, div {
+    background-color: hsl(var(--background));
   }
-
-  /* body {
-    @apply text-foreground bg-background;
-    font-family: Arial, Helvetica, sans-serif;
-    transition: background-color 0.3s ease, color 0.3s ease;
-
-    card {
-      @apply bg-card text-card-foreground;
-    }
-
-    popover {
-      @apply bg-popover text-popover-foreground;
-    }
-
-    div {
-      @apply bg-background text-card-foreground;
-    }
-
-    toggle {
-      @apply bg-primary text-card-foreground;
-    }
-
-    button {
-      @apply bg-primary text-primary;
-    }
-
-    p, span, svg {
-      @apply text-primary-foreground border-none;
-    }
-  } */
 }

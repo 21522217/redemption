@@ -24,10 +24,12 @@ import {
 import { useRouter } from "next/navigation";
 import { showAuthModal } from "./auth/AuthModal";
 import { useAuth } from "@/contexts/AuthContext";
+import useLogout from "@/lib/firebase/logout";
 
 const Sidebar: React.FC = () => {
   const router = useRouter();
   const { isLogin } = useAuth();
+  const { logout } = useLogout();
 
   /**
    * Handle button clicks with authentication checks.
@@ -35,7 +37,7 @@ const Sidebar: React.FC = () => {
    */
   const handleButtonClick = (path: string): void => {
     if (!isLogin) {
-      console.log("User not logged in. Showing Auth Modal.");
+      console.error("User not logged in. Showing Auth Modal.");
       showAuthModal();
     } else {
       router.push(path);
@@ -66,12 +68,14 @@ const Sidebar: React.FC = () => {
         <Button
           variant="ghost"
           className="text-muted-foreground hover:text-foreground"
+          onClick={() => handleButtonClick("/create")}
         >
           <FaPlus size={45} />
         </Button>
         <Button
           variant="ghost"
           className="text-muted-foreground hover:text-foreground"
+          onClick={() => handleButtonClick("/activity")}
         >
           <FaHeart size={45} />
         </Button>
@@ -85,24 +89,18 @@ const Sidebar: React.FC = () => {
       </div>
 
       {/* Dropdown Menu */}
-      <div className="relative">
-        <Button
-          variant="ghost"
-          className="text-muted-foreground hover:text-foreground"
-        >
-          <FaPinterest size={45} />
-        </Button>
+      <div className="relative pb-4">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <FaList className="text-primary-foreground cursor-pointer" />
+            <FaList className="text-primary cursor-pointer" />
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="z-50 outline-none border-none absolute z-100 w-56 rounded-md bottom-[100%]">
+          <DropdownMenuContent className="z-50 outline-none border-none absolute w-56 rounded-md bottom-[100%]">
             <DropdownMenu>
               <DropdownMenuTrigger className="flex flex-row w-full items-center justify-between p-2 bg-transparent">
                 Appearance
                 <FaChevronRight className="h-5 w-5" />
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="z-51">
+              <DropdownMenuContent>
                 <DropdownMenuItem>
                   {/* Theme Switcher */}
                   <ThemeSwitcher />
@@ -112,6 +110,16 @@ const Sidebar: React.FC = () => {
             <DropdownMenuSeparator />
             <DropdownMenuItem className="flex flex-row w-full items-center justify-between p-2 bg-transparent">
               Report a problem
+            </DropdownMenuItem>
+            <DropdownMenuItem className="flex flex-row w-full items-center justify-between p-2 bg-transparent">
+              <Button
+                onClick={() => {
+                  logout();
+                }}
+                variant={"destructive"}
+              >
+                Logout
+              </Button>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
