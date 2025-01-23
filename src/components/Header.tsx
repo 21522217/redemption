@@ -10,7 +10,7 @@ const Header = () => {
   const router = useRouter();
 
   return (
-    <div className="flex flex-row bg-red">
+    <div className="flex flex-row">
       <div className="flex items-center justify-between px-4 py-3">
         <div className="flex items-center gap-4">
           <Button variant="ghost">{pathname || "Home"}</Button>
