@@ -2,7 +2,7 @@ import "../globals.css"
 
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import Sidebar from "@/components/Sidebar";
+import AppSidebar from "@/components/AppSidebar";
 import Header from "@/components/Header";
 import Providers from "../providers";
 
@@ -33,7 +33,7 @@ export default function RootLayout({
       >
         <Providers>
           <div className="flex flex-row">
-            <Sidebar />
+            <AppSidebar />
             <div className="flex flex-col w-full items-center">
               <Header />
               {children}
