@@ -1,0 +1,904 @@
+{
+  "users": [
+    {
+      "id": "1",
+      "username": "emma_watson",
+      "displayName": "Emma Watson",
+      "avatar": "/default-avt.jpg",
+      "bio": "Digital artist & content creator | DM for business inquiries ✨Digital artist & content creator | DM for business inquiries ✨Digital artist & content creator | DM for business inquiries ✨",
+      "followers": 4644,
+      "isVerified": false
+    },
+    {
+      "id": "2",
+      "username": "alex_creative",
+      "displayName": "Alexander Mitchell",
+      "avatar": "/default-avt.jpg",
+      "bio": "Photography • Art • Travel | Professional photographer 📸",
+      "followers": 386000,
+      "isVerified": true
+    },
+    {
+      "id": "3",
+      "username": "sarah_designs",
+      "displayName": "Sarah Anderson",
+      "avatar": "/default-avt.jpg",
+      "bio": "UI/UX Designer | UI/UX Designer |UI/UX Designer |UI/UX Designer |Creating beautiful digital experiences 🎨",
+      "followers": 13700,
+      "isVerified": false
+    },
+    {
+      "id": "4",
+      "username": "james_smith",
+      "displayName": "James Smith",
+      "avatar": "/default-avt.jpg",
+      "bio": "Tech enthusiast | Software Engineer @Google 💻",
+      "followers": 6155,
+      "isVerified": false
+    },
+    {
+      "id": "5",
+      "username": "lily_music",
+      "displayName": "Lily Chen",
+      "avatar": "/default-avt.jpg",
+      "bio": "Singer-songwriter | New album coming soon 🎵",
+      "followers": 25800,
+      "isVerified": true
+    },
+    {
+      "id": "6",
+      "username": "david_tech",
+      "displayName": "David Johnson",
+      "avatar": "/default-avt.jpg",
+      "bio": "Full-stack developer | Building the future 🚀",
+      "followers": 12400,
+      "isVerified": false
+    },
+    {
+      "id": "7",
+      "username": "sophie_art",
+      "displayName": "Sophie Turner",
+      "avatar": "/default-avt.jpg",
+      "bio": "Digital artist | Commission open ✨",
+      "followers": 8900,
+      "isVerified": false
+    },
+    {
+      "id": "8",
+      "username": "max_gaming",
+      "displayName": "Max Thompson",
+      "avatar": "/default-avt.jpg",
+      "bio": "Professional gamer | Twitch streamer 🎮",
+      "followers": 45600,
+      "isVerified": true
+    },
+    {
+      "id": "9",
+      "username": "olivia_writes",
+      "displayName": "Olivia Davis",
+      "avatar": "/default-avt.jpg",
+      "bio": "Author | Storyteller | Book lover 📚",
+      "followers": 16700,
+      "isVerified": false
+    },
+    {
+      "id": "10",
+      "username": "chris_fitness",
+      "displayName": "Chris Wilson",
+      "avatar": "/default-avt.jpg",
+      "bio": "Fitness coach | Helping you reach your goals 💪",
+      "followers": 89300,
+      "isVerified": true
+    },
+    {
+      "id": "11",
+      "username": "maya_food",
+      "displayName": "Maya Chen",
+      "avatar": "/default-avt.jpg",
+      "bio": "Food blogger | Recipe creator 🍳",
+      "followers": 34200,
+      "isVerified": false
+    },
+    {
+      "id": "12",
+      "username": "peter_code",
+      "displayName": "Peter Zhang",
+      "avatar": "/default-avt.jpg",
+      "bio": "Software Engineer | Open source contributor 💻",
+      "followers": 12800,
+      "isVerified": false
+    },
+    {
+      "id": "13",
+      "username": "rachel_beauty",
+      "displayName": "Rachel Kim",
+      "avatar": "/default-avt.jpg",
+      "bio": "Beauty influencer | Makeup artist 💄",
+      "followers": 156000,
+      "isVerified": true
+    },
+    {
+      "id": "14",
+      "username": "tom_music",
+      "displayName": "Tom Anderson",
+      "avatar": "/default-avt.jpg",
+      "bio": "Music producer | Guitar teacher 🎸",
+      "followers": 23400,
+      "isVerified": false
+    },
+    {
+      "id": "15",
+      "username": "emily_travel",
+      "displayName": "Emily Brown",
+      "avatar": "/default-avt.jpg",
+      "bio": "Travel blogger | Adventure seeker 🌎",
+      "followers": 67800,
+      "isVerified": true
+    },
+    {
+      "id": "16",
+      "username": "daniel_photo",
+      "displayName": "Daniel Lee",
+      "avatar": "/default-avt.jpg",
+      "bio": "Street photographer | Visual storyteller 📸",
+      "followers": 45200,
+      "isVerified": false
+    },
+    {
+      "id": "17",
+      "username": "sophia_dance",
+      "displayName": "Sophia Martinez",
+      "avatar": "/default-avt.jpg",
+      "bio": "Professional dancer | Choreographer 💃",
+      "followers": 89100,
+      "isVerified": true
+    },
+    {
+      "id": "18",
+      "username": "ryan_startup",
+      "displayName": "Ryan Wilson",
+      "avatar": "/default-avt.jpg",
+      "bio": "Tech entrepreneur | Startup mentor 🚀",
+      "followers": 34500,
+      "isVerified": false
+    },
+    {
+      "id": "19",
+      "username": "hannah_art",
+      "displayName": "Hannah Taylor",
+      "avatar": "/default-avt.jpg",
+      "bio": "Digital illustrator | Commission open 🎨",
+      "followers": 12300,
+      "isVerified": false
+    },
+    {
+      "id": "20",
+      "username": "kevin_chef",
+      "displayName": "Kevin Park",
+      "avatar": "/default-avt.jpg",
+      "bio": "Professional chef | Food photographer 🍽️",
+      "followers": 78900,
+      "isVerified": true
+    },
+    {
+      "id": "21",
+      "username": "lisa_fashion",
+      "displayName": "Lisa Wang",
+      "avatar": "/default-avt.jpg",
+      "bio": "Fashion designer | Style consultant 👗",
+      "followers": 234000,
+      "isVerified": true
+    },
+    {
+      "id": "22",
+      "username": "mike_sports",
+      "displayName": "Mike Johnson",
+      "avatar": "/default-avt.jpg",
+      "bio": "Sports analyst | Former athlete 🏆",
+      "followers": 45600,
+      "isVerified": false
+    },
+    {
+      "id": "23",
+      "username": "amy_books",
+      "displayName": "Amy Chen",
+      "avatar": "/default-avt.jpg",
+      "bio": "Book reviewer | Literature lover 📚",
+      "followers": 23400,
+      "isVerified": false
+    },
+    {
+      "id": "24",
+      "username": "jack_comedy",
+      "displayName": "Jack Thompson",
+      "avatar": "/default-avt.jpg",
+      "bio": "Stand-up comedian | Content creator 😄",
+      "followers": 167000,
+      "isVerified": true
+    },
+    {
+      "id": "25",
+      "username": "nina_yoga",
+      "displayName": "Nina Patel",
+      "avatar": "/default-avt.jpg",
+      "bio": "Yoga instructor | Mindfulness coach 🧘‍♀️",
+      "followers": 89000,
+      "isVerified": true
+    },
+    {
+      "id": "26",
+      "username": "alex_science",
+      "displayName": "Alex Foster",
+      "avatar": "/default-avt.jpg",
+      "bio": "Science communicator | PhD researcher 🔬",
+      "followers": 34500,
+      "isVerified": false
+    },
+    {
+      "id": "27",
+      "username": "maria_paint",
+      "displayName": "Maria Rodriguez",
+      "avatar": "/default-avt.jpg",
+      "bio": "Oil painter | Art teacher 🎨",
+      "followers": 12800,
+      "isVerified": false
+    },
+    {
+      "id": "28",
+      "username": "steve_crypto",
+      "displayName": "Steve Williams",
+      "avatar": "/default-avt.jpg",
+      "bio": "Crypto analyst | Blockchain developer ⛓️",
+      "followers": 156000,
+      "isVerified": true
+    },
+    {
+      "id": "29",
+      "username": "julia_dance",
+      "displayName": "Julia Kim",
+      "avatar": "/default-avt.jpg",
+      "bio": "Ballet dancer | Dance academy owner 🩰",
+      "followers": 78000,
+      "isVerified": true
+    },
+    {
+      "id": "30",
+      "username": "mark_film",
+      "displayName": "Mark Anderson",
+      "avatar": "/default-avt.jpg",
+      "bio": "Filmmaker | Cinematographer 🎥",
+      "followers": 45600,
+      "isVerified": false
+    },
+    {
+      "id": "31",
+      "username": "sara_design",
+      "displayName": "Sara Miller",
+      "avatar": "/default-avt.jpg",
+      "bio": "Interior designer | Home styling tips 🏠",
+      "followers": 23400,
+      "isVerified": false
+    },
+    {
+      "id": "32",
+      "username": "paul_music",
+      "displayName": "Paul Thompson",
+      "avatar": "/default-avt.jpg",
+      "bio": "Classical musician | Piano teacher 🎹",
+      "followers": 12300,
+      "isVerified": false
+    },
+    {
+      "id": "33",
+      "username": "emma_chef",
+      "displayName": "Emma Garcia",
+      "avatar": "/default-avt.jpg",
+      "bio": "Pastry chef | Baking tutorials 🧁",
+      "followers": 89000,
+      "isVerified": true
+    },
+    {
+      "id": "34",
+      "username": "david_arch",
+      "displayName": "David Wilson",
+      "avatar": "/default-avt.jpg",
+      "bio": "Architect | Modern design enthusiast 🏛️",
+      "followers": 34500,
+      "isVerified": false
+    },
+    {
+      "id": "35",
+      "username": "sophie_pet",
+      "displayName": "Sophie Brown",
+      "avatar": "/default-avt.jpg",
+      "bio": "Pet photographer | Animal lover 🐾",
+      "followers": 45200,
+      "isVerified": false
+    },
+    {
+      "id": "36",
+      "username": "james_game",
+      "displayName": "James Lee",
+      "avatar": "/default-avt.jpg",
+      "bio": "Game developer | Unity expert 🎮",
+      "followers": 23400,
+      "isVerified": false
+    },
+    {
+      "id": "37",
+      "username": "anna_write",
+      "displayName": "Anna Martinez",
+      "avatar": "/default-avt.jpg",
+      "bio": "Travel writer | Adventure blogger ✈️",
+      "followers": 67800,
+      "isVerified": true
+    },
+    {
+      "id": "38",
+      "username": "michael_fit",
+      "displayName": "Michael Chen",
+      "avatar": "/default-avt.jpg",
+      "bio": "Personal trainer | Nutrition coach 💪",
+      "followers": 89100,
+      "isVerified": true
+    },
+    {
+      "id": "39",
+      "username": "laura_art",
+      "displayName": "Laura Taylor",
+      "avatar": "/default-avt.jpg",
+      "bio": "Street artist | Muralist 🎨",
+      "followers": 34500,
+      "isVerified": false
+    },
+    {
+      "id": "40",
+      "username": "chris_code",
+      "displayName": "Chris Anderson",
+      "avatar": "/default-avt.jpg",
+      "bio": "Frontend developer | UI specialist 💻",
+      "followers": 12300,
+      "isVerified": false
+    },
+    {
+      "id": "41",
+      "username": "jessica_style",
+      "displayName": "Jessica Park",
+      "avatar": "/default-avt.jpg",
+      "bio": "Fashion blogger | Style tips 👗",
+      "followers": 156000,
+      "isVerified": true
+    },
+    {
+      "id": "42",
+      "username": "robert_photo",
+      "displayName": "Robert Kim",
+      "avatar": "/default-avt.jpg",
+      "bio": "Wildlife photographer | Nature lover 📸",
+      "followers": 78900,
+      "isVerified": true
+    },
+    {
+      "id": "43",
+      "username": "linda_cook",
+      "displayName": "Linda Wilson",
+      "avatar": "/default-avt.jpg",
+      "bio": "Home cook | Recipe developer 🍳",
+      "followers": 45600,
+      "isVerified": false
+    },
+    {
+      "id": "44",
+      "username": "thomas_music",
+      "displayName": "Thomas Brown",
+      "avatar": "/default-avt.jpg",
+      "bio": "DJ | Electronic music producer 🎧",
+      "followers": 234000,
+      "isVerified": true
+    },
+    {
+      "id": "45",
+      "username": "sarah_teach",
+      "displayName": "Sarah Johnson",
+      "avatar": "/default-avt.jpg",
+      "bio": "Online educator | Math tutor 📚",
+      "followers": 12800,
+      "isVerified": false
+    },
+    {
+      "id": "46",
+      "username": "william_tech",
+      "displayName": "William Lee",
+      "avatar": "/default-avt.jpg",
+      "bio": "Tech reviewer | Gadget enthusiast 📱",
+      "followers": 89000,
+      "isVerified": true
+    },
+    {
+      "id": "47",
+      "username": "rachel_dance",
+      "displayName": "Rachel Chen",
+      "avatar": "/default-avt.jpg",
+      "bio": "Hip-hop dancer | Dance instructor 💃",
+      "followers": 34500,
+      "isVerified": false
+    },
+    {
+      "id": "48",
+      "username": "daniel_film",
+      "displayName": "Daniel Martinez",
+      "avatar": "/default-avt.jpg",
+      "bio": "Documentary filmmaker | Storyteller 🎥",
+      "followers": 67800,
+      "isVerified": true
+    },
+    {
+      "id": "49",
+      "username": "michelle_art",
+      "displayName": "Michelle Taylor",
+      "avatar": "/default-avt.jpg",
+      "bio": "Watercolor artist | Art workshops 🎨",
+      "followers": 23400,
+      "isVerified": false
+    },
+    {
+      "id": "50",
+      "username": "kevin_sport",
+      "displayName": "Kevin Wilson",
+      "avatar": "/default-avt.jpg",
+      "bio": "Sports coach | Fitness motivation 🏃‍♂️",
+      "followers": 156000,
+      "isVerified": true
+    },
+    {
+      "id": "51",
+      "username": "lisa_design",
+      "displayName": "Lisa Anderson",
+      "avatar": "/default-avt.jpg",
+      "bio": "Web designer | UX specialist 🎯",
+      "followers": 78900,
+      "isVerified": true
+    },
+    {
+      "id": "52",
+      "username": "john_music",
+      "displayName": "John Park",
+      "avatar": "/default-avt.jpg",
+      "bio": "Jazz musician | Saxophone player 🎷",
+      "followers": 45600,
+      "isVerified": false
+    },
+    {
+      "id": "53",
+      "username": "amy_write",
+      "displayName": "Amy Thompson",
+      "avatar": "/default-avt.jpg",
+      "bio": "Poetry writer | Literary events 📝",
+      "followers": 12300,
+      "isVerified": false
+    },
+    {
+      "id": "54",
+      "username": "peter_game",
+      "displayName": "Peter Chen",
+      "avatar": "/default-avt.jpg",
+      "bio": "Game streamer | ESports player 🎮",
+      "followers": 234000,
+      "isVerified": true
+    },
+    {
+      "id": "55",
+      "username": "sophia_food",
+      "displayName": "Sophia Lee",
+      "avatar": "/default-avt.jpg",
+      "bio": "Food critic | Restaurant reviews 🍽️",
+      "followers": 89000,
+      "isVerified": true
+    },
+    {
+      "id": "56",
+      "username": "ryan_photo",
+      "displayName": "Ryan Brown",
+      "avatar": "/default-avt.jpg",
+      "bio": "Portrait photographer | Studio work 📸",
+      "followers": 34500,
+      "isVerified": false
+    },
+    {
+      "id": "57",
+      "username": "emma_teach",
+      "displayName": "Emma Wilson",
+      "avatar": "/default-avt.jpg",
+      "bio": "Language teacher | English tutor 🗣️",
+      "followers": 12800,
+      "isVerified": false
+    },
+    {
+      "id": "58",
+      "username": "alex_music",
+      "displayName": "Alex Martinez",
+      "avatar": "/default-avt.jpg",
+      "bio": "Rock band vocalist | Guitar player 🎸",
+      "followers": 156000,
+      "isVerified": true
+    },
+    {
+      "id": "59",
+      "username": "maria_fit",
+      "displayName": "Maria Garcia",
+      "avatar": "/default-avt.jpg",
+      "bio": "Yoga teacher | Wellness coach 🧘‍♀️",
+      "followers": 78000,
+      "isVerified": true
+    },
+    {
+      "id": "60",
+      "username": "david_cook",
+      "displayName": "David Kim",
+      "avatar": "/default-avt.jpg",
+      "bio": "BBQ master | Grilling tips 🔥",
+      "followers": 45600,
+      "isVerified": false
+    },
+    {
+      "id": "61",
+      "username": "sarah_art",
+      "displayName": "Sarah Lee",
+      "avatar": "/default-avt.jpg",
+      "bio": "Sculpture artist | Public installations 🗿",
+      "followers": 23400,
+      "isVerified": false
+    },
+    {
+      "id": "62",
+      "username": "mike_tech",
+      "displayName": "Mike Anderson",
+      "avatar": "/default-avt.jpg",
+      "bio": "AI researcher | Tech innovations 🤖",
+      "followers": 89100,
+      "isVerified": true
+    },
+    {
+      "id": "63",
+      "username": "jennifer_dance",
+      "displayName": "Jennifer Wilson",
+      "avatar": "/default-avt.jpg",
+      "bio": "Contemporary dancer | Performance artist 💃",
+      "followers": 34500,
+      "isVerified": false
+    },
+    {
+      "id": "64",
+      "username": "chris_film",
+      "displayName": "Chris Taylor",
+      "avatar": "/default-avt.jpg",
+      "bio": "Film director | Short films 🎬",
+      "followers": 67800,
+      "isVerified": true
+    },
+    {
+      "id": "65",
+      "username": "laura_design",
+      "displayName": "Laura Chen",
+      "avatar": "/default-avt.jpg",
+      "bio": "Product designer | 3D modeling 🎨",
+      "followers": 12300,
+      "isVerified": false
+    },
+    {
+      "id": "66",
+      "username": "steven_sport",
+      "displayName": "Steven Park",
+      "avatar": "/default-avt.jpg",
+      "bio": "Basketball coach | Sports analysis 🏀",
+      "followers": 156000,
+      "isVerified": true
+    },
+    {
+      "id": "67",
+      "username": "emily_write",
+      "displayName": "Emily Martinez",
+      "avatar": "/default-avt.jpg",
+      "bio": "Screenwriter | Story consultant ✍️",
+      "followers": 78900,
+      "isVerified": true
+    },
+    {
+      "id": "68",
+      "username": "jason_music",
+      "displayName": "Jason Brown",
+      "avatar": "/default-avt.jpg",
+      "bio": "Music teacher | Piano virtuoso 🎹",
+      "followers": 45600,
+      "isVerified": false
+    },
+    {
+      "id": "69",
+      "username": "nicole_art",
+      "displayName": "Nicole Wilson",
+      "avatar": "/default-avt.jpg",
+      "bio": "Comic artist | Manga creator 📚",
+      "followers": 23400,
+      "isVerified": false
+    },
+    {
+      "id": "70",
+      "username": "brian_tech",
+      "displayName": "Brian Lee",
+      "avatar": "/default-avt.jpg",
+      "bio": "Cybersecurity expert | Ethical hacker 🔒",
+      "followers": 89000,
+      "isVerified": true
+    },
+    {
+      "id": "71",
+      "username": "amanda_food",
+      "displayName": "Amanda Chen",
+      "avatar": "/default-avt.jpg",
+      "bio": "Vegan chef | Plant-based recipes 🥗",
+      "followers": 34500,
+      "isVerified": false
+    },
+    {
+      "id": "72",
+      "username": "justin_photo",
+      "displayName": "Justin Taylor",
+      "avatar": "/default-avt.jpg",
+      "bio": "Fashion photographer | Editorial work 📸",
+      "followers": 67800,
+      "isVerified": true
+    },
+    {
+      "id": "73",
+      "username": "rachel_teach",
+      "displayName": "Rachel Park",
+      "avatar": "/default-avt.jpg",
+      "bio": "Science teacher | STEM education 🔬",
+      "followers": 12800,
+      "isVerified": false
+    },
+    {
+      "id": "74",
+      "username": "brandon_game",
+      "displayName": "Brandon Wilson",
+      "avatar": "/default-avt.jpg",
+      "bio": "Game designer | Level creator 🎮",
+      "followers": 156000,
+      "isVerified": true
+    },
+    {
+      "id": "75",
+      "username": "melissa_dance",
+      "displayName": "Melissa Brown",
+      "avatar": "/default-avt.jpg",
+      "bio": "Salsa dancer | Dance competitions 💃",
+      "followers": 78000,
+      "isVerified": true
+    },
+    {
+      "id": "76",
+      "username": "andrew_film",
+      "displayName": "Andrew Martinez",
+      "avatar": "/default-avt.jpg",
+      "bio": "Animation director | 3D artist 🎥",
+      "followers": 45600,
+      "isVerified": false
+    },
+    {
+      "id": "77",
+      "username": "jessica_art",
+      "displayName": "Jessica Lee",
+      "avatar": "/default-avt.jpg",
+      "bio": "Tattoo artist | Custom designs ✒️",
+      "followers": 23400,
+      "isVerified": false
+    },
+    {
+      "id": "78",
+      "username": "eric_tech",
+      "displayName": "Eric Chen",
+      "avatar": "/default-avt.jpg",
+      "bio": "Mobile app developer | iOS specialist 📱",
+      "followers": 89100,
+      "isVerified": true
+    },
+    {
+      "id": "79",
+      "username": "ashley_fit",
+      "displayName": "Ashley Wilson",
+      "avatar": "/default-avt.jpg",
+      "bio": "CrossFit trainer | Nutrition expert 💪",
+      "followers": 34500,
+      "isVerified": false
+    },
+    {
+      "id": "80",
+      "username": "kevin_music",
+      "displayName": "Kevin Taylor",
+      "avatar": "/default-avt.jpg",
+      "bio": "Drummer | Session musician 🥁",
+      "followers": 67800,
+      "isVerified": true
+    },
+    {
+      "id": "81",
+      "username": "michelle_design",
+      "displayName": "Michelle Park",
+      "avatar": "/default-avt.jpg",
+      "bio": "Logo designer | Brand identity 🎯",
+      "followers": 12300,
+      "isVerified": false
+    },
+    {
+      "id": "82",
+      "username": "richard_sport",
+      "displayName": "Richard Brown",
+      "avatar": "/default-avt.jpg",
+      "bio": "Tennis coach | Former pro player 🎾",
+      "followers": 156000,
+      "isVerified": true
+    },
+    {
+      "id": "83",
+      "username": "karen_write",
+      "displayName": "Karen Martinez",
+      "avatar": "/default-avt.jpg",
+      "bio": "Food writer | Recipe developer 📝",
+      "followers": 78900,
+      "isVerified": true
+    },
+    {
+      "id": "84",
+      "username": "thomas_art",
+      "displayName": "Thomas Lee",
+      "avatar": "/default-avt.jpg",
+      "bio": "Graffiti artist | Urban art 🎨",
+      "followers": 45600,
+      "isVerified": false
+    },
+    {
+      "id": "85",
+      "username": "sandra_teach",
+      "displayName": "Sandra Wilson",
+      "avatar": "/default-avt.jpg",
+      "bio": "History teacher | Educational content 📚",
+      "followers": 23400,
+      "isVerified": false
+    },
+    {
+      "id": "86",
+      "username": "gary_tech",
+      "displayName": "Gary Chen",
+      "avatar": "/default-avt.jpg",
+      "bio": "Data scientist | ML engineer 📊",
+      "followers": 89000,
+      "isVerified": true
+    },
+    {
+      "id": "87",
+      "username": "nancy_food",
+      "displayName": "Nancy Park",
+      "avatar": "/default-avt.jpg",
+      "bio": "Dessert chef | Cake decorator 🍰",
+      "followers": 34500,
+      "isVerified": false
+    },
+    {
+      "id": "88",
+      "username": "paul_photo",
+      "displayName": "Paul Taylor",
+      "avatar": "/default-avt.jpg",
+      "bio": "Landscape photographer | Nature lover 🌄",
+      "followers": 67800,
+      "isVerified": true
+    },
+    {
+      "id": "89",
+      "username": "helen_dance",
+      "displayName": "Helen Brown",
+      "avatar": "/default-avt.jpg",
+      "bio": "Breakdancer | Street dance crew 🕺",
+      "followers": 12800,
+      "isVerified": false
+    },
+    {
+      "id": "90",
+      "username": "frank_film",
+      "displayName": "Frank Martinez",
+      "avatar": "/default-avt.jpg",
+      "bio": "Video editor | Motion graphics 🎬",
+      "followers": 156000,
+      "isVerified": true
+    },
+    {
+      "id": "91",
+      "username": "diana_art",
+      "displayName": "Diana Lee",
+      "avatar": "/default-avt.jpg",
+      "bio": "Glass artist | Custom installations 🎨",
+      "followers": 78000,
+      "isVerified": true
+    },
+    {
+      "id": "92",
+      "username": "steve_sport",
+      "displayName": "Steve Wilson",
+      "avatar": "/default-avt.jpg",
+      "bio": "Soccer coach | Youth development ⚽",
+      "followers": 45600,
+      "isVerified": false
+    },
+    {
+      "id": "93",
+      "username": "carol_write",
+      "displayName": "Carol Chen",
+      "avatar": "/default-avt.jpg",
+      "bio": "Tech blogger | Product reviewer ✍️",
+      "followers": 23400,
+      "isVerified": false
+    },
+    {
+      "id": "94",
+      "username": "mark_music",
+      "displayName": "Mark Park",
+      "avatar": "/default-avt.jpg",
+      "bio": "Music producer | Beat maker 🎵",
+      "followers": 89100,
+      "isVerified": true
+    },
+    {
+      "id": "95",
+      "username": "alice_design",
+      "displayName": "Alice Taylor",
+      "avatar": "/default-avt.jpg",
+      "bio": "Fashion designer | Sustainable fashion 👗",
+      "followers": 34500,
+      "isVerified": false
+    },
+    {
+      "id": "96",
+      "username": "joe_tech",
+      "displayName": "Joe Brown",
+      "avatar": "/default-avt.jpg",
+      "bio": "Cloud architect | DevOps engineer ☁️",
+      "followers": 67800,
+      "isVerified": true
+    },
+    {
+      "id": "97",
+      "username": "betty_food",
+      "displayName": "Betty Martinez",
+      "avatar": "/default-avt.jpg",
+      "bio": "Nutritionist | Healthy recipes 🥗",
+      "followers": 12300,
+      "isVerified": false
+    },
+    {
+      "id": "98",
+      "username": "sam_photo",
+      "displayName": "Sam Lee",
+      "avatar": "/default-avt.jpg",
+      "bio": "Event photographer | Wedding specialist 📸",
+      "followers": 156000,
+      "isVerified": true
+    },
+    {
+      "id": "99",
+      "username": "tracy_dance",
+      "displayName": "Tracy Wilson",
+      "avatar": "/default-avt.jpg",
+      "bio": "Dance therapist | Movement coach 💃",
+      "followers": 78900,
+      "isVerified": true
+    },
+    {
+      "id": "100",
+      "username": "vincent_art",
+      "displayName": "Vincent Chen",
+      "avatar": "/default-avt.jpg",
+      "bio": "Digital sculptor | 3D printing artist 🎨",
+      "followers": 45600,
+      "isVerified": false
+    }
+  ]
+}

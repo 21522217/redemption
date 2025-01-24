@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import Link from "next/link";
 
@@ -18,9 +17,11 @@ import { loginFormSchema, type LoginFormValues } from "@/lib/validations/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FaGoogle } from "react-icons/fa";
 import Footer from "@/components/Footer";
+import ThemeSwitcher from "@/components/ThemeToggle";
+import useSignIn from "@/lib/firebase/login";
 
 export default function LoginForm() {
-  const [isLoading, setIsLoading] = useState(false);
+  const { signIn } = useSignIn();
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginFormSchema),
@@ -31,19 +32,19 @@ export default function LoginForm() {
   });
 
   async function onSubmit(data: LoginFormValues) {
-    setIsLoading(true);
     try {
-      console.log(data);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await signIn({
+        email: data.username,
+        password: data.password,
+      });
     } catch (error) {
       console.error(error);
-    } finally {
-      setIsLoading(false);
     }
   }
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center px-4">
+      <ThemeSwitcher />
       <div className="w-[400px] space-y-6">
         <div className="flex flex-col items-center space-y-6">
           <h1 className="text-xl font-semibold text-white">
@@ -90,9 +91,8 @@ export default function LoginForm() {
               <Button
                 type="submit"
                 className="h-12 w-full bg-white text-black hover:bg-zinc-200"
-                disabled={isLoading}
               >
-                {isLoading ? "Logging in..." : "Log in"}
+                Log in
               </Button>
             </form>
           </Form>
