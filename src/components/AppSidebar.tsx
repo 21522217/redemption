@@ -2,14 +2,6 @@
 
 import { Button } from "./ui/button";
 import {
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenu,
-} from "./ui/dropdown-menu";
-
-import {
   Sidebar,
   SidebarProvider,
   SidebarContent,
@@ -24,13 +16,18 @@ import DynamicImage from "./custom/SquareImage";
 
 import { useRouter } from "next/navigation";
 import { Heart, Home, Menu, Pin, Plus, Search, User } from "lucide-react";
+import SettingButton from "./SettingButton";
 
 const AppSidebar = () => {
   const router = useRouter();
 
   return (
-    <div className="">
-      <SidebarProvider>
+    <div>
+      <SidebarProvider
+        style={{
+          width: "fit-content",
+        }}
+      >
         <Sidebar className="w-fit h-full px-1 border-none">
           <SidebarHeader>
             <DynamicImage
@@ -43,7 +40,7 @@ const AppSidebar = () => {
             <SidebarMenu className="items-center gap-4">
               <SidebarMenuItem>
                 <Button
-                  //onClick={() => router.push("/")}
+                  onClick={() => router.push("/")}
                   className="w-fit h-full py-3 px-5 [&_svg]:size-7 rounded-xl"
                   variant="ghost"
                 >
@@ -52,7 +49,7 @@ const AppSidebar = () => {
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <Button
-                  //onClick={() => router.push("/")}
+                  onClick={() => router.push("/search")}
                   className="w-fit h-full py-3 px-5 [&_svg]:size-7 rounded-xl"
                   variant="ghost"
                 >
@@ -61,7 +58,7 @@ const AppSidebar = () => {
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <Button
-                  //onClick={() => router.push("/")}
+
                   className="w-fit h-full bg-accent py-3 px-5 [&_svg]:size-7 rounded-xl"
                   variant="ghost"
                 >
@@ -70,7 +67,7 @@ const AppSidebar = () => {
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <Button
-                  //onClick={() => router.push("/")}
+                  onClick={() => router.push("/activity")}
                   className="w-fit h-full py-3 px-5 [&_svg]:size-7 rounded-xl"
                   variant="ghost"
                 >
@@ -79,7 +76,7 @@ const AppSidebar = () => {
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <Button
-                  //onClick={() => router.push("/")}
+                  onClick={() => router.push("/profile")}
                   className="w-fit h-full py-3 px-5 [&_svg]:size-7 rounded-xl"
                   variant="ghost"
                 >
@@ -100,33 +97,7 @@ const AppSidebar = () => {
                 </Button>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      //onClick={() => router.push("/")}
-                      className="w-fit h-full py-3 px-5 [&_svg]:size-7 rounded-xl"
-                      variant="ghost"
-                    >
-                      <Menu />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger>
-                        Appearance
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent>
-                        <DropdownMenuItem>
-                          <ThemeSwitcher />
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem>
-                      Report a problem
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                <SettingButton />
               </SidebarMenuItem>
             </SidebarMenu>
           </SidebarFooter>

@@ -27,11 +27,9 @@ const Header = () => {
 
   return (
     <header className="w-full bg-white shadow-sm">
-      <div className="container mx-auto flex items-center justify-between px-4 py-3">
-        <div className="flex items-center gap-4">
-          <div className="text-xl font-semibold text-gray-800">
-            {pathname?.replace("/", "") || "Home"}
-          </div>
+      <div className="w-full flex items-center justify-between px-4 py-3">
+        <div className="w-full text-center gap-4 text-xl font-semibold">
+          {pathname?.replace("/", "") || "Home"}
         </div>
         <div className="flex items-center space-x-4">
           {isLogin && (

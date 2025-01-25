@@ -10,10 +10,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function Profile() {
   return (
-    <div className="min-h-screen bg-black text-white">
-      <div className="mx-auto max-w-2xl p-4">
+    <Card className="h-full w-1/2 min-w-[550px] rounded-3xl bg-card">
+      <CardContent className="flex flex-col h-full bg-card px-8 py-6 rounded-3xl space-y-6">
         {/* Profile Header */}
-        <div className="mb-6 flex items-start justify-between">
+        <div className="mb-6 flex items-start bg-card justify-between">
           <div className="space-y-1">
             <h1 className="text-xl font-semibold">Khiem Tran</h1>
             <p className="text-sm text-zinc-400">hanzo_hekim</p>
@@ -36,38 +36,38 @@ export default function Profile() {
         {/* Edit Profile Button */}
         <Button
           variant="outline"
-          className="mb-6 w-full border-zinc-800 text-white hover:bg-zinc-800"
+          className="mb-6 w-full rounded-xl font-semibold"
         >
           Edit profile
         </Button>
 
         {/* Tabs Navigation */}
         <Tabs defaultValue="threads" className="mb-6">
-          <TabsList className="w-full justify-start border-b border-zinc-800 bg-transparent">
+          <TabsList className="w-full h-fit grid grid-cols-3 gap-4">
             <TabsTrigger
               value="threads"
-              className="rounded-none border-b-2 border-transparent px-0 pb-4 pt-2 text-zinc-400 data-[state=active]:border-white data-[state=active]:text-white"
+              className="font-semibold py-2"
             >
               Threads
             </TabsTrigger>
             <TabsTrigger
               value="replies"
-              className="rounded-none border-b-2 border-transparent px-6 pb-4 pt-2 text-zinc-400 data-[state=active]:border-white data-[state=active]:text-white"
+              className="font-semibold py-2"
             >
               Replies
             </TabsTrigger>
             <TabsTrigger
               value="reposts"
-              className="rounded-none border-b-2 border-transparent px-0 pb-4 pt-2 text-zinc-400 data-[state=active]:border-white data-[state=active]:text-white"
+              className="font-semibold py-2"
             >
               Reposts
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="threads" className="space-y-4">
+          <TabsContent value="threads" className="space-y-4 bg-card">
             {/* Post Composer */}
-            <div className="flex items-start gap-2 border-b border-zinc-800 pb-4">
-              <Avatar className="h-8 w-8">
+            <div className="flex items-center py-6 bg-card border-b border-zinc-800 pb-4">
+              <Avatar className="h-10 w-10">
                 <AvatarImage
                   src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-FXQJ5FQ4Nv8SXIfqqeoDv2kbCYimji.png"
                   alt="Profile picture"
@@ -77,25 +77,25 @@ export default function Profile() {
               <div className="flex-1">
                 <Input
                   placeholder="What's new?"
-                  className="border-0 bg-transparent text-white placeholder:text-zinc-400 focus-visible:ring-0"
+                  className="border-0 bg-card text-white placeholder:text-zinc-400 focus-visible:ring-0"
                 />
               </div>
-              <Button size="sm" className="rounded-full">
+              <Button variant="outline" className="rounded-xl font-semibold">
                 Post
               </Button>
             </div>
 
             {/* Profile Completion Section */}
-            <div className="space-y-4 rounded-xl bg-zinc-900 p-4">
-              <div className="flex items-center justify-between">
+            <div className="space-y-4 rounded-xl p-4 bg-card">
+              <div className="flex items-center justify-between bg-card">
                 <h2 className="text-lg font-semibold">Finish your profile</h2>
                 <span className="text-sm text-zinc-400">3 left</span>
               </div>
 
-              <div className="grid gap-4 md:grid-cols-3">
-                <Card className="border-zinc-800 bg-zinc-950">
-                  <CardContent className="flex flex-col items-center gap-4 p-6 text-center">
-                    <div className="rounded-full bg-zinc-900 p-4">
+              <div className="grid gap-4 grid-cols-3 bg-card">
+                <Card className="rounded-xl">
+                  <CardContent className="flex flex-col rounded-xl items-center gap-4 p-6 text-center bg-secondary">
+                    <div className="rounded-full bg-accent p-4">
                       <Edit className="h-6 w-6" />
                     </div>
                     <h3 className="font-medium">Create thread</h3>
@@ -104,16 +104,16 @@ export default function Profile() {
                     </p>
                     <Button
                       variant="outline"
-                      className="mt-2 w-full border-zinc-800 hover:bg-zinc-800"
+                      className="mt-2 w-full rounded-xl font-semibold bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground"
                     >
                       Create
                     </Button>
                   </CardContent>
                 </Card>
 
-                <Card className="border-zinc-800 bg-zinc-950">
-                  <CardContent className="flex flex-col items-center gap-4 p-6 text-center">
-                    <div className="rounded-full bg-zinc-900 p-4">
+                <Card className="rounded-xl">
+                  <CardContent className="flex flex-col rounded-xl items-center gap-4 p-6 text-center bg-secondary">
+                    <div className="rounded-full bg-accent p-4">
                       <Users className="h-6 w-6" />
                     </div>
                     <h3 className="font-medium">Follow 10 profiles</h3>
@@ -122,16 +122,16 @@ export default function Profile() {
                     </p>
                     <Button
                       variant="outline"
-                      className="mt-2 w-full border-zinc-800 hover:bg-zinc-800"
+                      className="mt-2 w-full rounded-xl font-semibold bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground"
                     >
                       See profiles
                     </Button>
                   </CardContent>
                 </Card>
 
-                <Card className="border-zinc-800 bg-zinc-950">
-                  <CardContent className="flex flex-col items-center gap-4 p-6 text-center">
-                    <div className="rounded-full bg-zinc-900 p-4">
+                <Card className="rounded-xl">
+                  <CardContent className="flex flex-col rounded-xl items-center gap-4 p-6 text-center bg-secondary">
+                    <div className="rounded-full bg-accent p-4">
                       <Pencil className="h-6 w-6" />
                     </div>
                     <h3 className="font-medium">Add bio</h3>
@@ -140,7 +140,7 @@ export default function Profile() {
                     </p>
                     <Button
                       variant="outline"
-                      className="mt-2 w-full border-zinc-800 hover:bg-zinc-800"
+                      className="mt-2 w-full rounded-xl font-semibold bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground"
                     >
                       Add
                     </Button>
@@ -161,12 +161,12 @@ export default function Profile() {
 
         {/* New Post Button (Mobile) */}
         <Button
-          size="icon"
-          className="fixed bottom-4 right-4 h-14 w-14 rounded-full shadow-lg md:hidden"
+          variant="outline"
+          className="fixed bottom-4 right-4 px-8 py-12 rounded-3xl shadow-lg [&_svg]:size-10"
         >
-          <Plus className="h-6 w-6" />
+          <Plus />
         </Button>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }

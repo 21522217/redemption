@@ -84,19 +84,15 @@
   * {
     @apply border-border;
   }
-  
-  body {
-    @apply bg-background text-foreground;
-  }
 
-  /* body {
+  body {
     @apply text-foreground bg-background;
     font-family: Arial, Helvetica, sans-serif;
     transition: background-color 0.3s ease, color 0.3s ease;
 
-    card {
+    /* card {
       @apply bg-card text-card-foreground;
-    }
+    } */
 
     popover {
       @apply bg-popover text-popover-foreground;
@@ -110,13 +106,6 @@
       @apply bg-primary text-card-foreground;
     }
 
-    button {
-      @apply bg-primary text-primary;
-    }
-
-    p, span, svg {
-      @apply text-primary-foreground border-none;
-    }
-  } */
+  }
 }
 

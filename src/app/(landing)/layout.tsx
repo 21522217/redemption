@@ -34,7 +34,7 @@ export default function RootLayout({
         <Providers>
           <div className="flex flex-row">
             <AppSidebar />
-            <div className="flex flex-col w-full items-center">
+            <div className=" flex flex-col w-full items-center">
               <Header />
               {children}
             </div>

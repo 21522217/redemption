@@ -5,6 +5,7 @@ import { useTheme } from "@/contexts/ThemeContext";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 import { Moon, Sun } from "lucide-react";
+import { Label } from "./ui/label";
 
 export default function ThemeSwitcher() {
   const { theme, toggleTheme } = useTheme();
@@ -16,15 +17,13 @@ export default function ThemeSwitcher() {
   };
 
   return (
-    <div className="flex flex-row bg-transparent w-40">
-      <div className="flex items-center gap-3">
-        <h2 className="text-lg font-medium">Appearance</h2>
-      </div>
+    <div className="flex flex-col items-center w-40">
+      <Label className="text-lg font-medium">Appearance</Label>
       <ToggleGroup
         type="single"
         value={theme}
         onValueChange={handleThemeChange}
-        className="grid w-full grid-cols-3 rounded-lg bg-muted p-1"
+        className="grid w-full grid-cols-2 rounded-lg bg-muted p-1"
       >
         <ToggleGroupItem
           value="light"

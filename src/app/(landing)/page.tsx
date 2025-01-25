@@ -13,6 +13,7 @@ import InfiniteScroll from "react-infinite-scroll-component";
 import postsData from "@/data/posts-data.json";
 import usersData from "@/data/users-data.json";
 import { MediaGallery } from "@/components/ui-thread/media-gallery";
+import { Card } from "@/components/ui/card";
 
 export default function Page() {
   const [displayCount, setDisplayCount] = useState(5);
@@ -26,27 +27,27 @@ export default function Page() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen">
       <div className="mx-auto w-full max-w-2xl min-w-[680px] px-4">
-        <div className="p-4 bg-white shadow rounded-lg">
-          <div className="flex items-start gap-3 pb-4">
+        <Card className="p-4 shadow bg-card rounded-lg">
+          <Card className="flex items-start gap-3 pb-4 border-none">
             <Avatar className="h-10 w-10">
               <AvatarImage src="/default-avt.jpg" alt="User avatar" />
               <AvatarFallback>U</AvatarFallback>
             </Avatar>
             <Button
               variant="ghost"
-              className="flex-1 h-auto w-full justify-start px-0 text-[15px] font-normal text-neutral-500 hover:bg-transparent"
-                       >
+              className="flex-1 h-auto w-full justify-start"
+            >
               Có gì mới?
             </Button>
             <Button
               variant="outline"
-              className="h-9 px-8 rounded-xl border-neutral-200 text-sm font-medium text-neutral-950 hover:bg-neutral-100"
+              className="h-9 px-8 rounded-xl border-neutral-200 text-sm font-medium"
             >
               Đăng
             </Button>
-          </div>
+          </Card>
 
           <Separator className="bg-neutral-200 mb-4" />
 
@@ -122,9 +123,8 @@ export default function Page() {
                           className="h-9 px-0 hover:text-red-500"
                         >
                           <Heart
-                            className={`h-[18px] w-[18px] ${
-                              post.isLiked ? "fill-red-500 text-red-500" : ""
-                            }`}
+                            className={`h-[18px] w-[18px] ${post.isLiked ? "fill-red-500 text-red-500" : ""
+                              }`}
                           />
                           <span className="ml-1 text-sm">
                             {post.stats.likes.toLocaleString()}
@@ -167,7 +167,7 @@ export default function Page() {
               );
             })}
           </InfiniteScroll>
-        </div>
+        </Card>
       </div>
     </div>
   );
