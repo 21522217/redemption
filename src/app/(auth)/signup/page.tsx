@@ -30,6 +30,9 @@ export default function SignupForm() {
       email: "",
       password: "",
       confirmPassword: "",
+      firstName: "",
+      lastName: "",
+      username: "",
     },
   });
 
@@ -38,6 +41,9 @@ export default function SignupForm() {
       await signUp({
         email: data.email,
         password: data.password,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        username: data.username,
       });
     } catch (error) {
       console.error(error);
@@ -74,7 +80,7 @@ export default function SignupForm() {
               }}
               className="w-full space-y-4"
             >
-              {(["email", "password", "confirmPassword"] as const).map(
+              {(["firstName", "lastName", "username", "email", "password", "confirmPassword"] as const).map(
                 (name, index) => (
                   <FormField
                     key={index}
@@ -84,17 +90,21 @@ export default function SignupForm() {
                       <FormItem>
                         <FormControl>
                           <Input
-                            type={name === "email" ? "email" : "password"}
+                            type={
+                              name === "email" ? "email" : 
+                              name === "password" || name === "confirmPassword" ? "password" : "text"
+                            }
                             placeholder={
-                              name === "email"
-                                ? "Email address"
-                                : name === "password"
-                                ? "Password"
-                                : "Confirm password"
+                              name === "firstName" ? "First name" :
+                              name === "lastName" ? "Last name" :
+                              name === "username" ? "Username" :
+                              name === "email" ? "Email address" :
+                              name === "password" ? "Password" :
+                              "Confirm password"
                             }
                             {...field}
                             className={`h-12 ${
-                              name === "email"
+                              name === "email" || name === "firstName" || name === "lastName" || name === "username"
                                 ? "text-white placeholder:text-zinc-400"
                                 : "bg-zinc-800 text-white placeholder:text-zinc-400 focus-visible:ring-zinc-500"
                             }`}

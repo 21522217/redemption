@@ -1,65 +1,74 @@
 "use client";
 
-import React from "react";
-import { createRoot, Root } from "react-dom/client";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "../ui/button";
-import { useRouter } from "next/navigation";
+import React, { useState } from "react";
+import * as Dialog from "@radix-ui/react-dialog";
+import { IoMdClose } from "react-icons/io";
+import { createRoot } from "react-dom/client";
+import Link from "next/link";
 
 interface AuthModalProps {
-  onClose: () => void;
+  isOpen: boolean;
+  onChange: (open: boolean) => void;
 }
 
-const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
-  const router = useRouter();
+const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onChange }) => {
   return (
-    <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="bg-background border-none">
-        <DialogHeader>
-          <DialogTitle className="text-muted-foreground ">
-            Say more with Redemption
-          </DialogTitle>
-          <DialogDescription className="text-muted-foreground">
-            Join Threads to share thoughts, find out what&apos;s going on,
-            follow your people, and more.
-          </DialogDescription>
-        </DialogHeader>
-        <div className="flex flex-col gap-4">
-          <Button onClick={() => router.push("/signup")}>Sign up</Button>
-          <Button onClick={() => router.push("/login")}>Log in</Button>
-        </div>
-      </DialogContent>
-    </Dialog>
+    <Dialog.Root open={isOpen} onOpenChange={onChange}>
+      <Dialog.Portal>
+        <Dialog.Overlay className="bg-neutral-900/90 black-drop-blur-sm fixed inset-0">
+          <Dialog.Content
+            className="fixed drop-shadow-md border border-neutral-700 top-1/2 left-1/2 max-h-full 
+              h-full md:h-auto md:max-h-[85vh] -translate-x-1/2 -translate-y-1/2 rounded-md 
+              bg-neutral-800 p-6 focus:outline-none"
+          >
+            <Dialog.Title className="text-xl text-center font-bold mb-4">
+              Say more with Redemption
+            </Dialog.Title>
+            <p className="text-muted-foreground mb-4 text-center">
+              Join Threads to share thoughts, find out what&apos;s going on,
+              follow your people, and more.
+            </p>
+            <div className="flex flex-col gap-4">
+              <Link href="/signup" className="text-primary">Sign up</Link>
+              <Link href="/login">Log in</Link>
+            </div>
+            <Dialog.Close asChild>
+              <button
+                className="text-neutral-400 hover:text-white absolute top-2.5 right-2.5 
+                  inline-flex h-6 w-6 items-center justify-center rounded-full focus:outline-none"
+              >
+                <IoMdClose />
+              </button>
+            </Dialog.Close>
+          </Dialog.Content>
+        </Dialog.Overlay>
+      </Dialog.Portal>
+    </Dialog.Root>
   );
 };
 
-let modalContainer: HTMLDivElement | null = null;
-let root: Root | null = null;
-
-const showAuthModal = () => {
-  if (!modalContainer) {
-    modalContainer = document.createElement("div");
-    document.body.appendChild(modalContainer);
-    root = createRoot(modalContainer);
-  }
+export const showAuthModal = () => {
+  const modalContainer = document.createElement("div");
+  document.body.appendChild(modalContainer);
 
   const closeModal = () => {
-    if (root && modalContainer) {
-      root.unmount();
-      document.body.removeChild(modalContainer);
-      modalContainer = null;
-      root = null;
-    }
+    root.unmount();
+    document.body.removeChild(modalContainer);
   };
 
-  root?.render(<AuthModal onClose={closeModal} />);
+  const ModalWrapper = () => {
+    const [isOpen, setIsOpen] = useState(true);
+
+    const handleOpenChange = (open: boolean) => {
+      setIsOpen(open);
+      if (!open) closeModal();
+    };
+
+    return <AuthModal isOpen={isOpen} onChange={handleOpenChange} />;
+  };
+
+  const root = createRoot(modalContainer);
+  root.render(<ModalWrapper />);
 };
 
-export { showAuthModal };
 export default AuthModal;

@@ -28,10 +28,8 @@ interface LayoutProps {
 
 const layout: React.FC<LayoutProps> = ({ children }) => {
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+    <html>
+      <body>
         <Providers>
           <div className="flex flex-col w-full items-center">
             {children}

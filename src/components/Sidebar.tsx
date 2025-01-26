@@ -17,7 +17,6 @@ import {
   FaPlus,
   FaSearch,
   FaUser,
-  FaPinterest,
   FaList,
   FaChevronRight,
 } from "react-icons/fa";
@@ -31,13 +30,8 @@ const Sidebar: React.FC = () => {
   const { isLogin } = useAuth();
   const { logout } = useLogout();
 
-  /**
-   * Handle button clicks with authentication checks.
-   * @param path The path to navigate to.
-   */
   const handleButtonClick = (path: string): void => {
     if (!isLogin) {
-      console.error("User not logged in. Showing Auth Modal.");
       showAuthModal();
     } else {
       router.push(path);

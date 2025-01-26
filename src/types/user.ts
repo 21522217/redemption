@@ -1,3 +1,12 @@
+export interface AuthUser {
+  id: string;
+  email: string;
+  displayName: string;
+  role: string;
+  authId: string;
+  createdAt: number;
+}
+
 export interface User {
   id: string;
   username: string;

@@ -5,10 +5,18 @@ import { createUserWithEmailAndPassword, getAuth } from "firebase/auth";
 import { toast } from "react-toastify";
 import { useLoading } from "@/contexts/LoadingContext";
 import { useRouter } from "next/navigation";
+import { createUserDocument } from "./apis/user.server";
+
+export interface CreateUser {
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  username: string;
+}
 
 const auth = getAuth(firebase_app);
-
-async function performSignUp(email: string, password: string) {
+async function performFirebaseSignUp(email: string, password: string) {
   return await createUserWithEmailAndPassword(auth, email, password);
 }
 
@@ -19,22 +27,35 @@ export default function useSignUp() {
   async function signUp({
     email,
     password,
+    firstName,
+    lastName,
+    username,
   }: {
     email: string;
     password: string;
+    firstName: string;
+    lastName: string;
+    username: string;
   }) {
     setLoadingState(true);
-    let result: any = null;
-    let error: any = null;
 
     try {
-      result = await performSignUp(email, password);
+      const result = await performFirebaseSignUp(email, password);
+
+      await createUserDocument(result, {
+        email,
+        password,
+        firstName,
+        lastName,
+        username,
+      });
+
       toast.success("Account created successfully!", {
         position: "top-right",
       });
+
       router.push("/login");
     } catch (e: any) {
-      error = e;
       const errorMessage =
         e.message || "An unexpected error occurred during signup.";
       toast.error(`Failed to create account: ${errorMessage}`, {
@@ -43,8 +64,6 @@ export default function useSignUp() {
     } finally {
       setLoadingState(false);
     }
-
-    return { result, error };
   }
 
   return { signUp };
