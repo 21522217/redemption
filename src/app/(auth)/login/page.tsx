@@ -17,7 +17,6 @@ import { loginFormSchema, type LoginFormValues } from "@/lib/validations/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FaGoogle } from "react-icons/fa";
 import Footer from "@/components/Footer";
-import ThemeSwitcher from "@/components/ThemeToggle";
 import useSignIn from "@/lib/firebase/login";
 
 export default function LoginForm() {
@@ -44,7 +43,6 @@ export default function LoginForm() {
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center px-4">
-      <ThemeSwitcher />
       <div className="w-[400px] space-y-6">
         <div className="flex flex-col items-center space-y-6">
           <h1 className="text-xl font-semibold text-white">

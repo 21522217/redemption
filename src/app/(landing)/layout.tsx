@@ -1,8 +1,7 @@
 import "../globals.css";
 
 import type { Metadata } from "next";
-import Sidebar from "@/components/Sidebar";
-import Header from "@/components/Header";
+import AppSidebar from "@/components/AppSidebar";
 import Providers from "../providers";
 
 export const metadata: Metadata = {
@@ -20,10 +19,9 @@ export default function RootLayout({
       <body>
         <Providers>
           <div className="flex flex-row">
-            <Sidebar />
-            <main className="flex flex-col w-full items-center">
-              <Header />
-              {children}
+            <AppSidebar />
+            <main className=" flex flex-col justify-center w-full items-center">
+              <div className="flex max-w-2xl">{children}</div>
             </main>
           </div>
         </Providers>

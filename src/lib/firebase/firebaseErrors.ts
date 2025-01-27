@@ -1,4 +1,3 @@
-// utils/firebaseErrorUtils.ts
 const firebaseErrorMessages: Record<string, string> = {
   "auth/user-not-found":
     "The email is not registered. Please check your email.",
