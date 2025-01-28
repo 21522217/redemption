@@ -3,27 +3,53 @@
 import { Separator } from "@/components/ui/separator";
 import { useState, useCallback } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
+import activitiesData from "@/data/activities-data.json";
 import postsData from "@/data/posts-data.json";
 import usersData from "@/data/users-data.json";
+import commentsData from "@/data/comments-data.json";
 import { ActivityCard } from "@/components/ActivityCard";
 
 export default function Activity() {
   const [displayCount, setDisplayCount] = useState(5);
-  const posts = postsData.posts;
-  const currentPosts = posts.slice(0, displayCount);
+  const activities = activitiesData.activities;
+  const currentActivities = activities.slice(0, displayCount);
+
+  // Helper function để lấy thông tin post gốc
+  const getOriginalPost = (postId: string) => {
+    const post = postsData.posts.find((p) => p.id === postId);
+    if (!post) return undefined;
+    return {
+      content: post.content,
+      stats: {
+        likes: post.stats.likes,
+        replies: post.stats.replies,
+        reposts: post.stats.reposts,
+      },
+    };
+  };
+
+  // Helper function để lấy thông tin reply
+  const getReply = (commentId: string) => {
+    const comment = commentsData.comments.find((c) => c.id === commentId);
+    if (!comment) return undefined;
+    return {
+      content: comment.content,
+    };
+  };
 
   const loadMore = useCallback(() => {
     setTimeout(() => {
       setDisplayCount((prev) => prev + 5);
     }, 350);
   }, []);
+
   return (
-    <div className=" min-h-screen px-4">
+    <div className="min-h-screen px-4">
       <div className="p-4 shadow bg-card rounded-3xl">
         <InfiniteScroll
-          dataLength={currentPosts.length}
+          dataLength={currentActivities.length}
           next={loadMore}
-          hasMore={currentPosts.length < posts.length}
+          hasMore={currentActivities.length < activities.length}
           loader={
             <div className="space-y-4 py-4">
               {Array(5)
@@ -52,12 +78,39 @@ export default function Activity() {
             </div>
           }
         >
-          {currentPosts.map((post, index) => {
-            const user = usersData.users.find((u) => u.id === post.userId)!;
+          {currentActivities.map((activity, index) => {
+            const actor = usersData.users.find(
+              (u) => u.id === activity.actorId
+            )!;
+            const originalPost = activity.postId
+              ? getOriginalPost(activity.postId)
+              : undefined;
+            const reply = activity.commentId
+              ? getReply(activity.commentId)
+              : undefined;
+            const suggestion =
+              activity.type === "suggestion"
+                ? {
+                    reason: activity.reason || "Gợi ý theo dõi",
+                    mutualFollowers: activity.mutualFollowers || 0,
+                  }
+                : undefined;
+
             return (
-              <div key={post.id}>
-                <ActivityCard user={user} post={post} />
-                {index < currentPosts.length - 1 && (
+              <div
+                key={`${activity.type}-${activity.actorId}-${
+                  activity.postId || ""
+                }`}
+              >
+                <ActivityCard
+                  actor={actor}
+                  type={activity.type as any}
+                  timestamp="1 ngày trước"
+                  originalPost={originalPost}
+                  reply={reply}
+                  suggestion={suggestion}
+                />
+                {index < currentActivities.length - 1 && (
                   <Separator className="bg-neutral-200" />
                 )}
               </div>
