@@ -88,52 +88,56 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({
                 {actionInfo.button}
               </Button>
             )}
-            {type !== "follow" && type !== "suggestion" && (
-              <span className="text-sm text-muted-foreground">{timestamp}</span>
-            )}
           </div>
-          <Label className="text-[15px] text-accent-foreground">
-            {actionInfo.text}
-            {suggestion && (
-              <span className="text-sm text-muted-foreground ml-1">
-                · {suggestion.mutualFollowers} mutual followers
-              </span>
-            )}
-          </Label>
+          <div className="flex items-center gap-1">
+            <Label className="text-[15px] text-accent-foreground">
+              {actionInfo.text}
+              {suggestion && (
+                <span className="text-sm text-muted-foreground ml-1">
+                  · {suggestion.mutualFollowers} mutual followers
+                </span>
+              )}
+            </Label>
+            <span className="text-sm text-muted-foreground">· {timestamp}</span>
+          </div>
         </div>
 
-        {/* Hiển thị post gốc nếu có */}
-        {originalPost && (
-          <div className="mt-3 p-3 rounded-lg bg-muted/50">
-            <Label className="text-[15px] leading-normal text-muted-foreground">
-              {originalPost.content}
-            </Label>
+        {/* Hiển thị post gốc với style rất mờ */}
+        {originalPost &&
+          (type === "like" || type === "share" || type === "reply") && (
+            <div className="mt-3 p-3 rounded-lg bg-muted/20">
+              <Label className="text-[15px] leading-normal text-muted-foreground/40">
+                {originalPost.content}
+              </Label>
+            </div>
+          )}
 
-            {type !== "suggestion" && (
-              <div className="flex items-center gap-3 mt-3">
-                <Button variant="ghost" size="sm" className="rounded-full px-3">
-                  <Heart className="h-4 w-4 mr-1" />
-                  <span className="text-sm">{originalPost.stats.likes}</span>
-                </Button>
-                <Button variant="ghost" size="sm" className="rounded-full px-3">
-                  <MessageCircle className="h-4 w-4 mr-1" />
-                  <span className="text-sm">{originalPost.stats.replies}</span>
-                </Button>
-                <Button variant="ghost" size="sm" className="rounded-full px-3">
-                  <Share className="h-4 w-4 mr-1" />
-                  <span className="text-sm">{originalPost.stats.reposts}</span>
-                </Button>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Hiển thị reply nếu có */}
-        {reply && (
+        {/* Hiển thị reply với text đậm và đầy đủ tương tác */}
+        {type === "reply" && reply && (
           <div className="mt-3 p-3 rounded-lg bg-muted">
-            <Label className="text-[15px] leading-normal">
+            <Label className="text-[15px] leading-normal text-foreground">
               {reply.content}
             </Label>
+            <div className="flex items-center gap-3 mt-3">
+              <Button variant="ghost" size="sm" className="rounded-full px-3">
+                <Heart className="h-4 w-4 mr-1" />
+                <span className="text-sm">
+                  {originalPost?.stats.likes || 0}
+                </span>
+              </Button>
+              <Button variant="ghost" size="sm" className="rounded-full px-3">
+                <MessageCircle className="h-4 w-4 mr-1" />
+                <span className="text-sm">
+                  {originalPost?.stats.replies || 0}
+                </span>
+              </Button>
+              <Button variant="ghost" size="sm" className="rounded-full px-3">
+                <Share className="h-4 w-4 mr-1" />
+                <span className="text-sm">
+                  {originalPost?.stats.reposts || 0}
+                </span>
+              </Button>
+            </div>
           </div>
         )}
       </div>
