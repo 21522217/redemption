@@ -1,0 +1,86 @@
+{
+  "activities": [
+    {
+      "id": "1",
+      "type": "reply",
+      "source": "user",
+      "actorId": "2",
+      "targetUserId": "1",
+      "postId": "post_1",
+      "commentId": "cmt_1",
+      "createdAt": 1710633600000,
+      "isRead": false
+    },
+    {
+      "id": "2",
+      "type": "like",
+      "source": "user",
+      "actorId": "3",
+      "targetUserId": "1",
+      "postId": "post_2",
+      "createdAt": 1710630000000,
+      "isRead": false
+    },
+    {
+      "id": "3",
+      "type": "share",
+      "source": "user",
+      "actorId": "4",
+      "targetUserId": "1",
+      "postId": "post_1",
+      "createdAt": 1710626400000,
+      "isRead": true
+    },
+    {
+      "id": "4",
+      "type": "follow",
+      "source": "user",
+      "actorId": "5",
+      "targetUserId": "1",
+      "createdAt": 1710622800000,
+      "isRead": false
+    },
+    {
+      "id": "5",
+      "type": "suggestion",
+      "source": "system",
+      "targetUserId": "1",
+      "actorId": "6",
+      "reason": "Popular in Photography",
+      "mutualFollowers": 12,
+      "createdAt": 1710619200000,
+      "isRead": false
+    },
+    {
+      "id": "6",
+      "type": "suggestion",
+      "source": "system",
+      "targetUserId": "1",
+      "actorId": "7",
+      "reason": "Followed by emma_watson",
+      "mutualFollowers": 8,
+      "createdAt": 1710615600000,
+      "isRead": false
+    },
+    {
+      "id": "7",
+      "type": "trending",
+      "source": "system",
+      "targetUserId": "1",
+      "reason": "Your post is trending in Photography",
+      "postId": "post_3",
+      "createdAt": 1710612000000,
+      "isRead": true
+    },
+    {
+      "id": "8",
+      "type": "engagement",
+      "source": "system",
+      "targetUserId": "1",
+      "reason": "Your post reached 1,000 likes!",
+      "postId": "post_4",
+      "createdAt": 1710608400000,
+      "isRead": false
+    }
+  ]
+}
