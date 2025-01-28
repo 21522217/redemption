@@ -92,7 +92,7 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({
               <Button
                 variant="outline"
                 size="sm"
-                className="rounded-full px-4 h-8"
+                className="rounded-xl px-4 py-1.5 border-[1px] border-neutral-400 font-medium text-sm"
               >
                 {actionInfo.button}
               </Button>
