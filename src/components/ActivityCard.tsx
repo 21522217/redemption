@@ -19,6 +19,12 @@ interface ActivityCardProps {
   };
 }
 
+// Thay đổi cách format số để đảm bảo nhất quán giữa server và client
+const formatNumber = (num: number) => {
+  // Sử dụng en-US locale để đảm bảo format nhất quán
+  return num.toLocaleString("en-US");
+};
+
 export const ActivityCard: React.FC<ActivityCardProps> = ({ user, post }) => {
   return (
     <div className="flex gap-3 py-3">
@@ -48,19 +54,15 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({ user, post }) => {
             <Heart
               className={`${post.isLiked ? "fill-red-500 text-red-500" : ""}`}
             />
-            <span className="text-sm">{post.stats.likes.toLocaleString()}</span>
+            <span className="text-sm">{formatNumber(post.stats.likes)}</span>
           </Button>
           <Button variant="ghost" className="rounded-full px-3">
             <MessageCircle className="h-[18px] w-[18px]" />
-            <span className="text-sm">
-              {post.stats.replies.toLocaleString()}
-            </span>
+            <span className="text-sm">{formatNumber(post.stats.replies)}</span>
           </Button>
           <Button variant="ghost" className="rounded-full px-3">
             <Repeat2 className="h-[18px] w-[18px]" />
-            <span className="text-sm">
-              {post.stats.reposts.toLocaleString()}
-            </span>
+            <span className="text-sm">{formatNumber(post.stats.reposts)}</span>
           </Button>
           <Button variant="ghost" className="rounded-full px-3">
             <Share className="h-[18px] w-[18px]" />
