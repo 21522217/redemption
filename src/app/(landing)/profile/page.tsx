@@ -1,29 +1,58 @@
 "use client";
 
-import { BarChart2, Edit, Pencil, Plus, Users } from "lucide-react";
+import { useState, useMemo } from "react";
+import { BarChart2, Edit, Pencil, Plus, User, Users } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card } from "@/components/ui/card";
+import { showCreatePostModal } from "@/components/CreatePostModal";
+import { showChangeProfileModal } from "@/components/ChangeProfileModal";
+
+import usersData from "@/data/users-data.json";
 
 export default function Profile() {
+
+  const user = usersData.users[0];
+
+  const [showReplyTab, setShowReplyTab] = useState(true);
+  const [showRepostTab, setShowRepostTab] = useState(true);
+
+  const visibleTabsCount = useMemo(() => {
+    return 1 + (showReplyTab ? 1 : 0) + (showRepostTab ? 1 : 0)
+  }, [showReplyTab, showRepostTab])
+
+  const tabsListClassName = useMemo(() => {
+    switch (visibleTabsCount) {
+      case 1:
+        return "grid w-full h-fit gap-4 grid-cols-1"
+      case 2:
+        return "grid w-full h-fit gap-4 grid-cols-2"
+      default:
+        return "grid w-full h-fit gap-4 grid-cols-3"
+    }
+  }, [visibleTabsCount])
+
   return (
     <div className="h-full rounded-3xl">
-      <div className="flex flex-col h-full bg-card px-8 py-6 rounded-3xl space-y-6">
+      <Card className="flex flex-col h-full bg-card px-8 py-6 rounded-3xl space-y-6">
         <div className="mb-6 flex items-start bg-card justify-between">
           <div className="space-y-1">
-            <h1 className="text-xl font-semibold">Khiem Tran</h1>
-            <p className="text-sm text-zinc-400">hanzo_hekim</p>
-            <p className="text-sm text-zinc-400">0 followers</p>
+            <h1 className="text-xl font-semibold">{user.displayName}</h1>
+            <p className="text-sm text-zinc-400">{user.username}</p>
+            <p className="text-sm text-zinc-400">{user.followers} followers</p>
           </div>
           <div className="flex items-center gap-4">
             <Avatar className="h-16 w-16">
               <AvatarImage
-                src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-FXQJ5FQ4Nv8SXIfqqeoDv2kbCYimji.png"
+                src={user.avatar}
                 alt="Profile picture"
               />
-              <AvatarFallback>KT</AvatarFallback>
+              <AvatarFallback className="[&_svg]:size-7">
+                <User className="w-16 h-16" />
+              </AvatarFallback>
             </Avatar>
             <Button variant="outline" size="icon" className="rounded-full">
               <BarChart2 className="h-4 w-4" />
@@ -33,6 +62,15 @@ export default function Profile() {
 
         {/* Edit Profile Button */}
         <Button
+          onClick={() => {
+            showChangeProfileModal(
+              showReplyTab,
+              setShowReplyTab,
+              showRepostTab,
+              setShowRepostTab,
+              user.id
+            );
+          }}
           variant="outline"
           className="mb-6 w-full rounded-xl font-semibold"
         >
@@ -41,16 +79,19 @@ export default function Profile() {
 
         {/* Tabs Navigation */}
         <Tabs defaultValue="threads" className="mb-6">
-          <TabsList className="w-full h-fit grid grid-cols-3 gap-4">
+          <TabsList className={tabsListClassName}>
             <TabsTrigger value="threads" className="font-semibold py-2">
               Threads
             </TabsTrigger>
-            <TabsTrigger value="replies" className="font-semibold py-2">
-              Replies
-            </TabsTrigger>
-            <TabsTrigger value="reposts" className="font-semibold py-2">
-              Reposts
-            </TabsTrigger>
+            {showReplyTab && (
+              <TabsTrigger value="replies" className="font-semibold py-2">
+                Replies
+              </TabsTrigger>
+            )}
+            {showRepostTab && (
+              <TabsTrigger value="reposts" className="font-semibold py-2">
+                Reposts
+              </TabsTrigger>)}
           </TabsList>
 
           <TabsContent value="threads" className="space-y-4 bg-card">
@@ -65,11 +106,21 @@ export default function Profile() {
               </Avatar>
               <div className="flex-1">
                 <Input
+                  readOnly
+                  onClick={() => {
+                    showCreatePostModal();
+                  }}
                   placeholder="What's new?"
                   className="border-0 bg-card text-white placeholder:text-zinc-400 focus-visible:ring-0"
                 />
               </div>
-              <Button variant="outline" className="rounded-xl font-semibold">
+              <Button
+                onClick={() => {
+                  showCreatePostModal();
+                }}
+                variant="outline"
+                className="rounded-xl font-semibold"
+              >
                 Post
               </Button>
             </div>
@@ -139,7 +190,7 @@ export default function Profile() {
             </div>
           </TabsContent>
 
-          <TabsContent value="replies">
+          <TabsContent value="replies" className="w-full h-full bg-card">
             <div className="text-center text-zinc-400">No replies yet</div>
           </TabsContent>
 
@@ -155,7 +206,7 @@ export default function Profile() {
         >
           <Plus />
         </Button>
-      </div>
-    </div>
+      </Card>
+    </div >
   );
 }
