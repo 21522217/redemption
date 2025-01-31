@@ -13,6 +13,7 @@ export interface User {
   firstName: string;
   lastName: string;
   profilePicture: string;
+  email: string;
   bio: string;
   followers: number;
   isVerified: boolean;
@@ -20,4 +21,5 @@ export interface User {
   createdAt: number;
   updatedAt: number;
 }
+
 

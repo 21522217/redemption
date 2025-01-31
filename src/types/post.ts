@@ -1,6 +1,7 @@
 export interface Post {
-  id: number;
-  userId: number;
+  id?: string;
+  userId: string;
+  type: "text" | "image" | "video" | "audio" | "poll";
   content: string;
   media?: string;
   createdAt: Date;
@@ -9,6 +10,12 @@ export interface Post {
   commentsCount: number;
   repostsCount: number;
   isPinned: boolean;
-  isSponsored: boolean;
-  tags: string[];
+  tags?: string[];
+  locationName?: string;
+  poll?: {
+    question: string;
+    options: string[];
+    endsAt: Date;
+  };
+  isSensitive?: boolean;
 }

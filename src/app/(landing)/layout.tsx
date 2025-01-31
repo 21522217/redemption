@@ -21,7 +21,7 @@ export default function RootLayout({
           <div className="flex flex-row">
             <AppSidebar />
             <main className=" flex flex-col justify-center w-full items-center">
-              <div className="flex max-w-2xl">{children}</div>
+              <div className="flex w-[672px]">{children}</div>
             </main>
           </div>
         </Providers>

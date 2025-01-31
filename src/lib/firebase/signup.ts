@@ -6,18 +6,21 @@ import { toast } from "react-toastify";
 import { useLoading } from "@/contexts/LoadingContext";
 import { useRouter } from "next/navigation";
 import { createUserDocument } from "./apis/user.server";
+import { User } from "@/types/user";
+import { FirebaseError } from "firebase/app";
 
-export interface CreateUser {
+const auth = getAuth(firebase_app);
+
+async function performFirebaseSignUp(email: string, password: string) {
+  return await createUserWithEmailAndPassword(auth, email, password);
+}
+
+interface SignUpData {
   email: string;
   password: string;
   firstName: string;
   lastName: string;
   username: string;
-}
-
-const auth = getAuth(firebase_app);
-async function performFirebaseSignUp(email: string, password: string) {
-  return await createUserWithEmailAndPassword(auth, email, password);
 }
 
 export default function useSignUp() {
@@ -30,34 +33,37 @@ export default function useSignUp() {
     firstName,
     lastName,
     username,
-  }: {
-    email: string;
-    password: string;
-    firstName: string;
-    lastName: string;
-    username: string;
-  }) {
+  }: SignUpData): Promise<void> {
     setLoadingState(true);
 
     try {
+      // Create Firebase Auth user
       const result = await performFirebaseSignUp(email, password);
+      const uid = result.user.uid;
 
-      await createUserDocument(result, {
-        email,
-        password,
+      // Create Firestore user document
+      const newUser: Omit<User, "id" | "passwordHash"> = {
+        username,
         firstName,
         lastName,
-        username,
-      });
+        email,
+        profilePicture: "https://github.com/shadcn.png",
+        bio: "",
+        followers: 0,
+        isVerified: false,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+      };
 
-      toast.success("Account created successfully!", {
-        position: "top-right",
-      });
+      await createUserDocument(uid, newUser);
 
+      toast.success("Account created successfully!", { position: "top-right" });
       router.push("/login");
-    } catch (e: any) {
+    } catch (error) {
       const errorMessage =
-        e.message || "An unexpected error occurred during signup.";
+        error instanceof FirebaseError
+          ? error.message
+          : "An unexpected error occurred.";
       toast.error(`Failed to create account: ${errorMessage}`, {
         position: "top-right",
       });

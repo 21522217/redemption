@@ -1,11 +1,7 @@
 import PostView from "./_components/PostView";
 
 const page = () => {
-  return (
-    <>
-      <PostView />
-    </>
-  );
+  return <PostView />;
 };
 
 export default page;

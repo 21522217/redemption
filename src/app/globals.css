@@ -6,6 +6,7 @@
   :root[data-theme="dark"] {
     --background: 229 41% 4%;
     --background-secondary: 229 41% 4%;
+    --content-background: 0 0% 20%;
     --foreground: 229 23% 99%;
     --muted: 229 12% 14%;
     --muted-foreground: 229 10% 63%;
@@ -35,6 +36,7 @@
   .light[data-theme="light"] {
     --background: 229 57% 100%;
     --background-secondary: 229 57% 100%;
+    --content-background: 0 0% 80%;
     --foreground: 229 63% 4%;
     --muted: 229 12% 86%;
     --muted-foreground: 229 10% 37%;
