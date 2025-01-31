@@ -48,8 +48,8 @@ const PostView = () => {
       <div className="h-10" />
       {isLogin && <PostCond />}
 
-      {postsWithUsers.map((post) => (
-        <article key={post.id} className="border-b border-gray-800 p-4">
+      {postsWithUsers.map((post, index) => (
+        <article key={`${post.id}-${index}`} className="border-b border-gray-400 p-4">
           <div className="flex items-start gap-3">
             <Avatar>
               <AvatarImage
@@ -67,18 +67,16 @@ const PostView = () => {
 
               <p className="mt-2 mb-3">{post.content}</p>
 
-              {post.type === "image" && post.media && (
-                <div className="grid grid-cols-3 gap-0.5 rounded-xl overflow-hidden">
-                  {[post.media].map((img, i) => (
-                    <div key={`${post.id}`} className="aspect-square relative">
-                      <Image
-                        src={img}
-                        alt="Post media"
-                        fill
-                        className="object-contain"
-                      />
-                    </div>
-                  ))}
+              {post.media && (
+                <div className="rounded-xl overflow-hidden">
+                  <div className="aspect-square relative">
+                    <Image
+                      src={post.media}
+                      alt="Post media"
+                      fill
+                      className="object-contain"
+                    />
+                  </div>
                 </div>
               )}
 
