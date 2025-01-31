@@ -69,7 +69,7 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
         content: content,
         media: uploadedMediaUrl || "",
         tags: ["#test", "#test2"],
-        likesCount: 0,
+        likesCount: 100000,
         commentsCount: 0,
         repostsCount: 0,
         isPinned: false,
@@ -111,7 +111,6 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
             </div>
 
             <div className="flex gap-4">
-              l
               <Avatar className="w-10 h-10">
                 <AvatarImage src="/placeholder.svg" />
                 <AvatarFallback>UN</AvatarFallback>

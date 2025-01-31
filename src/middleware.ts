@@ -17,9 +17,9 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  if (currentPath.startsWith("/login") && token) {
-    return NextResponse.redirect(new URL("/profile", request.url));
-  }
+  // if (currentPath.startsWith("/login") && token) {
+  //   return NextResponse.redirect(new URL("/profile", request.url));
+  // }
 
   return NextResponse.next();
 }

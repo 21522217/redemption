@@ -3,7 +3,11 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import PostCond from "./PostCond";
-import { fetchPostsWithUsers } from "@/lib/firebase/apis/posts.server";
+import {
+  fetchPostsWithUsers,
+  toggleLikePost,
+  isPostLiked,
+} from "@/lib/firebase/apis/posts.server";
 import type { Post } from "@/types/post";
 import type { User } from "@/types/user";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -11,22 +15,65 @@ import { MessageCircle, Heart, Repeat, Share2 } from "lucide-react";
 import Image from "next/image";
 
 const PostView = () => {
-  const { isLogin } = useAuth();
+  const { user, isLogin } = useAuth();
   const [postsWithUsers, setPostsWithUsers] = useState<
     Array<Post & { user: User }>
   >([]);
+  const [likes, setLikes] = useState<Map<string, boolean>>(new Map());
+  const [comments, setComments] = useState<number[]>([]);
+  const [reposts, setReposts] = useState<number[]>([]);
+
+  // FUNCTIONS
+
+  const handleLike = async (postId: string) => {
+    if (!user) return;
+    console.log("Like post", postId);
+
+    try {
+      // Toggle like status
+      await toggleLikePost(postId, user.uid);
+      // Update local state to reflect like toggle
+      setLikes((prevLikes) => {
+        const updatedLikes = new Map(prevLikes);
+        updatedLikes.set(postId, !updatedLikes.get(postId));
+        return updatedLikes;
+      });
+    } catch (error) {
+      console.error("Failed to toggle like status:", error);
+    }
+  };
+
+  // EFFECTS
 
   useEffect(() => {
     const fetchPosts = async () => {
       try {
         const posts = await fetchPostsWithUsers();
         setPostsWithUsers(posts);
+        setComments(posts.map((post) => post.commentsCount));
+        setReposts(posts.map((post) => post.repostsCount));
+
+        // Check if the user has liked any posts
+        if (user) {
+          const likedPosts = await Promise.all(
+            posts.map(async (post) => {
+              const liked = await isPostLiked(post?.id || "", user.uid);
+              return { postId: post.id, isLiked: liked };
+            })
+          );
+          const likedMap = new Map(
+            likedPosts.map((item) => [item.postId, item.isLiked])
+          );
+          setLikes(likedMap as Map<string, boolean>);
+        }
       } catch (error) {
         console.error("Failed to fetch posts with users:", error);
       }
     };
     fetchPosts();
-  }, []);
+  }, [user]);
+
+  // utilities
 
   const formatNumber = (num: number) =>
     num >= 1000 ? `${(num / 1000).toFixed(1)}K` : num.toString();
@@ -49,11 +96,14 @@ const PostView = () => {
       {isLogin && <PostCond />}
 
       {postsWithUsers.map((post, index) => (
-        <article key={`${post.id}-${index}`} className="border-b border-gray-400 p-4">
+        <article
+          key={`${post.id}-${index}`}
+          className="border-b border-gray-400 p-4"
+        >
           <div className="flex items-start gap-3">
             <Avatar>
               <AvatarImage
-                src={post.user.profilePicture || "/placeholder.svg"}
+                src={post.user.profilePicture}
                 alt={post.user.username}
               />
               <AvatarFallback>{post.user.username.charAt(0)}</AvatarFallback>
@@ -82,18 +132,22 @@ const PostView = () => {
 
               <div className="flex items-center gap-6 mt-4 text-gray-500">
                 <button className="flex items-center gap-2 hover:text-red-500">
-                  <Heart className="w-5 h-5" />
-                  <span>{formatNumber(post.likesCount)}</span>
+                  <Heart
+                    className="w-5 h-5"
+                    fill={likes.get(post.id || "") ? "red" : "none"}
+                    onClick={() => handleLike(post.id || "")}
+                  />
+                  <span>{formatNumber(likes.get(post.id || "") ? 1 : 0)}</span>
                 </button>
                 <button className="flex items-center gap-2 hover:text-blue-500">
                   <MessageCircle className="w-5 h-5" />
-                  <span>{formatNumber(post.commentsCount)}</span>
+                  <span>{formatNumber(comments[index])}</span>
                 </button>
                 <button className="flex items-center gap-2 hover:text-green-500">
                   <Repeat className="w-5 h-5" />
-                  <span>{formatNumber(post.repostsCount)}</span>
+                  <span>{formatNumber(reposts[index])}</span>
                 </button>
-                <button className="flex items-center gap-2 hover:text-blue-500">
+                <button className="flex items-center gap-2 hover:text-violet-400">
                   <Share2 className="w-5 h-5" />
                 </button>
               </div>

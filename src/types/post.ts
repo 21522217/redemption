@@ -19,3 +19,10 @@ export interface Post {
   };
   isSensitive?: boolean;
 }
+
+export interface LikedPost {
+  userId: string;
+  postId: string;
+  createdAt: Date;
+  isLiked: boolean;
+}

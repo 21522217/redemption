@@ -53,9 +53,9 @@ export const LoadingProvider = ({
     <LoadingContext.Provider value={{ isLoading, setLoadingState }}>
       {children}
       {isLoading && (
-        <div className="fixed inset-0 flex items-center justify-center bg-red-300/50 backdrop-blur-sm z-50">
+        <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm z-100">
           <motion.div
-            className="w-16 h-16 border-4 border-general-pink rounded-full border-t-transparent"
+            className="w-16 h-16 border-4 border-blue-500 rounded-full border-t-transparent"
             animate={{ rotate: 360 }}
             transition={{
               duration: 1,
