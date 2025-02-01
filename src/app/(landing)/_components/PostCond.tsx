@@ -2,9 +2,8 @@
 
 import React from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import Avatar from "@/components/Avatar";
+import UserAvatar from "@/components/UserAvatar";
 import { Button } from "@/components/ui/button";
-import { PlusIcon } from "lucide-react";
 import { showCreatePostModal } from "@/components/CreatePostModal";
 
 const PostCond = () => {
@@ -12,7 +11,7 @@ const PostCond = () => {
 
   return (
     <div className="flex flex-row w-full items-center space-x-2">
-      <Avatar user={user} />
+      <UserAvatar user={user} />
       <span
         className="text-muted-foreground cursor-pointer flex w-full"
         onClick={showCreatePostModal}
