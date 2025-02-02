@@ -12,7 +12,6 @@ import { createPost } from "@/lib/firebase/apis/posts.server";
 import Image from "next/image";
 import { Post } from "@/types/post";
 import { toast } from "react-toastify";
-
 interface CreatePostModalProps {
   isOpen: boolean;
   onChange: (open: boolean) => void;
@@ -64,6 +63,7 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
       }
 
       const newPost: Post = {
+        id: "", // Add the missing 'id' property
         userId: user?.uid || "",
         type: media ? "image" : "text",
         content: content,
@@ -78,7 +78,9 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
         updatedAt: new Date(),
       };
 
+      // implemented update ID ref from document in createing post
       await createPost(newPost);
+
       toast("Post created successfully!");
       setContent("");
       setMedia(null);

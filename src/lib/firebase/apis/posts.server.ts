@@ -10,14 +10,18 @@ import {
   doc,
   getDoc,
   addDoc,
-  updateDoc,
-  setDoc,
   runTransaction,
+  increment,
+  updateDoc,
 } from "firebase/firestore";
 
-export async function createPost(post: Post) {
-  const postDoc = await addDoc(collection(db, "posts"), post);
-  return postDoc;
+export async function createPost(post: Omit<Post, "id">) {
+  const postRef = await addDoc(collection(db, "posts"), post);
+  const postId = postRef.id;
+
+  await updateDoc(doc(db, "posts", postId), { id: postId });
+
+  return postId;
 }
 
 export async function fetchPostsWithUsers() {
@@ -28,7 +32,19 @@ export async function fetchPostsWithUsers() {
 
   for (const postDoc of postsSnapshot.docs) {
     const postData = postDoc.data() as Post;
-    const userDoc = await getDoc(doc(db, "users", postData.userId.toString()));
+
+    if (!postData.userId) {
+      console.error("Invalid userId in post:", postData);
+      continue;
+    }
+
+    const userDoc = await getDoc(doc(db, "users", postData.userId));
+
+    if (!userDoc.exists()) {
+      console.warn(`User not found for post ${postDoc.id}`);
+      continue;
+    }
+
     const userData = userDoc.data() as User;
 
     postsWithUsers.push({
@@ -41,22 +57,25 @@ export async function fetchPostsWithUsers() {
 }
 
 export async function toggleLikePost(postId: string, userId: string) {
+  if (!postId) {
+    throw new Error("Invalid postId: It must be a non-empty string.");
+  }
+
+  if (!userId) {
+    throw new Error("Invalid userId: It must be a non-empty string.");
+  }
+
   const likeDoc = doc(db, "liked_post", `${userId}_${postId}`);
   const postDoc = doc(db, "posts", postId);
 
   try {
     await runTransaction(db, async (transaction) => {
-      const [likeSnap, postSnap] = await Promise.all([
-        transaction.get(likeDoc),
-        transaction.get(postDoc),
-      ]);
+      const likeSnap = await transaction.get(likeDoc);
+      const postSnap = await transaction.get(postDoc);
 
       if (!postSnap.exists()) {
         throw new Error("Post does not exist");
       }
-
-      const post = postSnap.data() as Post;
-      let updatedLikesCount = post.likesCount;
 
       if (!likeSnap.exists()) {
         transaction.set(likeDoc, {
@@ -65,16 +84,17 @@ export async function toggleLikePost(postId: string, userId: string) {
           createdAt: new Date(),
           isLiked: true,
         } as LikedPost);
-        updatedLikesCount++;
+        transaction.update(postDoc, { likesCount: increment(1) });
       } else {
         const likeData = likeSnap.data() as LikedPost;
-        const newIsLiked = !likeData.isLiked;
-
-        transaction.update(likeDoc, { isLiked: newIsLiked });
-        updatedLikesCount += newIsLiked ? 1 : -1;
+        if (likeData.isLiked) {
+          transaction.delete(likeDoc);
+          transaction.update(postDoc, { likesCount: increment(-1) });
+        } else {
+          transaction.update(likeDoc, { isLiked: true });
+          transaction.update(postDoc, { likesCount: increment(1) });
+        }
       }
-
-      transaction.update(postDoc, { likesCount: updatedLikesCount });
     });
   } catch (error) {
     console.error("Error toggling like: ", error);
@@ -87,13 +107,7 @@ export async function isPostLiked(
   userId: string
 ): Promise<boolean> {
   const likeDoc = doc(db, "liked_post", `${userId}_${postId}`);
-
   const likeSnap = await getDoc(likeDoc);
 
-  if (likeSnap.exists()) {
-    const likeData = likeSnap.data() as { isLiked: boolean };
-    return likeData.isLiked;
-  }
-
-  return false;
+  return likeSnap.exists() && (likeSnap.data() as LikedPost).isLiked;
 }

@@ -19,20 +19,14 @@ const PostView = () => {
   const [postsWithUsers, setPostsWithUsers] = useState<
     Array<Post & { user: User }>
   >([]);
-  const [likes, setLikes] = useState<Map<string, boolean>>(new Map());
+  const [likes, setLikes] = useState(new Map<string, boolean>());
   const [comments, setComments] = useState<number[]>([]);
   const [reposts, setReposts] = useState<number[]>([]);
 
-  // FUNCTIONS
-
   const handleLike = async (postId: string) => {
     if (!user) return;
-    console.log("Like post", postId);
-
     try {
-      // Toggle like status
       await toggleLikePost(postId, user.uid);
-      // Update local state to reflect like toggle
       setLikes((prevLikes) => {
         const updatedLikes = new Map(prevLikes);
         updatedLikes.set(postId, !updatedLikes.get(postId));
@@ -43,37 +37,35 @@ const PostView = () => {
     }
   };
 
-  // EFFECTS
-
   useEffect(() => {
     const fetchPosts = async () => {
       try {
         const posts = await fetchPostsWithUsers();
+        posts.sort(
+          (a, b) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
         setPostsWithUsers(posts);
         setComments(posts.map((post) => post.commentsCount));
         setReposts(posts.map((post) => post.repostsCount));
 
-        // Check if the user has liked any posts
         if (user) {
           const likedPosts = await Promise.all(
-            posts.map(async (post) => {
-              const liked = await isPostLiked(post?.id || "", user.uid);
-              return { postId: post.id, isLiked: liked };
-            })
+            posts.map(async (post) => ({
+              postId: post.id,
+              isLiked: await isPostLiked(post.id, user.uid),
+            }))
           );
-          const likedMap = new Map(
-            likedPosts.map((item) => [item.postId, item.isLiked])
+          setLikes(
+            new Map(likedPosts.map(({ postId, isLiked }) => [postId, isLiked]))
           );
-          setLikes(likedMap as Map<string, boolean>);
         }
       } catch (error) {
-        console.error("Failed to fetch posts with users:", error);
+        console.error("Failed to fetch posts:", error);
       }
     };
     fetchPosts();
   }, [user]);
-
-  // utilities
 
   const formatNumber = (num: number) =>
     num >= 1000 ? `${(num / 1000).toFixed(1)}K` : num.toString();
@@ -94,10 +86,9 @@ const PostView = () => {
     <div className="flex flex-col w-full border border-border min-h-screen text-white">
       <div className="h-10" />
       {isLogin && <PostCond />}
-
       {postsWithUsers.map((post, index) => (
         <article
-          key={`${post.id}-${index}`}
+          key={post.id ?? `post-${index}`}
           className="border-b border-gray-400 p-4"
         >
           <div className="flex items-start gap-3">
@@ -114,9 +105,7 @@ const PostView = () => {
                   · {getTimeAgo(post.createdAt)}
                 </span>
               </div>
-
               <p className="mt-2 mb-3">{post.content}</p>
-
               {post.media && (
                 <div className="rounded-xl overflow-hidden">
                   <div className="aspect-square relative">
@@ -129,15 +118,14 @@ const PostView = () => {
                   </div>
                 </div>
               )}
-
               <div className="flex items-center gap-6 mt-4 text-gray-500">
                 <button className="flex items-center gap-2 hover:text-red-500">
                   <Heart
                     className="w-5 h-5"
-                    fill={likes.get(post.id || "") ? "red" : "none"}
-                    onClick={() => handleLike(post.id || "")}
+                    fill={likes.get(post.id) ? "red" : "none"}
+                    onClick={() => handleLike(post.id)}
                   />
-                  <span>{formatNumber(likes.get(post.id || "") ? 1 : 0)}</span>
+                  <span>{formatNumber(post.likesCount)}</span>
                 </button>
                 <button className="flex items-center gap-2 hover:text-blue-500">
                   <MessageCircle className="w-5 h-5" />
