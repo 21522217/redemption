@@ -22,6 +22,7 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
   onChange,
 }) => {
   const { user } = useAuth();
+  const { setLoadingState } = useLoading();
 
   const [content, setContent] = useState<string>("");
   const [media, setMedia] = useState<File | null>(null);
@@ -41,6 +42,7 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
   };
 
   const handlePost = async () => {
+    setLoadingState(true);
     if (!content.trim() && !media) {
       toast("Post cannot be empty.");
       return;
@@ -63,7 +65,7 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
       }
 
       const newPost: Post = {
-        id: "", // Add the missing 'id' property
+        id: "",
         userId: user?.uid || "",
         type: media ? "image" : "text",
         content: content,
@@ -78,7 +80,6 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
         updatedAt: new Date(),
       };
 
-      // implemented update ID ref from document in createing post
       await createPost(newPost);
 
       toast("Post created successfully!");
@@ -88,6 +89,8 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
     } catch (error) {
       console.error("Failed to create post:", error);
       toast("Failed to create post.");
+    } finally {
+      setLoadingState(false);
     }
   };
 
