@@ -14,13 +14,12 @@ interface FormFieldAvatarProps<
 > {
    control: Control<TFieldValues>
    name: TName
-   userName: string
 }
 
 export function FormFieldAvatar<
    TFieldValues extends FieldValues = FieldValues,
    TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
->({ control, name, userName }: FormFieldAvatarProps<TFieldValues, TName>) {
+>({ control, name }: FormFieldAvatarProps<TFieldValues, TName>) {
 
    const fileInputRef = useRef<HTMLInputElement>(null)
    const [key, setKey] = useState(0)

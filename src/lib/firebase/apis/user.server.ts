@@ -7,11 +7,20 @@ import {
   getDoc,
   collection,
   getDocs,
-  Firestore, 
+  Firestore,
+  updateDoc, 
 } from "firebase/firestore";
 import { User } from "@/types/user";
 import { Timestamp } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
+
+interface UpdateUserData {
+  username?: string;
+  firstName?: string;
+  lastName?: string;
+  profilePicture?: string;
+  bio?: string;
+}
 
 export async function createUserDocument(uid: string, params: Partial<User>) {
   const userRef = doc(db, "users", uid);
@@ -67,4 +76,24 @@ export async function fetchCurrentUser(): Promise<User> {
     updatedAt: 0,
     ...userData, 
   } as User;
+}
+
+
+export async function updateUserProfile(updates: UpdateUserData): Promise<void> {
+  const auth = getAuth();
+  const currentUser = auth.currentUser;
+
+  if (!currentUser) {
+    throw new Error("User not authenticated.");
+  }
+
+  const userRef = doc(db, "users", currentUser.uid);
+
+  try {
+    await updateDoc(userRef, { ...updates } as Record<string, any>);
+    console.log("User profile updated successfully!");
+  } catch (error) {
+    console.error("Error updating user profile:", error);
+    throw error;
+  }
 }

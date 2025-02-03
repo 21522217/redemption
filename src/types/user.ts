@@ -22,4 +22,14 @@ export interface User {
   updatedAt: number;
 }
 
+export interface UserProfileUpdate{
+  username: string;
+  firstName: string;
+  lastName: string;
+  bio: string;
+  profilePicture: string;
+  showReplyTab?: boolean;
+  showRepostTab?: boolean;
+}
+
 

@@ -9,13 +9,13 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
 import { showCreatePostModal } from "@/components/CreatePostModal";
-import { showChangeProfileModal } from "@/components/ChangeProfileModal";
 
 import { fetchCurrentUser } from "@/lib/firebase/apis/user.server";
 import { User } from "@/types/user";
+import ChangeProfileModal from "@/components/ChangeProfileModal";
 
 export default function Profile() {
-
+  const [isModalOpen, setModalOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [showReplyTab, setShowReplyTab] = useState(true);
   const [showRepostTab, setShowRepostTab] = useState(true);
@@ -35,6 +35,18 @@ export default function Profile() {
   const visibleTabsCount = useMemo(() => {
     return 1 + (showReplyTab ? 1 : 0) + (showRepostTab ? 1 : 0)
   }, [showReplyTab, showRepostTab])
+
+  const handleProfileUpdate = () => {
+    // Fetch the updated user data and update the state
+    fetchCurrentUser()
+      .then((user) => {
+        setCurrentUser(user);
+        console.log("Updated User:", user);
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  };
 
   const tabsListClassName = useMemo(() => {
     switch (visibleTabsCount) {
@@ -71,20 +83,22 @@ export default function Profile() {
 
         {/* Edit Profile Button */}
         <Button
-          onClick={() => {
-            showChangeProfileModal(
-              showReplyTab,
-              setShowReplyTab,
-              showRepostTab,
-              setShowRepostTab,
-              currentUser,
-            );
-          }}
+          onClick={() => setModalOpen(true)}
           variant="outline"
           className="mb-6 w-full rounded-xl font-semibold"
         >
           Edit profile
         </Button>
+        <ChangeProfileModal
+          isOpen={isModalOpen}
+          onChange={setModalOpen}
+          currentUser={currentUser}
+          showReplyTab={showReplyTab}
+          setShowReplyTab={setShowReplyTab}
+          showRepostTab={showRepostTab}
+          setShowRepostTab={setShowRepostTab}
+          onProfileUpdate={handleProfileUpdate}
+        />
 
         {/* Tabs Navigation */}
         <Tabs defaultValue="threads" className="mb-6">
