@@ -34,6 +34,16 @@ const PostView = () => {
         updatedLikes.set(postId, !updatedLikes.get(postId));
         return updatedLikes;
       });
+      setPostsWithUsers((prevPosts) =>
+        prevPosts.map((post) =>
+          post.id === postId
+            ? {
+                ...post,
+                likesCount: post.likesCount + (likes.get(postId) ? -1 : 1),
+              }
+            : post
+        )
+      );
     } catch (error) {
       console.error("Failed to toggle like status:", error);
     }
@@ -114,7 +124,7 @@ const PostView = () => {
                     {getTimeAgo(post.createdAt)}
                   </span>
                 </div>
-                <PostDropdown />
+                <PostDropdown post={post} />
               </div>
               <p className="mt-1 break-words whitespace-pre-wrap">
                 {post.content}

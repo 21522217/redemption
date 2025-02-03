@@ -14,10 +14,19 @@ import {
   increment,
   updateDoc,
 } from "firebase/firestore";
-import { serverTimestamp, Timestamp } from "firebase/firestore";
+import { Timestamp } from "firebase/firestore";
 
-export async function createPost(post: Omit<Post, "id">) {
-  const postRef = await addDoc(collection(db, "posts"), post);
+export async function createPost(
+  post: Omit<Post, "id" | "createdAt" | "updatedAt">
+) {
+  const timestamp = Timestamp.now();
+  const postWithTimestamps = {
+    ...post,
+    createdAt: timestamp,
+    updatedAt: timestamp,
+  };
+
+  const postRef = await addDoc(collection(db, "posts"), postWithTimestamps);
   const postId = postRef.id;
 
   await updateDoc(doc(db, "posts", postId), { id: postId });

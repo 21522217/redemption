@@ -12,6 +12,7 @@ import { createPost } from "@/lib/firebase/apis/posts.server";
 import Image from "next/image";
 import { Post } from "@/types/post";
 import { toast } from "react-toastify";
+
 interface CreatePostModalProps {
   isOpen: boolean;
   onChange: (open: boolean) => void;
@@ -36,8 +37,10 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0];
-    if (selectedFile) {
+    if (selectedFile && (selectedFile.type === "image/png" || selectedFile.type === "image/jpeg")) {
       setMedia(selectedFile);
+    } else {
+      toast("Only PNG and JPEG files are allowed.");
     }
   };
 
@@ -45,6 +48,7 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
     setLoadingState(true);
     if (!content.trim() && !media) {
       toast("Post cannot be empty.");
+      setLoadingState(false);
       return;
     }
 
@@ -55,13 +59,20 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
         const formData = new FormData();
         formData.append("image", media);
 
-        const response = await fetch("/api/upload", {
-          method: "POST",
-          body: formData,
-        });
+        try {
+          const response = await fetch("/api/upload", {
+            method: "POST",
+            body: formData,
+          });
 
-        const result = await response.json();
-        uploadedMediaUrl = result?.data?.link;
+          const result = await response.json();
+          uploadedMediaUrl = result?.data?.link;
+        } catch (error) {
+          console.error("Failed to upload media:", error);
+          toast("Failed to upload media.");
+          setLoadingState(false);
+          return;
+        }
       }
 
       const newPost: Post = {
@@ -69,13 +80,14 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
         userId: user?.uid || "",
         type: media ? "image" : "text",
         content: content,
-        media: uploadedMediaUrl,
         tags: ["#test", "#test2"],
-        likesCount: 100000,
+        likesCount: 0,
         commentsCount: 0,
         repostsCount: 0,
         isPinned: false,
         locationName: "",
+        isSensitive: false,
+        ...(uploadedMediaUrl ? { media: uploadedMediaUrl } : {}),
       };
 
       await createPost(newPost);
@@ -114,10 +126,10 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
             </div>
 
             <div className="flex gap-4">
-              <Avatar className="w-10 h-10">
-                <AvatarImage src="/placeholder.svg" />
-                <AvatarFallback>UN</AvatarFallback>
-              </Avatar>
+              {/* <Avatar className="w-10 h-10">
+                <AvatarImage src={user?.profilePicture || "/placeholder.svg"} />
+                <AvatarFallback>{user?.username.charAt(0) || "UN"}</AvatarFallback>
+              </Avatar> */}
               <div className="flex-1">
                 <textarea
                   placeholder="What's on your mind?"
@@ -143,7 +155,7 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
                   )}
                   <input
                     type="file"
-                    accept="image/*"
+                    accept="image/png, image/jpeg"
                     ref={fileInputRef}
                     style={{ display: "none" }}
                     onChange={handleFileChange}

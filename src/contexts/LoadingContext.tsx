@@ -20,7 +20,7 @@ export const useLoading = (): LoadingContextType => {
 };
 
 const FullScreenLoader = () => (
-  <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm z-100">
+  <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm z-[9999] bg-neutral-900/80">
     <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-violet-500"></div>
   </div>
 );
@@ -39,6 +39,7 @@ export const LoadingProvider = ({
       setIsLoading(true);
       setShouldDisplayLoader(true);
     } else {
+      setIsLoading(false);
       setTimeout(() => {
         setShouldDisplayLoader(false);
       }, 100);
@@ -57,7 +58,7 @@ export const LoadingProvider = ({
   return (
     <LoadingContext.Provider value={{ isLoading, setLoadingState }}>
       {children}
-      {isLoading && <FullScreenLoader />}
+      {shouldDisplayLoader && <FullScreenLoader />}
     </LoadingContext.Provider>
   );
 };

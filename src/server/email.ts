@@ -5,7 +5,8 @@ import nodemailer from "nodemailer";
 export async function sendReportEmail(
   name: string,
   email: string,
-  message: string
+  message: string,
+  postId: string
 ): Promise<{ success: boolean; error?: string }> {
   const transporter = nodemailer.createTransport({
     host: process.env.NEXT_PUBLIC_EMAIL_HOST,
@@ -19,9 +20,9 @@ export async function sendReportEmail(
 
   const mailOptions = {
     from: `"${name}" <${email}>`,
-    to: process.env.NEXT_PUBLIC_EMAIL_USER, // Send to yourself
-    subject: "New Report from Your App",
-    text: `Name: ${name}\nEmail: ${email}\nMessage: ${message}`,
+    to: process.env.NEXT_PUBLIC_EMAIL_USER,
+    subject: "New Report from Your Redemption App",
+    text: `Name: ${name}\nEmail: ${email}\nMessage: ${message}\nPost ID: ${postId}`,
   };
 
   try {
