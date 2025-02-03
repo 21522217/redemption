@@ -1,11 +1,13 @@
+import { Timestamp } from "firebase/firestore";
+
 export interface Post {
   id: string;
   userId: string;
   type: "text" | "image" | "video" | "audio" | "poll";
   content: string;
   media?: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt?: Timestamp;
+  updatedAt?: Timestamp;
   likesCount: number;
   commentsCount: number;
   repostsCount: number;
@@ -15,7 +17,7 @@ export interface Post {
   poll?: {
     question: string;
     options: string[];
-    endsAt: Date;
+    endsAt: Timestamp;
   };
   isSensitive?: boolean;
 }
@@ -23,6 +25,6 @@ export interface Post {
 export interface LikedPost {
   userId: string;
   postId: string;
-  createdAt: Date;
+  createdAt: Timestamp;
   isLiked: boolean;
 }

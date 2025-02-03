@@ -14,6 +14,7 @@ import {
   increment,
   updateDoc,
 } from "firebase/firestore";
+import { serverTimestamp, Timestamp } from "firebase/firestore";
 
 export async function createPost(post: Omit<Post, "id">) {
   const postRef = await addDoc(collection(db, "posts"), post);
@@ -53,6 +54,13 @@ export async function fetchPostsWithUsers() {
     });
   }
 
+  postsWithUsers.sort((a, b) => {
+    if (a.createdAt && b.createdAt) {
+      return b.createdAt.seconds - a.createdAt.seconds;
+    }
+    return 0;
+  });
+
   return postsWithUsers;
 }
 
@@ -81,7 +89,7 @@ export async function toggleLikePost(postId: string, userId: string) {
         transaction.set(likeDoc, {
           userId,
           postId,
-          createdAt: new Date(),
+          createdAt: Timestamp.now(),
           isLiked: true,
         } as LikedPost);
         transaction.update(postDoc, { likesCount: increment(1) });

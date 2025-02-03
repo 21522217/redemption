@@ -1,7 +1,6 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect } from "react";
-import { motion } from "framer-motion";
 
 type LoadingContextType = {
   isLoading: boolean;
@@ -19,6 +18,12 @@ export const useLoading = (): LoadingContextType => {
 
   return context;
 };
+
+const FullScreenLoader = () => (
+  <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm z-100">
+    <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-violet-500"></div>
+  </div>
+);
 
 export const LoadingProvider = ({
   children,
@@ -52,19 +57,7 @@ export const LoadingProvider = ({
   return (
     <LoadingContext.Provider value={{ isLoading, setLoadingState }}>
       {children}
-      {isLoading && (
-        <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm z-100">
-          <motion.div
-            className="w-16 h-16 border-4 border-blue-500 rounded-full border-t-transparent"
-            animate={{ rotate: 360 }}
-            transition={{
-              duration: 1,
-              repeat: Infinity,
-              ease: "linear",
-            }}
-          />
-        </div>
-      )}
+      {isLoading && <FullScreenLoader />}
     </LoadingContext.Provider>
   );
 };

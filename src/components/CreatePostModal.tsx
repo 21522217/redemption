@@ -69,15 +69,13 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
         userId: user?.uid || "",
         type: media ? "image" : "text",
         content: content,
-        media: uploadedMediaUrl || "",
+        media: uploadedMediaUrl,
         tags: ["#test", "#test2"],
         likesCount: 100000,
         commentsCount: 0,
         repostsCount: 0,
         isPinned: false,
         locationName: "",
-        createdAt: new Date(),
-        updatedAt: new Date(),
       };
 
       await createPost(newPost);
@@ -100,9 +98,9 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
         <Dialog.Overlay className="z-50 bg-neutral-900/90 backdrop-blur-sm fixed inset-0">
           <Dialog.Content
             className="fixed drop-shadow-md top-1/2 left-1/2 max-h-full 
-            w-full md:w-[600px] h-[400px] md:h-auto md:max-h-[85vh] -translate-x-1/2 -translate-y-1/2 rounded-xl p-6 focus:outline-none"
+            w-full md:w-[600px] h-[400px] md:h-auto md:max-h-[85vh] -translate-x-1/2 -translate-y-1/2 rounded-xl p-6 focus:outline-none bg-background-content"
           >
-            <div className="flex justify-between items-center mb-4">
+            <div className="flex justify-between items-center mb-4 p-4">
               <span
                 className="text-primary hover:text-primary/80 cursor-pointer"
                 onClick={() => onChange(false)}

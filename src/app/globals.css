@@ -6,14 +6,14 @@
   :root[data-theme="dark"] {
     --background: 229 41% 4%;
     --background-secondary: 229 41% 4%;
-    --content-background: 0 0% 20%;
+    --content-background: 220 15% 15%;
     --foreground: 229 23% 99%;
     --muted: 229 12% 14%;
     --muted-foreground: 229 10% 63%;
     --popover: 229 41% 5%;
     --popover-foreground: 0 0% 100%;
     --card: 229 41% 5%;
-    --card-foreground: 0 0% 100%;
+    --card-foreground: 0 0% 100%; 
     --border: 215 28% 17%;
     --input: 215 28% 17%;
     --primary: 0 0% 100%;

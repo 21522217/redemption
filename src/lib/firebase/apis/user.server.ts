@@ -1,7 +1,7 @@
 "server-only";
 
 import { db } from "../config";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc } from "firebase/firestore";
 import { User } from "@/types/user";
 import { Timestamp } from "firebase/firestore";
 
@@ -26,4 +26,11 @@ export async function createUserDocument(uid: string, params: Partial<User>) {
   await setDoc(userRef, userData);
 
   return userRef;
+}
+
+export async function isPostOwner(postId: string, userId: string): Promise<boolean> {
+  const postRef = doc(db, "posts", postId);
+  const postDoc = await getDoc(postRef);
+
+  return postDoc.exists() && postDoc.data().ownerId === userId;
 }
