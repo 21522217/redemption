@@ -68,7 +68,7 @@ const PostView = () => {
   const formatNumber = (num: number) =>
     num >= 1000 ? `${(num / 1000).toFixed(1)}K` : num.toString();
 
-  const getTimeAgo = (date: Timestamp | undefined ) => {
+  const getTimeAgo = (date: Timestamp | undefined) => {
     if (!date) return "";
     const parsedDate = date.toDate();
     const now = new Date();
