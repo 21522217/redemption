@@ -13,18 +13,36 @@ import { showCreatePostModal } from "@/components/CreatePostModal";
 import { fetchCurrentUser } from "@/lib/firebase/apis/user.server";
 import { User } from "@/types/user";
 import ChangeProfileModal from "@/components/ChangeProfileModal";
+import { Label } from "@/components/ui/label";
+import { fetchPostsByUser } from "@/lib/firebase/apis/posts.server";
+import { Post } from "@/types/post";
+import { ActivityCard } from "@/components/ActivityCard";
+import { Separator } from "@/components/ui/separator";
 
 export default function Profile() {
   const [isModalOpen, setModalOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [showReplyTab, setShowReplyTab] = useState(true);
   const [showRepostTab, setShowRepostTab] = useState(true);
+  const [userPosts, setUserPosts] = useState<Post[] | null>(null);
+
 
   useEffect(() => {
     fetchCurrentUser()
       .then((user) => {
         setCurrentUser(user);
         console.log("User:", user);
+        if (user) {
+          fetchPostsByUser()
+            .then((posts) => {
+              setUserPosts(posts);
+              console.log("User Posts:", posts);
+            })
+            .catch((error) => {
+              console.error("Error fetching user posts:", error);
+              setUserPosts(null);
+            });
+        }
       })
       .catch((error) => {
         console.error("Error:", error);
@@ -48,6 +66,7 @@ export default function Profile() {
       });
   };
 
+
   const tabsListClassName = useMemo(() => {
     switch (visibleTabsCount) {
       case 1:
@@ -63,10 +82,11 @@ export default function Profile() {
     <div className="h-full min-h-[90vh] min-w-[700px] rounded-3xl">
       <Card className="flex flex-col h-full bg-card px-8 py-6 rounded-3xl space-y-6">
         <div className="mb-6 flex items-start bg-card justify-between">
-          <div className="space-y-1">
+          <div className="flex flex-col h-full space-y-1">
             <h1 className="text-xl font-semibold">{currentUser?.firstName + " " + (currentUser?.lastName || "")}</h1>
-            <p className="text-sm text-zinc-400">{currentUser?.username}</p>
-            <p className="text-sm text-zinc-400">{currentUser?.followers} followers</p>
+            <p className="text-md font-semibold">{currentUser?.username}</p>
+            <p className="text-sm text-accent-foreground">{currentUser?.bio}</p>
+            <p className="text-sm mt-6 text-accent-foreground">{currentUser?.followers} followers</p>
           </div>
           <div className="flex items-center gap-4">
             <Avatar className="h-16 w-16">
@@ -101,18 +121,19 @@ export default function Profile() {
         />
 
         {/* Tabs Navigation */}
-        <Tabs defaultValue="threads" className="mb-6">
-          <TabsList className={tabsListClassName}>
-            <TabsTrigger value="threads" className="font-semibold py-2">
+        <Tabs defaultValue="threads" className="mb-6 bg-card">
+          <TabsList className={`${tabsListClassName} 
+          bg-card gap-0 p-0 border-b-[1px] border-secondary rounded-none`}>
+            <TabsTrigger value="threads" className="font-semibold py-2 border-b-[1px] border-transparent rounded-none data-[state=active]:bg-card data-[state=active]:border-primary">
               Threads
             </TabsTrigger>
             {showReplyTab && (
-              <TabsTrigger value="replies" className="font-semibold py-2">
+              <TabsTrigger value="replies" className="font-semibold py-2 border-b-[1px] border-transparent rounded-none data-[state=active]:bg-card data-[state=active]:border-primary">
                 Replies
               </TabsTrigger>
             )}
             {showRepostTab && (
-              <TabsTrigger value="reposts" className="font-semibold py-2">
+              <TabsTrigger value="reposts" className="font-semibold py-2 border-b-[1px] border-transparent rounded-none data-[state=active]:bg-card data-[state=active]:border-primary">
                 Reposts
               </TabsTrigger>)}
           </TabsList>
@@ -229,12 +250,45 @@ export default function Profile() {
 
           </TabsContent>
 
-          <TabsContent value="replies" className="w-full h-full">
-            <div className="text-center text-zinc-400">No replies yet</div>
+          <TabsContent value="replies"
+            className="w-full h-full bg-card"
+          >
+            <div className="w-full h-full bg-card text-center content-center">
+              <Label className="text-md text-accent-foreground">No replies yet</Label>
+            </div>
           </TabsContent>
 
-          <TabsContent value="reposts">
-            <div className="text-center text-zinc-400">No reposts yet</div>
+          <TabsContent value="reposts"
+            className="w-full h-full max-h-[500px] bg-card overflow-y-auto "
+          >
+            {userPosts === null || userPosts.length === 0 || currentUser === null ? (
+              <div className="w-full h-full bg-card text-center content-center">
+                <Label className="text-md text-accent-foreground">No post yet</Label>
+              </div>
+            ) : (
+              userPosts.map((post) => (
+                <div key={post.id}>
+                  <ActivityCard
+                    actor={{
+                      id: currentUser.id,
+                      avatar: currentUser.profilePicture,
+                      displayName: currentUser.username,
+                    }}
+                    type="reply"
+                    originalPost={{
+                      content: post.content,
+                      stats: {
+                        likes: post.likesCount,
+                        replies: post.commentsCount,
+                        reposts: post.repostsCount,
+                      },
+                    }}
+                    timestamp="1 hour ago"
+                  />
+                  <Separator />
+                </div>
+              ))
+            )}
           </TabsContent>
         </Tabs>
 
