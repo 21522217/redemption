@@ -17,7 +17,7 @@ import { useLoading } from "@/contexts/LoadingContext";
 import { toast } from "react-toastify";
 import { FormFieldAvatar } from "./FormFieldAvatar";
 
-import usersData from "@/data/users-data.json";
+import { fetchCurrentUser } from "@/lib/firebase/apis/user.server";
 
 interface ChangeProfileModalProps {
    isOpen: boolean;
@@ -26,7 +26,7 @@ interface ChangeProfileModalProps {
    setShowReplyTab: (value: boolean) => void;
    showRepostTab: boolean;
    setShowRepostTab: (value: boolean) => void;
-   userId: string;
+   currentUser: User | null;
 }
 
 interface UserSettings {
@@ -46,18 +46,17 @@ const ChangeProfileModal: React.FC<ChangeProfileModalProps> = ({
    setShowReplyTab,
    showRepostTab,
    setShowRepostTab,
-   userId,
+   currentUser,
 }) => {
-   const user = usersData.users.find((u) => u.id === userId)!;
 
    const form = useForm<UserSettings>({
       resolver: zodResolver(userSettingFormSchema),
       defaultValues: {
-         username: user.username,
-         firstName: user.displayName.split(" ")[0],
-         lastName: user.displayName.split(" ")[1],
-         bio: user.bio,
-         profilePicture: user.avatar,
+         username: currentUser?.username,
+         firstName: currentUser?.firstName,
+         lastName: currentUser?.lastName,
+         bio: currentUser?.bio,
+         profilePicture: currentUser?.profilePicture,
          //link: "",
          showReplyTab: showReplyTab,
          showRepostTab: showRepostTab,
@@ -71,6 +70,7 @@ const ChangeProfileModal: React.FC<ChangeProfileModalProps> = ({
       toast.success("Profile updated successfully!", { position: "top-right" });
       onChange(false);
    }
+
 
    return (
       <Dialog open={isOpen} onOpenChange={onChange}>
@@ -164,7 +164,7 @@ export const showChangeProfileModal = (
    setShowReplyTab: (value: boolean) => void,
    showRepostTab: boolean,
    setShowRepostTab: (value: boolean) => void,
-   userId: string,
+   currentUser: User | null
 ) => {
    const modalContainer = document.createElement("div");
    document.body.appendChild(modalContainer);
@@ -189,7 +189,7 @@ export const showChangeProfileModal = (
          setShowReplyTab={setShowReplyTab}
          showRepostTab={showRepostTab}
          setShowRepostTab={setShowRepostTab}
-         userId={userId}
+         currentUser={currentUser}
       />;
    };
 
