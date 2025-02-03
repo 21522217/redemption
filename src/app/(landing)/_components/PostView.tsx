@@ -49,7 +49,7 @@ const PostView = () => {
         setComments(posts.map((post) => post.commentsCount));
         setReposts(posts.map((post) => post.repostsCount));
 
-        if (user) {
+        if (user && user.uid) {
           const likedPosts = await Promise.all(
             posts.map(async (post) => ({
               postId: post.id,
@@ -83,7 +83,7 @@ const PostView = () => {
   };
 
   return (
-    <div className="flex flex-col w-full border border-border min-h-screen text-white">
+    <div className="flex flex-col w-full border border-border h-screen text-white bg-background-content">
       <div className="h-10" />
       {isLogin && <PostCond />}
       {postsWithUsers.map((post, index) => (

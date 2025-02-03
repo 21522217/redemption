@@ -78,10 +78,6 @@
       @apply bg-popover text-popover-foreground;
     }
 
-    div {
-      @apply bg-background text-card-foreground;
-    }
-
     toggle {
       @apply bg-primary text-card-foreground;
     }
