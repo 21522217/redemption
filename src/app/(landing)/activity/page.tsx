@@ -1,41 +1,68 @@
 "use client";
 
 import { Separator } from "@/components/ui/separator";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
+import { ActivityCard } from "@/components/ActivityCard";
+import {
+  getUserSuggestions,
+  isFollowing,
+} from "@/lib/firebase/apis/lam-user.server";
+import { User } from "@/types/user";
+
+/* Giữ lại code cũ để tham khảo
 import activitiesData from "@/data/activities-data.json";
 import postsData from "@/data/posts-data.json";
 import usersData from "@/data/users-data.json";
 import commentsData from "@/data/comments-data.json";
-import { ActivityCard } from "@/components/ActivityCard";
+
+// Helper function để lấy thông tin post gốc
+const getOriginalPost = (postId: string) => {
+  const post = postsData.posts.find((p) => p.id === postId);
+  if (!post) return undefined;
+  return {
+    content: post.content,
+    stats: {
+      likes: post.stats.likes,
+      replies: post.stats.replies,
+      reposts: post.stats.reposts,
+    },
+  };
+};
+
+// Helper function để lấy thông tin reply
+const getReply = (commentId: string) => {
+  const comment = commentsData.comments.find((c) => c.id === commentId);
+  if (!comment) return undefined;
+  return {
+    content: comment.content,
+  };
+};
+*/
 
 export default function Activity() {
   const [displayCount, setDisplayCount] = useState(5);
-  const activities = activitiesData.activities;
-  const currentActivities = activities.slice(0, displayCount);
+  const [suggestions, setSuggestions] = useState<User[]>([]);
+  const [followStatus, setFollowStatus] = useState<Record<string, boolean>>({});
+  const currentUserId = "current-user-id"; // Thay thế bằng ID user thực tế
 
-  // Helper function để lấy thông tin post gốc
-  const getOriginalPost = (postId: string) => {
-    const post = postsData.posts.find((p) => p.id === postId);
-    if (!post) return undefined;
-    return {
-      content: post.content,
-      stats: {
-        likes: post.stats.likes,
-        replies: post.stats.replies,
-        reposts: post.stats.reposts,
-      },
-    };
-  };
+  useEffect(() => {
+    const loadSuggestions = async () => {
+      const users = await getUserSuggestions(currentUserId);
+      setSuggestions(users);
 
-  // Helper function để lấy thông tin reply
-  const getReply = (commentId: string) => {
-    const comment = commentsData.comments.find((c) => c.id === commentId);
-    if (!comment) return undefined;
-    return {
-      content: comment.content,
+      // Kiểm tra trạng thái follow cho mỗi user
+      const status: Record<string, boolean> = {};
+      for (const user of users) {
+        status[user.id] = await isFollowing(user.id, currentUserId);
+      }
+      setFollowStatus(status);
     };
-  };
+
+    loadSuggestions();
+  }, [currentUserId]);
+
+  const currentSuggestions = suggestions.slice(0, displayCount);
 
   const loadMore = useCallback(() => {
     setTimeout(() => {
@@ -47,9 +74,9 @@ export default function Activity() {
     <div className="min-h-screen px-4">
       <div className="p-4 shadow bg-card rounded-3xl">
         <InfiniteScroll
-          dataLength={currentActivities.length}
+          dataLength={currentSuggestions.length}
           next={loadMore}
-          hasMore={currentActivities.length < activities.length}
+          hasMore={currentSuggestions.length < suggestions.length}
           loader={
             <div className="space-y-4 py-4">
               {Array(5)
@@ -78,44 +105,28 @@ export default function Activity() {
             </div>
           }
         >
-          {currentActivities.map((activity, index) => {
-            const actor = usersData.users.find(
-              (u) => u.id === activity.actorId
-            )!;
-            const originalPost = activity.postId
-              ? getOriginalPost(activity.postId)
-              : undefined;
-            const reply = activity.commentId
-              ? getReply(activity.commentId)
-              : undefined;
-            const suggestion =
-              activity.type === "suggestion"
-                ? {
-                    reason: activity.reason || "Gợi ý theo dõi",
-                    mutualFollowers: activity.mutualFollowers || 0,
-                  }
-                : undefined;
-
-            return (
-              <div
-                key={`${activity.type}-${activity.actorId}-${
-                  activity.postId || ""
-                }`}
-              >
-                <ActivityCard
-                  actor={actor}
-                  type={activity.type as any}
-                  timestamp="1 ngày trước"
-                  originalPost={originalPost}
-                  reply={reply}
-                  suggestion={suggestion}
-                />
-                {index < currentActivities.length - 1 && (
-                  <Separator className="bg-neutral-200" />
-                )}
-              </div>
-            );
-          })}
+          {currentSuggestions.map((user, index) => (
+            <div key={user.id}>
+              <ActivityCard
+                actor={{
+                  id: user.id,
+                  displayName: user.firstName + " " + user.lastName,
+                  avatar: user.profilePicture,
+                }}
+                type="suggestion"
+                timestamp="Gợi ý cho bạn"
+                suggestion={{
+                  reason: followStatus[user.id]
+                    ? "Follow back"
+                    : "Gợi ý theo dõi",
+                  mutualFollowers: 0, // Có thể tính số mutual followers thực tế
+                }}
+              />
+              {index < currentSuggestions.length - 1 && (
+                <Separator className="bg-neutral-200" />
+              )}
+            </div>
+          ))}
         </InfiniteScroll>
       </div>
     </div>
