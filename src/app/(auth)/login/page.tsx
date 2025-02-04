@@ -17,7 +17,7 @@ import { Separator } from "@/components/ui/separator";
 import { loginFormSchema, type LoginFormValues } from "@/lib/validations/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FaGoogle } from "react-icons/fa";
-import Footer from "@/components/Footer";
+// import Footer from "@/components/Footer";
 import useSignIn from "@/lib/firebase/login";
 import { Card } from "@/components/ui/card";
 
@@ -45,7 +45,7 @@ export default function LoginForm() {
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-slate-900">
-      <Card className="w-full min-w-[448px] p-8 space-y-6 animate-fadeIn shadow-xl border-0 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
+      <Card className="w-full min-w-[468px] p-8 space-y-6 animate-fadeIn shadow-xl border-0 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
         {/* Logo section */}
         <div className="flex flex-col items-center space-y-3">
           <Image
