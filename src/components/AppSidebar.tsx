@@ -17,6 +17,7 @@ import SettingButton from "./SettingButton";
 import { showCreatePostModal } from "./CreatePostModal";
 import { showAuthModal } from "./auth/AuthModal";
 import { useAuth } from "@/contexts/AuthContext";
+import Image from "next/image";
 
 const AppSidebar = () => {
   const router = useRouter();
@@ -39,12 +40,16 @@ const AppSidebar = () => {
         }}
       >
         <Sidebar className="w-fit h-full px-1 border-none">
-          <SidebarHeader>
-            <DynamicImage
-              src="/public/redemption.png"
-              alt="logo"
-              className="w-8 h-8"
-            />
+          <SidebarHeader className="flex items-center justify-center">
+            <div className="w-12 h-12 p-2 flex items-center justify-center">
+              <Image
+                src="/redemption-logo.svg"
+                alt="Redemption Logo"
+                width={48}
+                height={48}
+                priority
+              />
+            </div>
           </SidebarHeader>
           <SidebarContent className="flex flex-col place-content-center">
             <SidebarMenu className="items-center gap-4">
