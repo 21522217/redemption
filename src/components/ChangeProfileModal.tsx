@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { User } from "@/types/user";
@@ -40,6 +40,8 @@ const ChangeProfileModal: React.FC<ChangeProfileModalProps> = ({
    setShowRepostTab,
    onProfileUpdate,
 }) => {
+   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
    const form = useForm<UserProfileUpdate>({
       resolver: zodResolver(userSettingFormSchema),
       defaultValues: {
@@ -67,9 +69,29 @@ const ChangeProfileModal: React.FC<ChangeProfileModalProps> = ({
       }
    }, [currentUser, form.reset]);
 
+   const handleAvatarUpload = async (file: File) => {
+      const formData = new FormData();
+      formData.append("image", file);
+
+      const response = await fetch("/api/upload", {
+         method: "POST",
+         body: formData,
+      });
+
+      const result = await response.json();
+      return result?.data?.link;
+   };
 
    const onSubmit = async (data: UserProfileUpdate) => {
       try {
+
+         if (selectedFile) {
+            const uploadedAvatarUrl = await handleAvatarUpload(selectedFile);
+            data.profilePicture = uploadedAvatarUrl;
+         }
+
+         console.log("Update data: ", data);
+
          await updateUserProfile(data);
 
          setShowReplyTab(data.showReplyTab ?? showReplyTab);
@@ -97,7 +119,7 @@ const ChangeProfileModal: React.FC<ChangeProfileModalProps> = ({
                      {/* Profile Picture & Username */}
                      <div className="flex flex-row justify-between space-x-4 bg-transparent">
                         <FormFieldInput control={form.control} name="username" label="Username" />
-                        <FormFieldAvatar control={form.control} name="profilePicture" />
+                        <FormFieldAvatar control={form.control} name="profilePicture" setSelectedFile={setSelectedFile} />
                      </div>
 
                      {/* User Details */}

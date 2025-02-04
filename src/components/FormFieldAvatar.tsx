@@ -14,12 +14,17 @@ interface FormFieldAvatarProps<
 > {
    control: Control<TFieldValues>
    name: TName
+   setSelectedFile: (file: File | null) => void;
 }
 
 export function FormFieldAvatar<
    TFieldValues extends FieldValues = FieldValues,
    TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
->({ control, name }: FormFieldAvatarProps<TFieldValues, TName>) {
+>({
+   control,
+   name,
+   setSelectedFile,
+}: FormFieldAvatarProps<TFieldValues, TName>) {
 
    const fileInputRef = useRef<HTMLInputElement>(null)
    const [key, setKey] = useState(0)
@@ -37,6 +42,7 @@ export function FormFieldAvatar<
             onChange(e.target?.result as string)
          }
          reader.readAsDataURL(file)
+         setSelectedFile(file);
       }
    }
 
@@ -46,6 +52,7 @@ export function FormFieldAvatar<
          fileInputRef.current.value = ""
       }
       // Force a re-render
+      setSelectedFile(null);
       setKey((prevKey) => prevKey + 1)
    }
 
