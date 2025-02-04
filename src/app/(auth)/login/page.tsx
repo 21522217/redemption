@@ -2,6 +2,7 @@
 
 import { useForm } from "react-hook-form";
 import Link from "next/link";
+import Image from "next/image";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -46,13 +47,22 @@ export default function LoginForm() {
     <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-slate-900">
       <Card className="w-full min-w-[448px] p-8 space-y-6 animate-fadeIn shadow-xl border-0 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
         {/* Logo section */}
-        <div className="flex flex-col items-center space-y-2">
-          <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-indigo-500 to-blue-500 bg-clip-text text-transparent">
-            Welcome back
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            Log in to your Redemption account
-          </p>
+        <div className="flex flex-col items-center space-y-3">
+          <Image
+            src="/redemption-logo.svg"
+            alt="Redemption Logo"
+            width={48}
+            height={48}
+            className="dark:invert"
+          />
+          <div className="space-y-1.5 text-center">
+            <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-indigo-500 to-blue-500 bg-clip-text text-transparent">
+              Welcome back
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              Log in to your Redemption account
+            </p>
+          </div>
         </div>
 
         {/* Social login */}
@@ -131,7 +141,6 @@ export default function LoginForm() {
           <Link
             href="/signup"
             className="font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300"
-
           >
             Sign up
           </Link>

@@ -3,7 +3,7 @@
 import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
-import { Chrome } from "lucide-react";
+import { FaGoogle } from "react-icons/fa";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
@@ -21,6 +21,7 @@ import {
 } from "@/lib/validations/auth";
 import useSignUp from "@/lib/firebase/signup";
 import { useLoading } from "@/contexts/LoadingContext";
+import Image from "next/image";
 
 export default function SignupForm() {
   const { isLoading } = useLoading();
@@ -53,19 +54,30 @@ export default function SignupForm() {
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-slate-900">
-      <Card className="w-full max-w-[448px] p-8 space-y-6 animate-fadeIn shadow-xl border-0 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
-        <div className="flex flex-col items-center space-y-2">
-          <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-indigo-500 to-blue-500 bg-clip-text text-transparent">
-            Create your account
-          </h1>
-          <p className="text-sm text-muted-foreground">Join Redemption today</p>
+      <Card className="w-full min-w-[448px] p-8 space-y-6 animate-fadeIn shadow-xl border-0 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
+        <div className="flex flex-col items-center space-y-3">
+          <Image
+            src="/redemption-logo.svg"
+            alt="Redemption Logo"
+            width={48}
+            height={48}
+            className="dark:invert"
+          />
+          <div className="space-y-1.5 text-center">
+            <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-indigo-500 to-blue-500 bg-clip-text text-transparent">
+              Create your account
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              Join Redemption today
+            </p>
+          </div>
         </div>
 
         <Button
           variant="outline"
           className="w-full h-12 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 transition-all duration-200"
         >
-          <Chrome className="mr-2 h-5 w-5 text-blue-500" />
+          <FaGoogle className="mr-2 h-5 w-5 text-red-500" />
           Continue with Google
         </Button>
 
