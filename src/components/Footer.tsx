@@ -1,6 +1,20 @@
-import React from "react";
+"use client";
 
+import React from "react";
 import Link from "next/link";
+import { showReportProblemModal } from "./ReportProblemModal";
+
+// Tách phần report button thành component riêng
+const ReportButton = () => {
+  return (
+    <button
+      onClick={() => showReportProblemModal()}
+      className="hover:text-zinc-400"
+    >
+      Report a problem
+    </button>
+  );
+};
 
 const Footer = () => {
   return (
@@ -15,13 +29,12 @@ const Footer = () => {
         <Link href="/cookies" className="hover:text-zinc-400">
           Cookies Policy
         </Link>
-
-        <button className="text-muted-foreground hover:text-zinc-400">Cookie Settings</button>
+        <button className="text-muted-foreground hover:text-zinc-400">
+          Cookie Settings
+        </button>
       </div>
       <div className="flex flex-row space-x-4 text-muted-foreground">
-        <Link href="/report" className="hover:text-zinc-400">
-          Report a problem
-        </Link>
+        <ReportButton />
         <span>©Copyright 2025</span>
       </div>
     </footer>
