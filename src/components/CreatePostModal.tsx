@@ -37,7 +37,10 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0];
-    if (selectedFile && (selectedFile.type === "image/png" || selectedFile.type === "image/jpeg")) {
+    if (
+      selectedFile &&
+      (selectedFile.type === "image/png" || selectedFile.type === "image/jpeg")
+    ) {
       setMedia(selectedFile);
     } else {
       toast("Only PNG and JPEG files are allowed.");
@@ -109,8 +112,9 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
       <Dialog.Portal>
         <Dialog.Overlay className="z-50 bg-neutral-900/90 backdrop-blur-sm fixed inset-0">
           <Dialog.Content
-            className="fixed drop-shadow-md top-1/2 left-1/2 max-h-full 
-            w-full md:w-[600px] h-[400px] md:h-auto md:max-h-[85vh] -translate-x-1/2 -translate-y-1/2 rounded-xl p-6 focus:outline-none bg-background-content"
+            className="fixed drop-shadow-md border border-neutral-200 dark:border-neutral-700 top-1/2 left-1/2 max-h-full 
+            w-full md:w-[600px] h-[400px] md:h-auto md:max-h-[85vh] -translate-x-1/2 -translate-y-1/2 rounded-xl p-6 
+            focus:outline-none bg-white dark:bg-neutral-800"
           >
             <div className="flex justify-between items-center mb-4 p-4">
               <span
