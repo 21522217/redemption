@@ -41,7 +41,10 @@ const AppSidebar = () => {
       >
         <Sidebar className="w-fit h-full px-1 border-none">
           <SidebarHeader className="flex items-center justify-center">
-            <div className="w-12 h-12 p-2 flex items-center justify-center">
+            <div 
+              className="w-12 h-12 p-2 flex items-center justify-center cursor-pointer" 
+              onClick={() => router.push("/")}
+            >
               <Image
                 src="/redemption-logo.svg"
                 alt="Redemption Logo"
