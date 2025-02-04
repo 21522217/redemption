@@ -10,7 +10,7 @@ import {
   SidebarMenuItem,
   SidebarFooter,
 } from "@/components/ui/sidebar";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import DynamicImage from "./custom/SquareImage";
 import { Heart, Home, Plus, Search, User } from "lucide-react";
 import SettingButton from "./SettingButton";
@@ -20,6 +20,7 @@ import { useAuth } from "@/contexts/AuthContext";
 
 const AppSidebar = () => {
   const router = useRouter();
+  const pathname = usePathname();
   const { isLogin } = useAuth();
 
   const handleAuthClick = (route: string) => {
@@ -53,7 +54,7 @@ const AppSidebar = () => {
                   className="w-fit h-full py-3 px-5 [&_svg]:size-7 rounded-xl"
                   variant="ghost"
                 >
-                  <Home />
+                  <Home className={pathname === "/" ? "fill-foreground" : ""} />
                 </Button>
               </SidebarMenuItem>
               <SidebarMenuItem>
@@ -62,7 +63,9 @@ const AppSidebar = () => {
                   className="w-fit h-full py-3 px-5 [&_svg]:size-7 rounded-xl"
                   variant="ghost"
                 >
-                  <Search />
+                  <Search
+                    className={pathname === "/search" ? "fill-foreground" : ""}
+                  />
                 </Button>
               </SidebarMenuItem>
               <SidebarMenuItem>
@@ -86,7 +89,11 @@ const AppSidebar = () => {
                   className="w-fit h-full py-3 px-5 [&_svg]:size-7 rounded-xl"
                   variant="ghost"
                 >
-                  <Heart />
+                  <Heart
+                    className={
+                      pathname === "/activity" ? "fill-foreground" : ""
+                    }
+                  />
                 </Button>
               </SidebarMenuItem>
               <SidebarMenuItem>
@@ -95,7 +102,9 @@ const AppSidebar = () => {
                   className="w-fit h-full py-3 px-5 [&_svg]:size-7 rounded-xl"
                   variant="ghost"
                 >
-                  <User />
+                  <User
+                    className={pathname === "/profile" ? "fill-foreground" : ""}
+                  />
                 </Button>
               </SidebarMenuItem>
             </SidebarMenu>

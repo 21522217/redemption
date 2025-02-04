@@ -22,25 +22,26 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onChange }) => {
               bg-white dark:bg-neutral-800 p-8 focus:outline-none"
           >
             <Dialog.Title className="text-2xl text-center font-bold mb-6 text-neutral-900 dark:text-white">
-              Say more with Redemption
+              Welcome to Redemption
             </Dialog.Title>
             <p className="text-neutral-600 dark:text-neutral-300 text-base mb-8 text-center">
-              Join Threads to share thoughts, find out what&apos;s going on,
-              follow your people, and more.
+              Join Redemption to connect, share your thoughts, and be part of
+              our growing community.
             </p>
             <div className="flex flex-col gap-4">
-              <Link 
-                href="/signup" 
-                className="w-full py-3 px-4 rounded-xl bg-primary text-white text-center font-semibold 
-                  hover:bg-primary/90 transition"
+              <Link
+                href="/signup"
+                className="w-full py-3 px-4 rounded-xl bg-neutral-900 dark:bg-white
+                  text-white dark:text-neutral-900 text-center font-semibold 
+                  hover:bg-neutral-800 dark:hover:bg-neutral-200 transition"
               >
                 Sign up
               </Link>
-              <Link 
+              <Link
                 href="/login"
-                className="w-full py-3 px-4 rounded-xl border border-neutral-300 dark:border-neutral-600 
+                className="w-full py-3 px-4 rounded-xl border-2 border-neutral-900 dark:border-white
                   text-neutral-900 dark:text-white text-center font-semibold 
-                  hover:bg-neutral-100 dark:hover:bg-neutral-700 transition"
+                  hover:bg-neutral-100 dark:hover:bg-neutral-700/50 transition"
               >
                 Log in
               </Link>
