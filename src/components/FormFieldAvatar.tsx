@@ -84,7 +84,7 @@ export function FormFieldAvatar<
                      >
                         <DropdownMenuItem
                            onClick={handleUpload}
-                           className="rounded-xl py-3 bg-cardcursor-pointer text-[16px] text-foreground font-semibold"
+                           className="rounded-xl py-3 bg-cardcursor-pointer text-[16px] bg-card text-foreground font-semibold"
                         >
                            Upload a photo
                         </DropdownMenuItem>
