@@ -20,14 +20,14 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Redemption",
   description: "Powerful Social Media Platform",
-  icons: {
-    icon: [
-      {
-        url: "/favicon.ico",
-        href: "/favicon.ico",
-      },
-    ],
-  },
+  // icons: {
+  //   icon: [
+  //     {
+  //       url: "/favicon.ico",
+  //       href: "/favicon.ico",
+  //     },
+  //   ],
+  // },
 };
 
 interface LayoutProps {

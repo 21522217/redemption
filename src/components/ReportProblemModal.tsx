@@ -36,9 +36,10 @@ const ReportProblemModal: React.FC<ReportProblemModalProps> = ({
       await fetch("/api/send-email", {
         method: "POST",
         body: JSON.stringify({
-          type: "general_report", // Để phân biệt với report post
+          name: user?.displayName || "Anonymous User",
           email: user?.email || "",
           message: reportContent,
+          postId: "general_report",
         }),
       });
 

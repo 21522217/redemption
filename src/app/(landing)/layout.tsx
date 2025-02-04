@@ -7,14 +7,14 @@ import Providers from "../providers";
 export const metadata: Metadata = {
   title: "Redemption",
   description: "Powerful Social Media Platform",
-  icons: {
-    icon: [
-      {
-        url: "/favicon.ico",
-        href: "/favicon.ico",
-      },
-    ],
-  },
+  // icons: {
+  //   icon: [
+  //     {
+  //       url: "/favicon.ico",
+  //       href: "/favicon.ico",
+  //     },
+  //   ],
+  // },
 };
 
 export default function RootLayout({
