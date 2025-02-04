@@ -52,61 +52,97 @@ export default function SignupForm() {
   };
 
   return (
-    <div className="flex w-1/4 min-h-screen flex-col items-center justify-center px-4">
-      <Card className="flex flex-col w-full items-center p-6 space-y-6">
-        <h1 className="text-xl font-semibold ">
-          Create your account
-        </h1>
+    <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-slate-900">
+      <Card className="w-full max-w-[448px] p-8 space-y-6 animate-fadeIn shadow-xl border-0 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
+        <div className="flex flex-col items-center space-y-2">
+          <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-indigo-500 to-blue-500 bg-clip-text text-transparent">
+            Create your account
+          </h1>
+          <p className="text-sm text-muted-foreground">Join Redemption today</p>
+        </div>
 
         <Button
           variant="outline"
-          className="h-12 w-full rounded-2xl text-sm font-semibold"
+          className="w-full h-12 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 transition-all duration-200"
         >
-          <Chrome className="mr-2 h-5 w-5 " />
+          <Chrome className="mr-2 h-5 w-5 text-blue-500" />
           Continue with Google
         </Button>
 
-        <div className="flex w-full items-center gap-2">
-          <Separator className="flex-1" />
-          <span className="text-sm ">OR</span>
-          <Separator className="flex-1" />
+        <div className="flex items-center gap-2">
+          <Separator className="flex-1 bg-gray-200 dark:bg-gray-600" />
+          <span className="text-sm text-muted-foreground">
+            or continue with email
+          </span>
+          <Separator className="flex-1 bg-gray-200 dark:bg-gray-600" />
         </div>
 
         <Form {...form}>
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              form.handleSubmit(onSubmit)(e);
-            }}
-            className="w-full space-y-4"
-          >
-            {(["firstName", "lastName", "username", "email", "password", "confirmPassword"] as const).map(
-              (name, index) => (
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="firstName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <Input
+                        placeholder="First name"
+                        {...field}
+                        className="h-12 bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 focus:border-indigo-500 dark:focus:border-indigo-400 transition-colors"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="lastName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <Input
+                        placeholder="Last name"
+                        {...field}
+                        className="h-12 bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 focus:border-indigo-500 dark:focus:border-indigo-400 transition-colors"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            {["username", "email", "password", "confirmPassword"].map(
+              (name) => (
                 <FormField
-                  key={index}
+                  key={name}
                   control={form.control}
-                  name={name}
+                  name={name as keyof SignupFormValues}
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
                         <Input
                           type={
-                            name === "email" ? "email" :
-                              name === "password" || name === "confirmPassword" ? "password" : "text"
+                            name === "email"
+                              ? "email"
+                              : name === "password" ||
+                                name === "confirmPassword"
+                              ? "password"
+                              : "text"
                           }
                           placeholder={
-                            name === "firstName" ? "First name" :
-                              name === "lastName" ? "Last name" :
-                                name === "username" ? "Username" :
-                                  name === "email" ? "Email address" :
-                                    name === "password" ? "Password" :
-                                      "Confirm password"
+                            name === "username"
+                              ? "Username"
+                              : name === "email"
+                              ? "Email address"
+                              : name === "password"
+                              ? "Password"
+                              : "Confirm password"
                           }
                           {...field}
-                          className={`h-12 ring-border ring-1 ${name === "email" || name === "firstName" || name === "lastName" || name === "username"
-                            ? " placeholder:text-zinc-400"
-                            : "bg-zinc-800  placeholder:text-zinc-400 focus-visible:ring-zinc-500"
-                            }`}
+                          className="h-12 bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 focus:border-indigo-500 dark:focus:border-indigo-400 transition-colors"
                         />
                       </FormControl>
                       <FormMessage />
@@ -115,31 +151,27 @@ export default function SignupForm() {
                 />
               )
             )}
-            <Separator className="w-full h-[2px]" />
+
             <Button
               type="submit"
-              variant="default"
-              className="h-12 w-full rounded-2xl text-md font-semibold"
+              className="w-full h-12 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white transition-all duration-200"
               disabled={isLoading}
             >
               {isLoading ? "Creating account..." : "Create account"}
             </Button>
           </form>
         </Form>
-      </Card>
 
-      <div className="text-center">
-        <p className="text-sm text-zinc-400">
+        <p className="text-center text-sm text-muted-foreground">
           Already have an account?{" "}
-          <Button
-            variant="link"
-            className=" hover:text-zinc-200 p-0"
-            asChild
+          <Link
+            href="/login"
+            className="font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300"
           >
-            <Link href="/login">Log in</Link>
-          </Button>
+            Sign in
+          </Link>
         </p>
-      </div>
+      </Card>
     </div>
   );
 }
