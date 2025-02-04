@@ -7,7 +7,7 @@ import { createRoot } from "react-dom/client";
 import * as Dialog from "@radix-ui/react-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Image as LucideImage } from "lucide-react";
+import { Image as LucideImage, Video as LucideVideo } from "lucide-react";
 import { createPost } from "@/lib/firebase/apis/posts.server";
 import Image from "next/image";
 import { Post } from "@/types/post";
@@ -37,10 +37,10 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0];
-    if (selectedFile && (selectedFile.type === "image/png" || selectedFile.type === "image/jpeg")) {
+    if (selectedFile && (selectedFile.type === "image/png" || selectedFile.type === "image/jpeg" || selectedFile.type === "video/mp4")) {
       setMedia(selectedFile);
     } else {
-      toast("Only PNG and JPEG files are allowed.");
+      toast("Only PNG, JPEG, and MP4 files are allowed.");
     }
   };
 
@@ -57,28 +57,25 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
 
       if (media) {
         const formData = new FormData();
-        formData.append("image", media);
+        formData.append(media.type.startsWith("image/") ? "image" : "video", media);
 
-        try {
-          const response = await fetch("/api/upload", {
-            method: "POST",
-            body: formData,
-          });
+        const response = await fetch("/api/upload", {
+          method: "POST",
+          body: formData,
+        });
 
-          const result = await response.json();
-          uploadedMediaUrl = result?.data?.link;
-        } catch (error) {
-          console.error("Failed to upload media:", error);
-          toast("Failed to upload media.");
-          setLoadingState(false);
-          return;
+        if (!response.ok) {
+          throw new Error("Failed to upload media.");
         }
+
+        const result = await response.json();
+        uploadedMediaUrl = result?.data?.link;
       }
 
       const newPost: Post = {
         id: "",
         userId: user?.uid || "",
-        type: media ? "image" : "text",
+        type: media ? (media.type.startsWith("image/") ? "image" : "video") : "text",
         content: content,
         tags: ["#test", "#test2"],
         likesCount: 0,
@@ -139,23 +136,40 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
                 />
                 <div className="flex items-center gap-2 text-neutral-400">
                   {media ? (
-                    <Image
-                      src={URL.createObjectURL(media)}
-                      alt="Uploaded Media"
-                      width={400}
-                      height={600}
-                      className="rounded-lg"
-                    />
+                    media.type.startsWith("image/") ? (
+                      <Image
+                        src={URL.createObjectURL(media)}
+                        alt="Uploaded Media"
+                        width={400}
+                        height={600}
+                        className="rounded-lg"
+                      />
+                    ) : (
+                      <video
+                        src={URL.createObjectURL(media)}
+                        controls
+                        width={400}
+                        height={600}
+                        className="rounded-lg"
+                      />
+                    )
                   ) : (
-                    <LucideImage
-                      size={35}
-                      className="hover:bg-neutral-800 rounded-full cursor-pointer"
-                      onClick={handleFileSelect}
-                    />
+                    <>
+                      <LucideImage
+                        size={35}
+                        className="hover:bg-neutral-800 rounded-full cursor-pointer"
+                        onClick={handleFileSelect}
+                      />
+                      <LucideVideo
+                        size={35}
+                        className="hover:bg-neutral-800 rounded-full cursor-pointer"
+                        onClick={handleFileSelect}
+                      />
+                    </>
                   )}
                   <input
                     type="file"
-                    accept="image/png, image/jpeg"
+                    accept="image/png, image/jpeg, video/mp4"
                     ref={fileInputRef}
                     style={{ display: "none" }}
                     onChange={handleFileChange}

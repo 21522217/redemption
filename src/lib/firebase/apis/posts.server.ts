@@ -73,6 +73,37 @@ export async function fetchPostsWithUsers() {
   return postsWithUsers;
 }
 
+export async function getPostUserById(postId: string) {
+  if (!postId) {
+    throw new Error("Invalid postId: It must be a non-empty string.");
+  }
+
+  const postDoc = await getDoc(doc(db, "posts", postId));
+
+  if (!postDoc.exists()) {
+    throw new Error("Post does not exist");
+  }
+
+  const postData = postDoc.data() as Post;
+
+  if (!postData.userId) {
+    throw new Error("Invalid userId in post");
+  }
+
+  const userDoc = await getDoc(doc(db, "users", postData.userId));
+
+  if (!userDoc.exists()) {
+    throw new Error("User does not exist");
+  }
+
+  const userData = userDoc.data() as User;
+
+  return {
+    ...postData,
+    user: userData,
+  };
+}
+
 export async function toggleLikePost(postId: string, userId: string) {
   if (!postId) {
     throw new Error("Invalid postId: It must be a non-empty string.");

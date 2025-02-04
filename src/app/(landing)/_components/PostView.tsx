@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useRouter } from "next/navigation";
 import {
   fetchPostsWithUsers,
   isPostLiked,
@@ -18,6 +19,8 @@ import { Timestamp } from "firebase/firestore";
 
 const PostView = () => {
   const { user: AuthUser, isLogin } = useAuth();
+  const router = useRouter();
+
   const [postsWithUsers, setPostsWithUsers] = useState<
     Array<Post & { user: User }>
   >([]);
@@ -47,6 +50,10 @@ const PostView = () => {
     } catch (error) {
       console.error("Failed to toggle like status:", error);
     }
+  };
+
+  const handleComment = (postId: string) => {
+    router.push(`/posts/${postId}`);
   };
 
   useEffect(() => {
@@ -154,7 +161,10 @@ const PostView = () => {
                   </div>
                   <span>{formatNumber(post.likesCount)}</span>
                 </button>
-                <button className="flex items-center gap-2 group">
+                <button
+                  className="flex items-center gap-2 group"
+                  onClick={() => handleComment(post.id)}
+                >
                   <div className="p-2 rounded-full group-hover:bg-blue-500/10 group-hover:text-blue-500">
                     <MessageCircle className="w-5 h-5" />
                   </div>
