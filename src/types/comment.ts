@@ -5,6 +5,6 @@ export interface Comment {
   userId: string;
   postId: string;
   content: string;
-  createdAt: Timestamp;
-  updatedAt: Timestamp;
+  createdAt?: Timestamp | Date;
+  updatedAt?: Timestamp | Date;
 }

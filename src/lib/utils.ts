@@ -6,6 +6,13 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+export const convertTimestamp = (timestamp: Timestamp) => {
+  if (timestamp instanceof Timestamp) {
+    return timestamp.toDate();
+  }
+  return timestamp;
+};
+
 export const getTimeAgo = (
   date: Timestamp | number | Date | string | undefined
 ) => {
