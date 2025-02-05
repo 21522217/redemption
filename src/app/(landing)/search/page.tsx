@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useMemo } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Input } from "@/components/ui/input";
 import { ActivityCard } from "@/components/ActivityCard";
@@ -12,6 +12,7 @@ import {
 import { User } from "@/types/user";
 import { Search, Loader2 } from "lucide-react";
 import InfiniteScroll from "react-infinite-scroll-component";
+import { useQuery } from "@tanstack/react-query";
 
 // Hook useDebounce được đặt trong cùng file
 function useDebounce<T>(value: T, delay: number): T {
@@ -38,66 +39,42 @@ interface FollowState {
 export default function SearchPage() {
   const { user: AuthUser } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
-  const [users, setUsers] = useState<User[]>([]);
-  const [randomUsers, setRandomUsers] = useState<User[]>([]);
   const [followStatus, setFollowStatus] = useState<Record<string, FollowState>>(
     {}
   );
-  const [isLoading, setIsLoading] = useState(false);
   const [displayCount, setDisplayCount] = useState(5);
 
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
-  // Load random users khi component mount
+  // Query cho tìm kiếm users
+  const { data: searchResults, isLoading: isSearching } = useQuery({
+    queryKey: ["users", "search", debouncedSearchTerm],
+    queryFn: () => searchUsers(debouncedSearchTerm, AuthUser?.uid || ""),
+    enabled: !!debouncedSearchTerm && !!AuthUser,
+    staleTime: 1000 * 60 * 5, // Cache 5 phút
+  });
+
+  // Query cho user suggestions
+  const { data: suggestionsData, isLoading: isLoadingSuggestions } = useQuery({
+    queryKey: ["users", "suggestions", AuthUser?.uid],
+    queryFn: () => getUserSuggestions(AuthUser?.uid || ""),
+    enabled: !!AuthUser,
+    staleTime: 1000 * 60 * 5,
+  });
+
+  // Tách riêng phần random suggestions ra
+  const suggestions = useMemo(() => {
+    if (!suggestionsData) return [];
+    return [...suggestionsData].sort(() => 0.5 - Math.random());
+  }, [suggestionsData]);
+
+  // Kiểm tra follow status khi có data mới
   useEffect(() => {
-    const loadRandomUsers = async () => {
+    const checkFollowStatus = async (users: User[]) => {
       if (!AuthUser) return;
-      const suggestions = await getUserSuggestions(AuthUser.uid);
-      const shuffled = suggestions.sort(() => 0.5 - Math.random());
-      setRandomUsers(shuffled);
-      setDisplayCount(5);
-    };
 
-    loadRandomUsers();
-  }, [AuthUser]);
-
-  const loadMore = useCallback(() => {
-    setTimeout(() => {
-      setDisplayCount((prev) => prev + 5);
-    }, 350);
-  }, []);
-
-  // Helper function để xác định text hiển thị
-  const getFollowButtonText = (userId: string) => {
-    const status = followStatus[userId];
-    if (!status) return "Follow";
-
-    if (status.iFollowThem) return "Following";
-    if (status.theyFollowMe) return "Follow back";
-    return "Follow";
-  };
-
-  const performSearch = useCallback(async () => {
-    if (!AuthUser) return;
-
-    // Reset users nếu search term trống
-    if (!debouncedSearchTerm.trim()) {
-      setUsers([]);
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      const searchResults = await searchUsers(
-        debouncedSearchTerm,
-        AuthUser.uid
-      );
-      setUsers(searchResults);
-      setDisplayCount(5); // Reset display count khi search mới
-
-      // Kiểm tra trạng thái follow cho mỗi user
       const status: Record<string, FollowState> = {};
-      for (const user of searchResults) {
+      for (const user of users) {
         const theyFollowMe = await isFollowing(user.id, AuthUser.uid);
         const iFollowThem = await isFollowing(AuthUser.uid, user.id);
 
@@ -107,20 +84,34 @@ export default function SearchPage() {
         };
       }
       setFollowStatus(status);
-    } catch (error) {
-      console.error("Search error:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [debouncedSearchTerm, AuthUser]);
+    };
 
-  useEffect(() => {
-    performSearch();
-  }, [performSearch]);
+    const currentUsers = debouncedSearchTerm ? searchResults : suggestions;
+
+    if (currentUsers) {
+      checkFollowStatus(currentUsers);
+    }
+  }, [AuthUser, searchResults, suggestions, debouncedSearchTerm]);
+
+  const loadMore = useCallback(() => {
+    setTimeout(() => {
+      setDisplayCount((prev) => prev + 5);
+    }, 350);
+  }, []);
+
+  const getFollowButtonText = (userId: string) => {
+    const status = followStatus[userId];
+    if (!status) return "Follow";
+    if (status.iFollowThem) return "Following";
+    if (status.theyFollowMe) return "Follow back";
+    return "Follow";
+  };
 
   const currentUsers = debouncedSearchTerm.trim()
-    ? users.slice(0, displayCount)
-    : randomUsers.slice(0, displayCount);
+    ? (searchResults || []).slice(0, displayCount)
+    : (suggestions || []).slice(0, displayCount);
+
+  const isLoading = isSearching || isLoadingSuggestions;
 
   return (
     <div className="flex flex-col w-full h-screen bg-zinc-50 dark:bg-background-content overflow-scroll mt-6 rounded-2xl">
@@ -145,11 +136,11 @@ export default function SearchPage() {
         ) : (
           <>
             {debouncedSearchTerm.trim() ? (
-              users.length > 0 ? (
+              searchResults?.length ? (
                 <InfiniteScroll
                   dataLength={currentUsers.length}
                   next={loadMore}
-                  hasMore={currentUsers.length < users.length}
+                  hasMore={currentUsers.length < (searchResults?.length || 0)}
                   loader={
                     <div className="flex justify-center items-center py-4">
                       <Loader2 className="h-5 w-5 animate-spin text-gray-400" />
@@ -190,7 +181,7 @@ export default function SearchPage() {
               <InfiniteScroll
                 dataLength={currentUsers.length}
                 next={loadMore}
-                hasMore={currentUsers.length < randomUsers.length}
+                hasMore={currentUsers.length < (suggestions?.length || 0)}
                 loader={
                   <div className="flex justify-center items-center py-4">
                     <Loader2 className="h-5 w-5 animate-spin text-gray-400" />
