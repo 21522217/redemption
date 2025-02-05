@@ -46,3 +46,39 @@ export async function isFollowing(
   const snapshot = await getDocs(q);
   return !snapshot.empty;
 }
+
+/**
+ * Tìm kiếm users theo tên
+ * @param searchTerm Từ khóa tìm kiếm
+ * @param currentUserId ID của user hiện tại
+ * @returns Danh sách users phù hợp với từ khóa
+ */
+export async function searchUsers(searchTerm: string, currentUserId: string) {
+  const usersRef = collection(db, "users");
+  const usersSnap = await getDocs(usersRef);
+
+  const searchTermLower = searchTerm.toLowerCase();
+
+  const users = usersSnap.docs
+    .map(
+      (doc) =>
+        ({
+          id: doc.id,
+          ...doc.data(),
+        } as User)
+    )
+    .filter((user) => {
+      // Bỏ qua current user
+      if (user.id === currentUserId) return false;
+
+      // Search theo firstName + lastName hoặc username
+      const fullName = `${user.firstName} ${user.lastName}`.toLowerCase();
+      const username = user.username.toLowerCase();
+
+      return (
+        fullName.includes(searchTermLower) || username.includes(searchTermLower)
+      );
+    });
+
+  return users;
+}
