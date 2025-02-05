@@ -2,6 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { showReportProblemModal } from "./ReportProblemModal";
 
 // Tách phần report button thành component riêng
@@ -17,8 +18,18 @@ const ReportButton = () => {
 };
 
 const Footer = () => {
+  const pathname = usePathname();
+
+  // Kiểm tra nếu đang ở trang login hoặc signup
+  const isAuthPage = pathname === "/login" || pathname === "/signup";
+
   return (
-    <footer className="absolute flex justify-between w-full p-4 text-xs bottom-0 left-0">
+    <footer
+      className={`
+      flex justify-between w-full p-4 text-xs
+      ${isAuthPage ? "absolute bottom-0" : "mt-auto"}
+    `}
+    >
       <div className="flex flex-row space-x-4 text-muted-foreground">
         <Link href="/terms" className="hover:text-zinc-400">
           Redemption Terms
