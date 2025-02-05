@@ -71,14 +71,14 @@ export default function Activity() {
   }, []);
 
   return (
-    <div className="min-h-screen px-4">
-      <div className="p-4 shadow bg-card rounded-3xl">
+    <div className="flex flex-col w-full h-screen bg-white dark:bg-background-content overflow-scroll mt-6 rounded-2xl">
+      <div className="flex flex-col w-full">
         <InfiniteScroll
           dataLength={currentSuggestions.length}
           next={loadMore}
           hasMore={currentSuggestions.length < suggestions.length}
           loader={
-            <div className="space-y-4 py-4">
+            <div className="space-y-4 p-4 border-b border-zinc-200 dark:border-zinc-400/15">
               {Array(5)
                 .fill(0)
                 .map((_, index) => (
@@ -87,18 +87,11 @@ export default function Activity() {
                     className="animate-pulse flex flex-col gap-4 pb-4"
                   >
                     <div className="flex gap-3">
-                      <div className="h-10 w-10 rounded-full bg-neutral-200" />
+                      <div className="h-10 w-10 rounded-full bg-zinc-200 dark:bg-neutral-200/20" />
                       <div className="flex flex-col gap-1.5">
-                        <div className="h-5 w-44 bg-neutral-200 rounded" />
-                        <div className="h-4 w-32 bg-neutral-200 rounded" />
+                        <div className="h-5 w-44 bg-zinc-200 dark:bg-neutral-200/20 rounded" />
+                        <div className="h-4 w-32 bg-zinc-200 dark:bg-neutral-200/20 rounded" />
                       </div>
-                    </div>
-                    <div className="h-24 w-full bg-neutral-200 rounded" />
-                    <div className="flex gap-4">
-                      <div className="h-8 w-16 bg-neutral-200 rounded" />
-                      <div className="h-8 w-16 bg-neutral-200 rounded" />
-                      <div className="h-8 w-16 bg-neutral-200 rounded" />
-                      <div className="h-8 w-8 bg-neutral-200 rounded" />
                     </div>
                   </div>
                 ))}
@@ -106,25 +99,27 @@ export default function Activity() {
           }
         >
           {currentSuggestions.map((user, index) => (
-            <div key={user.id}>
-              <ActivityCard
-                actor={{
-                  id: user.id,
-                  displayName: user.firstName + " " + user.lastName,
-                  avatar: user.profilePicture,
-                }}
-                type="suggestion"
-                timestamp="Gợi ý cho bạn"
-                suggestion={{
-                  reason: followStatus[user.id]
-                    ? "Follow back"
-                    : "Gợi ý theo dõi",
-                  mutualFollowers: 0, // Có thể tính số mutual followers thực tế
-                }}
-              />
-              {index < currentSuggestions.length - 1 && (
-                <Separator className="bg-neutral-200" />
-              )}
+            <div
+              key={user.id}
+              className="border-b border-zinc-200 dark:border-zinc-400/15 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors"
+            >
+              <div className="p-4">
+                <ActivityCard
+                  actor={{
+                    id: user.id,
+                    displayName: user.firstName + " " + user.lastName,
+                    avatar: user.profilePicture,
+                  }}
+                  type="suggestion"
+                  timestamp="Gợi ý cho bạn"
+                  suggestion={{
+                    reason: followStatus[user.id]
+                      ? "Follow back"
+                      : "Gợi ý theo dõi",
+                    mutualFollowers: 0,
+                  }}
+                />
+              </div>
             </div>
           ))}
         </InfiniteScroll>
