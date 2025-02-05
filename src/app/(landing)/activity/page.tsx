@@ -109,13 +109,16 @@ export default function Activity() {
                     id: user.id,
                     displayName: user.firstName + " " + user.lastName,
                     avatar: user.profilePicture,
+                    tagName:
+                      user.firstName.toLowerCase() +
+                      user.lastName.toLowerCase(),
                   }}
                   type="suggestion"
-                  timestamp="Gợi ý cho bạn"
+                  timestamp="Suggested for you"
                   suggestion={{
                     reason: followStatus[user.id]
                       ? "Follow back"
-                      : "Gợi ý theo dõi",
+                      : "Suggested to follow",
                     mutualFollowers: 0,
                   }}
                 />

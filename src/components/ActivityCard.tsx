@@ -9,6 +9,7 @@ interface ActivityCardProps {
     id: string;
     displayName: string;
     avatar: string;
+    tagName?: string;
   };
   type: "like" | "reply" | "share" | "follow" | "suggestion";
   timestamp: string;
@@ -82,11 +83,18 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({
       <div className="flex-1 flex-col">
         <div className="flex flex-col">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1">
-              <Label className="font-semibold text-[15px]">
-                {actor.displayName}
-              </Label>
-              <span className="text-sm text-[#999999]">· {timestamp}</span>
+            <div className="flex flex-col">
+              <div className="flex items-center gap-1">
+                <Label className="font-semibold text-[15px]">
+                  {actor.displayName}
+                </Label>
+                <span className="text-sm text-[#999999]">
+                  · {actionInfo.text}
+                </span>
+              </div>
+              {actor.tagName && (
+                <span className="text-[#999999] text-sm">@{actor.tagName}</span>
+              )}
             </div>
             {(type === "follow" || type === "suggestion") && (
               <Button
@@ -98,14 +106,11 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({
               </Button>
             )}
           </div>
-          <Label className="text-[15px] text-[#999999] mt-0.5">
-            {actionInfo.text}
-            {suggestion && (
-              <span className="text-sm text-[#999999] ml-1">
-                · {suggestion.mutualFollowers} mutual followers
-              </span>
-            )}
-          </Label>
+          {suggestion && (
+            <Label className="text-[15px] text-[#999999] mt-0.5">
+              {suggestion.mutualFollowers} mutual followers
+            </Label>
+          )}
         </div>
 
         {/* Original post with faded style */}
