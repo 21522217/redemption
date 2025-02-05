@@ -40,10 +40,15 @@ const getReply = (commentId: string) => {
 };
 */
 
+interface FollowState {
+  theyFollowMe: boolean;  // Họ follow mình
+  iFollowThem: boolean;   // Mình follow họ
+}
+
 export default function Activity() {
   const [displayCount, setDisplayCount] = useState(5);
   const [suggestions, setSuggestions] = useState<User[]>([]);
-  const [followStatus, setFollowStatus] = useState<Record<string, boolean>>({});
+  const [followStatus, setFollowStatus] = useState<Record<string, FollowState>>({});
   const currentUserId = "current-user-id"; // Thay thế bằng ID user thực tế
 
   useEffect(() => {
@@ -52,15 +57,31 @@ export default function Activity() {
       setSuggestions(users);
 
       // Kiểm tra trạng thái follow cho mỗi user
-      const status: Record<string, boolean> = {};
+      const status: Record<string, FollowState> = {};
       for (const user of users) {
-        status[user.id] = await isFollowing(user.id, currentUserId);
+        const theyFollowMe = await isFollowing(user.id, currentUserId); // Họ follow mình
+        const iFollowThem = await isFollowing(currentUserId, user.id); // Mình follow họ
+        
+        status[user.id] = {
+          theyFollowMe,
+          iFollowThem
+        };
       }
       setFollowStatus(status);
     };
 
     loadSuggestions();
   }, [currentUserId]);
+
+  // Helper function để xác định text hiển thị
+  const getFollowButtonText = (userId: string) => {
+    const status = followStatus[userId];
+    if (!status) return "Follow";
+    
+    if (status.iFollowThem) return "Following";
+    if (status.theyFollowMe) return "Follow back";
+    return "Follow";
+  };
 
   const currentSuggestions = suggestions.slice(0, displayCount);
 
@@ -116,9 +137,7 @@ export default function Activity() {
                   type="suggestion"
                   timestamp="Suggested for you"
                   suggestion={{
-                    reason: followStatus[user.id]
-                      ? "Follow back"
-                      : "Suggested to follow",
+                    reason: getFollowButtonText(user.id),
                     mutualFollowers: 0,
                   }}
                 />

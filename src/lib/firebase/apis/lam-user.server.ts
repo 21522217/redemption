@@ -30,7 +30,7 @@ export async function getUserSuggestions(currentUserId: string) {
  * Kiểm tra xem user A có follow user B không
  * @param followerId ID của user thực hiện follow
  * @param followingId ID của user được follow
- * @returns true nếu đã follow, false nếu chưa
+ * @returns true nếu A follow B, false nếu chưa
  */
 export async function isFollowing(
   followerId: string,
