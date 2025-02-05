@@ -4,9 +4,13 @@ import { useState, useCallback, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Input } from "@/components/ui/input";
 import { ActivityCard } from "@/components/ActivityCard";
-import { searchUsers, isFollowing } from "@/lib/firebase/apis/lam-user.server";
+import {
+  searchUsers,
+  isFollowing,
+  getUserSuggestions,
+} from "@/lib/firebase/apis/lam-user.server";
 import { User } from "@/types/user";
-import { Search } from "lucide-react";
+import { Search, Loader2 } from "lucide-react";
 
 // Hook useDebounce được đặt trong cùng file
 function useDebounce<T>(value: T, delay: number): T {
@@ -34,12 +38,26 @@ export default function SearchPage() {
   const { user: AuthUser } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
   const [users, setUsers] = useState<User[]>([]);
+  const [randomUsers, setRandomUsers] = useState<User[]>([]);
   const [followStatus, setFollowStatus] = useState<Record<string, FollowState>>(
     {}
   );
   const [isLoading, setIsLoading] = useState(false);
 
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
+
+  // Load random users khi component mount
+  useEffect(() => {
+    const loadRandomUsers = async () => {
+      if (!AuthUser) return;
+      const suggestions = await getUserSuggestions(AuthUser.uid);
+      // Lấy ngẫu nhiên 5 user
+      const shuffled = suggestions.sort(() => 0.5 - Math.random());
+      setRandomUsers(shuffled.slice(0, 5));
+    };
+
+    loadRandomUsers();
+  }, [AuthUser]);
 
   // Helper function để xác định text hiển thị
   const getFollowButtonText = (userId: string) => {
@@ -53,6 +71,8 @@ export default function SearchPage() {
 
   const performSearch = useCallback(async () => {
     if (!AuthUser) return;
+
+    // Reset users nếu search term trống
     if (!debouncedSearchTerm.trim()) {
       setUsers([]);
       return;
@@ -106,43 +126,75 @@ export default function SearchPage() {
 
       <div className="flex flex-col w-full">
         {isLoading ? (
-          <div className="space-y-4 p-4">
-            {Array(3)
-              .fill(0)
-              .map((_, index) => (
-                <div key={index} className="animate-pulse flex gap-4 pb-4">
-                  <div className="h-10 w-10 rounded-full bg-zinc-200 dark:bg-neutral-200/20" />
-                  <div className="flex-1 space-y-2">
-                    <div className="h-4 bg-zinc-200 dark:bg-neutral-200/20 rounded w-3/4" />
-                    <div className="h-4 bg-zinc-200 dark:bg-neutral-200/20 rounded w-1/2" />
-                  </div>
-                </div>
-              ))}
+          <div className="flex justify-center items-center py-8">
+            <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
           </div>
         ) : (
-          users.map((user) => (
-            <div
-              key={user.id}
-              className="border-b border-zinc-200 dark:border-zinc-400/15 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors"
-            >
-              <div className="p-4">
-                <ActivityCard
-                  actor={{
-                    id: user.id,
-                    displayName: user.firstName + " " + user.lastName,
-                    avatar: user.profilePicture,
-                    tagName: user.username,
-                  }}
-                  type="suggestion"
-                  timestamp="Search result"
-                  suggestion={{
-                    reason: getFollowButtonText(user.id),
-                    mutualFollowers: 0,
-                  }}
-                />
+          <>
+            {debouncedSearchTerm.trim() ? (
+              users.length > 0 ? (
+                users.map((user) => (
+                  <div
+                    key={user.id}
+                    className="border-b border-zinc-200 dark:border-zinc-400/15 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors"
+                  >
+                    <div className="p-4">
+                      <ActivityCard
+                        actor={{
+                          id: user.id,
+                          displayName: user.firstName + " " + user.lastName,
+                          avatar: user.profilePicture,
+                          tagName: user.username,
+                          bio: user.bio || "This is a test bio",
+                        }}
+                        type="suggestion"
+                        timestamp="Search result"
+                        suggestion={{
+                          reason: getFollowButtonText(user.id),
+                          mutualFollowers: 0,
+                        }}
+                      />
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="flex justify-center items-center py-8 text-gray-500">
+                  No users found
+                </div>
+              )
+            ) : (
+              // Hiển thị random users khi chưa search
+              <div className="py-4">
+                <h3 className="px-4 text-sm font-medium text-gray-500 mb-2">
+                  Suggested for you
+                </h3>
+                {randomUsers.map((user) => (
+                  <div
+                    key={user.id}
+                    className="border-b border-zinc-200 dark:border-zinc-400/15 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors"
+                  >
+                    <div className="p-4">
+                      <ActivityCard
+                        actor={{
+                          id: user.id,
+                          displayName: user.firstName + " " + user.lastName,
+                          avatar: user.profilePicture,
+                          tagName: user.username,
+                          bio: user.bio || "This is a test bio",
+                        }}
+                        type="suggestion"
+                        timestamp="Suggested for you"
+                        suggestion={{
+                          reason: getFollowButtonText(user.id),
+                          mutualFollowers: 0,
+                        }}
+                      />
+                    </div>
+                  </div>
+                ))}
               </div>
-            </div>
-          ))
+            )}
+          </>
         )}
       </div>
     </div>

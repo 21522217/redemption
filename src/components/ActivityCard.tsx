@@ -10,6 +10,7 @@ interface ActivityCardProps {
     displayName: string;
     avatar: string;
     tagName?: string;
+    bio?: string;
   };
   type: "like" | "reply" | "share" | "follow" | "suggestion";
   timestamp: string;
@@ -94,6 +95,11 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({
               </div>
               {actor.tagName && (
                 <span className="text-[#999999] text-sm">@{actor.tagName}</span>
+              )}
+              {actor.bio && (
+                <p className="text-sm mt-1 text-neutral-700 dark:text-neutral-300 line-clamp-2">
+                  {actor.bio}
+                </p>
               )}
             </div>
             {(type === "follow" || type === "suggestion") && (
