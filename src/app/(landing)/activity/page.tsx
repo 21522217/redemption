@@ -71,7 +71,7 @@ export default function Activity() {
   }, []);
 
   return (
-    <div className="flex flex-col w-full h-screen bg-white dark:bg-background-content overflow-scroll mt-6 rounded-2xl">
+    <div className="flex flex-col w-full h-screen bg-zinc-50 dark:bg-background-content overflow-scroll mt-6 rounded-2xl">
       <div className="flex flex-col w-full">
         <InfiniteScroll
           dataLength={currentSuggestions.length}
