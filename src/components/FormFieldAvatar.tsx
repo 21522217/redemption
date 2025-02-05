@@ -14,13 +14,17 @@ interface FormFieldAvatarProps<
 > {
    control: Control<TFieldValues>
    name: TName
-   userName: string
+   setSelectedFile: (file: File | null) => void;
 }
 
 export function FormFieldAvatar<
    TFieldValues extends FieldValues = FieldValues,
    TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
->({ control, name, userName }: FormFieldAvatarProps<TFieldValues, TName>) {
+>({
+   control,
+   name,
+   setSelectedFile,
+}: FormFieldAvatarProps<TFieldValues, TName>) {
 
    const fileInputRef = useRef<HTMLInputElement>(null)
    const [key, setKey] = useState(0)
@@ -38,6 +42,7 @@ export function FormFieldAvatar<
             onChange(e.target?.result as string)
          }
          reader.readAsDataURL(file)
+         setSelectedFile(file);
       }
    }
 
@@ -47,6 +52,7 @@ export function FormFieldAvatar<
          fileInputRef.current.value = ""
       }
       // Force a re-render
+      setSelectedFile(null);
       setKey((prevKey) => prevKey + 1)
    }
 
@@ -78,7 +84,7 @@ export function FormFieldAvatar<
                      >
                         <DropdownMenuItem
                            onClick={handleUpload}
-                           className="rounded-xl py-3 bg-cardcursor-pointer text-[16px] text-foreground font-semibold"
+                           className="rounded-xl py-3 bg-cardcursor-pointer text-[16px] bg-card text-foreground font-semibold"
                         >
                            Upload a photo
                         </DropdownMenuItem>

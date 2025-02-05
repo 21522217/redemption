@@ -13,8 +13,11 @@ import {
   runTransaction,
   increment,
   updateDoc,
+  query,
+  where,
 } from "firebase/firestore";
 import { Timestamp } from "firebase/firestore";
+import { getAuth } from "firebase/auth";
 
 export async function createPost(
   post: Omit<Post, "id" | "createdAt" | "updatedAt">
@@ -73,7 +76,7 @@ export async function fetchPostsWithUsers() {
   return postsWithUsers;
 }
 
-export async function getPostUserById(postId: string) {
+export async function getPostAndUserById(postId: string) {
   if (!postId) {
     throw new Error("Invalid postId: It must be a non-empty string.");
   }
@@ -82,7 +85,7 @@ export async function getPostUserById(postId: string) {
 
   if (!postDoc.exists()) {
     throw new Error("Post does not exist");
-  }
+  } 
 
   const postData = postDoc.data() as Post;
 
@@ -158,4 +161,73 @@ export async function isPostLiked(
   const likeSnap = await getDoc(likeDoc);
 
   return likeSnap.exists() && (likeSnap.data() as LikedPost).isLiked;
+}
+
+export async function fetchPostsByUser() {
+  const auth = getAuth();
+  const currentUser = auth.currentUser;
+
+  if (!currentUser) {
+    throw new Error("User not authenticated.");
+  }
+
+  const userId = currentUser.uid;
+  console.log("userId", userId);
+
+  const postsCollection = collection(db, "posts");
+  const userPostsQuery = query(postsCollection, where("userId", "==", userId));
+  const postsSnapshot = await getDocs(userPostsQuery);
+
+  const postsWithUsers: Array<Post & { user: User }> = [];
+
+  const userDoc = await getDoc(doc(db, "users", userId));
+
+  if (!userDoc.exists()) {
+    console.warn(`User not found for userId ${userId}`);
+    return postsWithUsers;
+  }
+
+  const userData = userDoc.data() as User;
+
+  for (const postDoc of postsSnapshot.docs) {
+    const postData = postDoc.data() as Post;
+
+    postsWithUsers.push({
+      ...postData,
+      user: userData,
+    });
+  }
+
+  return postsWithUsers;
+}
+
+export async function increaseCommentCount(postId: string) {
+  const postRef = doc(db, "posts", postId);
+  await updateDoc(postRef, {
+    commentsCount: increment(1),
+  });
+}
+
+export async function decreaseCommentCount(postId: string) {
+  const auth = getAuth();
+  const currentUser = auth.currentUser;
+
+  if (!currentUser) {
+    throw new Error("User not authenticated.");
+  }
+
+  const postRef = doc(db, "posts", postId);
+  const postSnap = await getDoc(postRef);
+
+  if (!postSnap.exists()) {
+    throw new Error("Post not found.");
+  }
+
+  const postData = postSnap.data() as Post;
+
+  if (postData.commentsCount > 0) {
+    await updateDoc(postRef, {
+      commentsCount: increment(-1),
+    });
+  }
 }

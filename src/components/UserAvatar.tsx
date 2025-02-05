@@ -1,12 +1,23 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { User } from "firebase/auth";
+import { fetchUserBaseInfo } from "@/lib/firebase/apis/user.server";
 
-// TODO: missing funcionality routing to profile page of self and other users
-const UserAvatar = ({ user }: { user: User | null }) => {
-  if (!user) {
+const UserAvatar = ({ userId }: { userId: string | null }) => {
+  const [userBaseInfo, setUserBaseInfo] = useState<{
+    profilePicture: string;
+    isVerified: boolean;
+    firstName: string;
+  }>({ profilePicture: "", isVerified: false, firstName: "" });
+
+  useEffect(() => {
+    if (userId) {
+      fetchUserBaseInfo(userId).then((info) => setUserBaseInfo(info));
+    }
+  }, [userId]);
+
+  if (!userId) {
     return (
       <Avatar className="h-10 w-10">
         <AvatarImage src="" alt="" />
@@ -17,9 +28,9 @@ const UserAvatar = ({ user }: { user: User | null }) => {
 
   return (
     <Avatar className="h-10 w-10">
-      <AvatarImage src={user?.photoURL || ""} alt={user?.displayName || ""} />
+      <AvatarImage src={userBaseInfo.profilePicture || ""} alt={userBaseInfo.firstName || ""} />
       <AvatarFallback>
-        {user?.displayName
+        {userBaseInfo.firstName
           ?.split(" ")
           .map((name) => name[0])
           .join("")}
