@@ -9,6 +9,7 @@ import {
   isFollowing,
 } from "@/lib/firebase/apis/lam-user.server";
 import { User } from "@/types/user";
+import { useAuth } from "@/contexts/AuthContext";
 
 /* Giữ lại code cũ để tham khảo
 import activitiesData from "@/data/activities-data.json";
@@ -46,23 +47,26 @@ interface FollowState {
 }
 
 export default function Activity() {
+  const { user: AuthUser } = useAuth();
   const [displayCount, setDisplayCount] = useState(5);
   const [suggestions, setSuggestions] = useState<User[]>([]);
   const [followStatus, setFollowStatus] = useState<Record<string, FollowState>>(
     {}
   );
-  const currentUserId = "current-user-id"; // Thay thế bằng ID user thực tế
 
   useEffect(() => {
     const loadSuggestions = async () => {
-      const users = await getUserSuggestions(currentUserId);
-      setSuggestions(users);
+      if (!AuthUser) return;
 
-      // Kiểm tra trạng thái follow cho mỗi user
+      const users = await getUserSuggestions(AuthUser.uid);
+
+      const filteredUsers = users.filter((user) => user.id !== AuthUser.uid);
+      setSuggestions(filteredUsers);
+
       const status: Record<string, FollowState> = {};
-      for (const user of users) {
-        const theyFollowMe = await isFollowing(user.id, currentUserId); // Họ follow mình
-        const iFollowThem = await isFollowing(currentUserId, user.id); // Mình follow họ
+      for (const user of filteredUsers) {
+        const theyFollowMe = await isFollowing(user.id, AuthUser.uid);
+        const iFollowThem = await isFollowing(AuthUser.uid, user.id);
 
         status[user.id] = {
           theyFollowMe,
@@ -73,7 +77,7 @@ export default function Activity() {
     };
 
     loadSuggestions();
-  }, [currentUserId]);
+  }, [AuthUser]);
 
   // Helper function để xác định text hiển thị
   const getFollowButtonText = (userId: string) => {
