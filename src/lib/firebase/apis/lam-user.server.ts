@@ -1,17 +1,20 @@
 "server-only";
 
 import { db } from "../config";
-import { collection, getDocs, query, where } from "firebase/firestore";
+import { collection, getDocs, query, where, orderBy } from "firebase/firestore";
 import { User } from "@/types/user";
 
 /**
  * Lấy danh sách user suggestions (tất cả user trừ current user)
+ * Sắp xếp theo thời gian tạo mới nhất
  * @param currentUserId ID của user hiện tại
  * @returns Danh sách các user được đề xuất
  */
 export async function getUserSuggestions(currentUserId: string) {
   const usersRef = collection(db, "users");
-  const usersSnap = await getDocs(usersRef);
+  // Thêm orderBy để sắp xếp theo thời gian tạo
+  const q = query(usersRef, orderBy("createdAt", "desc"));
+  const usersSnap = await getDocs(q);
 
   const users = usersSnap.docs
     .map(
