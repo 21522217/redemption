@@ -1,8 +1,10 @@
+import { Timestamp } from "firebase/firestore";
+
 export interface Comment {
   id: string;
   userId: string;
   postId: string;
   content: string;
-  createdAt: number;
-  updatedAt: number;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
 }

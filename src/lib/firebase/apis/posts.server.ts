@@ -76,7 +76,7 @@ export async function fetchPostsWithUsers() {
   return postsWithUsers;
 }
 
-export async function getPostUserById(postId: string) {
+export async function getPostAndUserById(postId: string) {
   if (!postId) {
     throw new Error("Invalid postId: It must be a non-empty string.");
   }

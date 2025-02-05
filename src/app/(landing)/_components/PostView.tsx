@@ -15,7 +15,7 @@ import { MessageCircle, Heart, Repeat, Share2, BadgeCheck } from "lucide-react";
 import Image from "next/image";
 import PostDropdown from "./PostDropdown";
 import PostCond from "./PostCond";
-import { Timestamp } from "firebase/firestore";
+import { getTimeAgo, formatNumber } from "@/lib/utils";
 
 const PostView = () => {
   const { user: AuthUser, isLogin } = useAuth();
@@ -81,23 +81,6 @@ const PostView = () => {
     };
     fetchPosts();
   }, [AuthUser]);
-
-  const formatNumber = (num: number) =>
-    num >= 1000 ? `${(num / 1000).toFixed(1)}K` : num.toString();
-
-  const getTimeAgo = (date: Timestamp | undefined) => {
-    if (!date) return "";
-    const parsedDate = date.toDate();
-    const now = new Date();
-    const diffInMinutes = Math.floor(
-      (now.getTime() - parsedDate.getTime()) / 60000
-    );
-
-    if (diffInMinutes < 60) return `${diffInMinutes}m`;
-    const diffInHours = Math.floor(diffInMinutes / 60);
-    if (diffInHours < 24) return `${diffInHours}h`;
-    return `${Math.floor(diffInHours / 24)}d`;
-  };
 
   return (
     <div className="flex flex-col w-full h-screen bg-background-content overflow-scroll mt-6 rounded-2xl">

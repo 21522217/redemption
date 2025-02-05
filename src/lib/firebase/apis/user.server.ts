@@ -88,6 +88,19 @@ export async function fetchCurrentUser(): Promise<User> {
   } as User;
 }
 
+export async function fetchUserBaseInfo(
+  userId: string
+): Promise<{ profilePicture: string; isVerified: boolean; firstName: string }> {
+  const userRef = doc(db, "users", userId);
+  const userDoc = await getDoc(userRef);
+  const userData = userDoc.data();
+  return {
+    profilePicture: userData?.profilePicture || "",
+    isVerified: userData?.isVerified || false,
+    firstName: userData?.firstName || "",
+  };
+}
+
 export async function updateUserProfile(
   updates: UpdateUserData
 ): Promise<void> {
