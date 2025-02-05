@@ -11,6 +11,7 @@ import {
 } from "@/lib/firebase/apis/lam-user.server";
 import { User } from "@/types/user";
 import { Search, Loader2 } from "lucide-react";
+import InfiniteScroll from "react-infinite-scroll-component";
 
 // Hook useDebounce được đặt trong cùng file
 function useDebounce<T>(value: T, delay: number): T {
@@ -43,6 +44,7 @@ export default function SearchPage() {
     {}
   );
   const [isLoading, setIsLoading] = useState(false);
+  const [displayCount, setDisplayCount] = useState(5);
 
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
@@ -51,13 +53,19 @@ export default function SearchPage() {
     const loadRandomUsers = async () => {
       if (!AuthUser) return;
       const suggestions = await getUserSuggestions(AuthUser.uid);
-      // Lấy ngẫu nhiên 5 user
       const shuffled = suggestions.sort(() => 0.5 - Math.random());
-      setRandomUsers(shuffled.slice(0, 5));
+      setRandomUsers(shuffled);
+      setDisplayCount(5);
     };
 
     loadRandomUsers();
   }, [AuthUser]);
+
+  const loadMore = useCallback(() => {
+    setTimeout(() => {
+      setDisplayCount((prev) => prev + 5);
+    }, 350);
+  }, []);
 
   // Helper function để xác định text hiển thị
   const getFollowButtonText = (userId: string) => {
@@ -85,6 +93,7 @@ export default function SearchPage() {
         AuthUser.uid
       );
       setUsers(searchResults);
+      setDisplayCount(5); // Reset display count khi search mới
 
       // Kiểm tra trạng thái follow cho mỗi user
       const status: Record<string, FollowState> = {};
@@ -108,6 +117,10 @@ export default function SearchPage() {
   useEffect(() => {
     performSearch();
   }, [performSearch]);
+
+  const currentUsers = debouncedSearchTerm.trim()
+    ? users.slice(0, displayCount)
+    : randomUsers.slice(0, displayCount);
 
   return (
     <div className="flex flex-col w-full h-screen bg-zinc-50 dark:bg-background-content overflow-scroll mt-6 rounded-2xl">
@@ -133,42 +146,61 @@ export default function SearchPage() {
           <>
             {debouncedSearchTerm.trim() ? (
               users.length > 0 ? (
-                users.map((user) => (
-                  <div
-                    key={user.id}
-                    className="border-b border-zinc-200 dark:border-zinc-400/15 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors"
-                  >
-                    <div className="p-4">
-                      <ActivityCard
-                        actor={{
-                          id: user.id,
-                          displayName: user.firstName + " " + user.lastName,
-                          avatar: user.profilePicture,
-                          tagName: user.username,
-                          bio: user.bio || "This is a test bio",
-                        }}
-                        type="suggestion"
-                        timestamp="Search result"
-                        suggestion={{
-                          reason: getFollowButtonText(user.id),
-                          mutualFollowers: 0,
-                        }}
-                      />
+                <InfiniteScroll
+                  dataLength={currentUsers.length}
+                  next={loadMore}
+                  hasMore={currentUsers.length < users.length}
+                  loader={
+                    <div className="flex justify-center items-center py-4">
+                      <Loader2 className="h-5 w-5 animate-spin text-gray-400" />
                     </div>
-                  </div>
-                ))
+                  }
+                >
+                  {currentUsers.map((user) => (
+                    <div
+                      key={user.id}
+                      className="border-b border-zinc-200 dark:border-zinc-400/15 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors"
+                    >
+                      <div className="p-4">
+                        <ActivityCard
+                          actor={{
+                            id: user.id,
+                            displayName: user.firstName + " " + user.lastName,
+                            avatar: user.profilePicture,
+                            tagName: user.username,
+                            bio: user.bio || "This is a test bio",
+                          }}
+                          type="suggestion"
+                          timestamp="Search result"
+                          suggestion={{
+                            reason: getFollowButtonText(user.id),
+                            mutualFollowers: 0,
+                          }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </InfiniteScroll>
               ) : (
                 <div className="flex justify-center items-center py-8 text-gray-500">
                   No users found
                 </div>
               )
             ) : (
-              // Hiển thị random users khi chưa search
-              <div className="py-4">
-                <h3 className="px-4 text-sm font-medium text-gray-500 mb-2">
+              <InfiniteScroll
+                dataLength={currentUsers.length}
+                next={loadMore}
+                hasMore={currentUsers.length < randomUsers.length}
+                loader={
+                  <div className="flex justify-center items-center py-4">
+                    <Loader2 className="h-5 w-5 animate-spin text-gray-400" />
+                  </div>
+                }
+              >
+                <h3 className="px-4 py-2 text-sm font-medium text-gray-500">
                   Suggested for you
                 </h3>
-                {randomUsers.map((user) => (
+                {currentUsers.map((user) => (
                   <div
                     key={user.id}
                     className="border-b border-zinc-200 dark:border-zinc-400/15 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors"
@@ -192,7 +224,7 @@ export default function SearchPage() {
                     </div>
                   </div>
                 ))}
-              </div>
+              </InfiniteScroll>
             )}
           </>
         )}
