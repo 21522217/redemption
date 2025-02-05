@@ -45,5 +45,6 @@ export const getTimeAgo = (
   if (diffInHours < 24) return `${diffInHours}h`;
   return `${Math.floor(diffInHours / 24)}d`;
 };
+
 export const formatNumber = (num: number) =>
   num >= 1000 ? `${(num / 1000).toFixed(1)}K` : num.toString();
