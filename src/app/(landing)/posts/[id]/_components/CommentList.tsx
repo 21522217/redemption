@@ -5,7 +5,9 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   createComment,
   fetchCommentsWithUsers,
+  deleteComment,
 } from "@/lib/firebase/apis/comment.server";
+import { increaseCommentCount, decreaseCommentCount } from "@/lib/firebase/apis/posts.server";
 
 import { getTimeAgo } from "@/lib/utils";
 import { Comment } from "@/types/comment";
@@ -29,12 +31,23 @@ export default function CommentList({ postId, userId }: CommentListProps) {
   });
 
   const commentMutation = useMutation({
-    mutationFn: (comment: string) =>
-      createComment({ userId, postId, content: comment }),
+    mutationFn: async (comment: string) => {
+      await createComment({ userId, postId, content: comment });
+      await increaseCommentCount(postId);
+    },
     onSuccess: () => {
       setNewComment("");
       queryClient.invalidateQueries({ queryKey: ["comments", postId] });
-      // Removed revalidateTag to fix the error
+    },
+  });
+
+  const deleteCommentMutation = useMutation({
+    mutationFn: async (commentId: string) => {
+      await deleteComment(commentId);
+      await decreaseCommentCount(postId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["comments", postId] });
     },
   });
 
@@ -43,6 +56,10 @@ export default function CommentList({ postId, userId }: CommentListProps) {
     if (newComment.trim()) {
       commentMutation.mutate(newComment);
     }
+  };
+
+  const handleDeleteComment = (commentId: string) => {
+    deleteCommentMutation.mutate(commentId);
   };
 
   useEffect(() => {
@@ -72,6 +89,14 @@ export default function CommentList({ postId, userId }: CommentListProps) {
           <span className="text-zinc-500">
             {getTimeAgo(comment.createdAt?.toString())}
           </span>
+          {comment.userId === userId && (
+            <button
+              onClick={() => handleDeleteComment(comment.id)}
+              className="text-red-500"
+            >
+              Delete
+            </button>
+          )}
         </div>
       ))}
     </div>

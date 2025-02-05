@@ -11,6 +11,7 @@ import {
   where,
   getDocs,
   getDoc,
+  deleteDoc,
 } from "firebase/firestore";
 import { Comment } from "@/types/comment";
 import { User } from "@/types/user";
@@ -102,13 +103,24 @@ export async function fetchCommentsWithUsers(
 
   commentsWithUsers.sort((a, b) => {
     if (a.createdAt && b.createdAt) {
-      return (b.createdAt as Timestamp).seconds - (a.createdAt as Timestamp).seconds;
+      return (
+        (b.createdAt as Timestamp).seconds - (a.createdAt as Timestamp).seconds
+      );
     }
     return 0;
   });
-  return commentsWithUsers.map(comment => ({
+  return commentsWithUsers.map((comment) => ({
     ...comment,
-    createdAt: comment.createdAt ? (comment.createdAt as Timestamp).toDate() : undefined,
-    updatedAt: comment.updatedAt ? (comment.updatedAt as Timestamp).toDate() : undefined,
+    createdAt: comment.createdAt
+      ? (comment.createdAt as Timestamp).toDate()
+      : undefined,
+    updatedAt: comment.updatedAt
+      ? (comment.updatedAt as Timestamp).toDate()
+      : undefined,
   }));
+}
+
+export async function deleteComment(commentId: string) {
+  const commentRef = doc(db, "comments", commentId);
+  await deleteDoc(commentRef);
 }
