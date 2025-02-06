@@ -15,6 +15,7 @@ import {
 
 import { getTimeAgo } from "@/lib/utils";
 import { Comment } from "@/types/comment";
+import { User } from "@/types/user";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { BadgeCheck } from "lucide-react";
 import { Heart, MessageCircle, Repeat, Share2 } from "lucide-react";
@@ -56,6 +57,7 @@ export default function CommentList({ postId, userId }: CommentListProps) {
     onSuccess: () => {
       setNewComment("");
       queryClient.invalidateQueries({ queryKey: ["comments", postId] });
+      queryClient.invalidateQueries({ queryKey: ["post", postId] });
     },
   });
 
@@ -66,6 +68,7 @@ export default function CommentList({ postId, userId }: CommentListProps) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["comments", postId] });
+      queryClient.invalidateQueries({ queryKey: ["post", postId] });
     },
   });
 
@@ -107,6 +110,9 @@ export default function CommentList({ postId, userId }: CommentListProps) {
                   </Avatar>
                   <span className="font-bold hover:underline">
                     {postWithUser.user.username}
+                  </span>
+                  <span className="text-zinc-500">
+                    {postWithUser.user.firstName} {postWithUser.user.lastName}
                   </span>
                   {postWithUser.user.isVerified && (
                     <BadgeCheck className="w-4 h-4 text-blue-500" />
@@ -174,8 +180,25 @@ export default function CommentList({ postId, userId }: CommentListProps) {
           Post
         </button>
       </form>
-      {comments?.map((comment: Comment) => (
+      {comments?.map((comment: Comment & { user: User }) => (
         <div key={comment.id} className="flex flex-col gap-2">
+          <div className="flex items-center gap-2">
+            <Avatar className="w-8 h-8">
+              <AvatarImage
+                src={comment.user.profilePicture}
+                alt={comment.user.username}
+              />
+              <AvatarFallback>
+                {comment.user.username.charAt(0)}
+              </AvatarFallback>
+            </Avatar>
+            <span className="font-bold hover:underline">
+              {comment.user.username}
+            </span>
+            <span className="text-zinc-500">
+              {comment.user.firstName} {comment.user.lastName}
+            </span>
+          </div>
           <p>{comment.content}</p>
           <span className="text-zinc-500">
             {getTimeAgo(comment.createdAt?.toString())}
@@ -187,6 +210,11 @@ export default function CommentList({ postId, userId }: CommentListProps) {
             >
               Delete
             </button>
+          )}
+          {comment.userId === postId && (
+            <div className="text-blue-500">
+              This is a comment on your own post.
+            </div>
           )}
         </div>
       ))}
