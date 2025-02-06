@@ -56,6 +56,10 @@ const PostView = () => {
     router.push(`/posts/${postId}`);
   };
 
+  const handleRepost = (postId: string) => {
+    router.push(`/posts/${postId}`);
+  };
+
   useEffect(() => {
     const fetchPosts = async () => {
       try {
@@ -153,7 +157,10 @@ const PostView = () => {
                   </div>
                   <span>{formatNumber(comments[index])}</span>
                 </button>
-                <button className="flex items-center gap-2 group">
+                <button
+                  className="flex items-center gap-2 group"
+                  onClick={() => handleRepost(post.id)}
+                >
                   <div className="p-2 rounded-full group-hover:bg-green-500/10 group-hover:text-green-500">
                     <Repeat className="w-5 h-5" />
                   </div>

@@ -1,7 +1,15 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { BarChart2, Edit, Image, Pencil, Plus, UserIcon, Users } from "lucide-react";
+import {
+  BarChart2,
+  Edit,
+  Image,
+  Pencil,
+  Plus,
+  UserIcon,
+  Users,
+} from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -22,10 +30,8 @@ import { Separator } from "@/components/ui/separator";
 export default function Profile() {
   const [isModalOpen, setModalOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [showReplyTab, setShowReplyTab] = useState(true);
   const [showRepostTab, setShowRepostTab] = useState(true);
   const [userPosts, setUserPosts] = useState<Post[] | null>(null);
-
 
   useEffect(() => {
     fetchCurrentUser()
@@ -51,8 +57,8 @@ export default function Profile() {
   }, []);
 
   const visibleTabsCount = useMemo(() => {
-    return 1 + (showReplyTab ? 1 : 0) + (showRepostTab ? 1 : 0)
-  }, [showReplyTab, showRepostTab])
+    return 1 + (showRepostTab ? 1 : 0);
+  }, [showRepostTab]);
 
   const handleProfileUpdate = () => {
     // Fetch the updated user data and update the state
@@ -66,27 +72,28 @@ export default function Profile() {
       });
   };
 
-
   const tabsListClassName = useMemo(() => {
     switch (visibleTabsCount) {
       case 1:
-        return "grid w-full h-fit gap-4 grid-cols-1"
-      case 2:
-        return "grid w-full h-fit gap-4 grid-cols-2"
+        return "grid w-full h-fit gap-4 grid-cols-1";
       default:
-        return "grid w-full h-fit gap-4 grid-cols-3"
+        return "grid w-full h-fit gap-4 grid-cols-2";
     }
-  }, [visibleTabsCount])
+  }, [visibleTabsCount]);
 
   return (
     <div className="h-full min-h-[90vh] min-w-[700px] rounded-3xl">
       <Card className="flex flex-col h-full bg-card px-8 py-6 rounded-3xl space-y-6">
         <div className="mb-6 flex items-start bg-card justify-between">
           <div className="flex flex-col h-full space-y-1">
-            <h1 className="text-xl font-semibold">{currentUser?.firstName + " " + (currentUser?.lastName || "")}</h1>
+            <h1 className="text-xl font-semibold">
+              {currentUser?.firstName + " " + (currentUser?.lastName || "")}
+            </h1>
             <p className="text-md font-semibold">{currentUser?.username}</p>
             <p className="text-sm text-accent-foreground">{currentUser?.bio}</p>
-            <p className="text-sm mt-6 text-accent-foreground">{currentUser?.followers} followers</p>
+            <p className="text-sm mt-6 text-accent-foreground">
+              {currentUser?.followers} followers
+            </p>
           </div>
           <div className="flex items-center gap-4">
             <Avatar className="h-16 w-16">
@@ -113,8 +120,6 @@ export default function Profile() {
           isOpen={isModalOpen}
           onChange={setModalOpen}
           currentUser={currentUser}
-          showReplyTab={showReplyTab}
-          setShowReplyTab={setShowReplyTab}
           showRepostTab={showRepostTab}
           setShowRepostTab={setShowRepostTab}
           onProfileUpdate={handleProfileUpdate}
@@ -122,20 +127,25 @@ export default function Profile() {
 
         {/* Tabs Navigation */}
         <Tabs defaultValue="threads" className="mb-6 bg-card">
-          <TabsList className={`${tabsListClassName} 
-          bg-card gap-0 p-0 border-b-[1px] border-secondary rounded-none`}>
-            <TabsTrigger value="threads" className="font-semibold py-2 border-b-[1px] border-transparent rounded-none data-[state=active]:bg-card data-[state=active]:border-primary">
+          <TabsList
+            className={`${tabsListClassName} 
+          bg-card gap-0 p-0 border-b-[1px] border-secondary rounded-none`}
+          >
+            <TabsTrigger
+              value="threads"
+              className="font-semibold py-2 border-b-[1px] border-transparent rounded-none data-[state=active]:bg-card data-[state=active]:border-primary"
+            >
               Threads
             </TabsTrigger>
-            {showReplyTab && (
-              <TabsTrigger value="replies" className="font-semibold py-2 border-b-[1px] border-transparent rounded-none data-[state=active]:bg-card data-[state=active]:border-primary">
-                Replies
+
+            {showRepostTab && (
+              <TabsTrigger
+                value="reposts"
+                className="font-semibold py-2 border-b-[1px] border-transparent rounded-none data-[state=active]:bg-card data-[state=active]:border-primary"
+              >
+                Reposts
               </TabsTrigger>
             )}
-            {showRepostTab && (
-              <TabsTrigger value="reposts" className="font-semibold py-2 border-b-[1px] border-transparent rounded-none data-[state=active]:bg-card data-[state=active]:border-primary">
-                Reposts
-              </TabsTrigger>)}
           </TabsList>
 
           <TabsContent value="threads" className="space-y-4 bg-card">
@@ -179,7 +189,6 @@ export default function Profile() {
               {/* Wrapping div to handle horizontal scrolling */}
               <div className="w-full overflow-x-auto">
                 <div className="flex flex-row space-x-4 rounded-xl">
-
                   <div className="w-[200px] flex flex-col rounded-xl items-center gap-4 p-6 text-center bg-secondary shrink-0">
                     <div className="rounded-full bg-accent p-4">
                       <Edit className="h-6 w-6" />
@@ -243,56 +252,18 @@ export default function Profile() {
                       Upload
                     </Button>
                   </div>
-
                 </div>
               </div>
             </div>
-
           </TabsContent>
 
-          <TabsContent value="replies"
-            className="w-full h-full bg-card"
-          >
-            <div className="w-full h-full bg-card text-center content-center">
-              <Label className="text-md text-accent-foreground">No replies yet</Label>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="reposts"
+          {/* Repost */}
+          <TabsContent
+            value="reposts"
             className="w-full h-full max-h-[500px] bg-card overflow-y-auto "
-          >
-            {userPosts === null || userPosts.length === 0 || currentUser === null ? (
-              <div className="w-full h-full bg-card text-center content-center">
-                <Label className="text-md text-accent-foreground">No post yet</Label>
-              </div>
-            ) : (
-              userPosts.map((post) => (
-                <div key={post.id}>
-                  <ActivityCard
-                    actor={{
-                      id: currentUser.id,
-                      avatar: currentUser.profilePicture,
-                      displayName: currentUser.username,
-                    }}
-                    type="reply"
-                    originalPost={{
-                      content: post.content,
-                      stats: {
-                        likes: post.likesCount,
-                        replies: post.commentsCount,
-                        reposts: post.repostsCount,
-                      },
-                    }}
-                    timestamp="1 hour ago"
-                  />
-                  <Separator />
-                </div>
-              ))
-            )}
-          </TabsContent>
+          ></TabsContent>
         </Tabs>
-
       </Card>
-    </div >
+    </div>
   );
 }
