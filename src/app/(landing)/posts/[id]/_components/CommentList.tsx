@@ -8,8 +8,7 @@ import {
   deleteComment,
 } from "@/lib/firebase/apis/comment.server";
 import { getPostAndUserById } from "@/lib/firebase/apis/posts.server";
-
-import { getTimeAgo } from "@/lib/utils";
+import { getTimeAgo, formatNumber } from "@/lib/utils";
 import { Comment } from "@/types/comment";
 import { User } from "@/types/user";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -17,12 +16,7 @@ import { BadgeCheck } from "lucide-react";
 import { Heart, MessageCircle, Repeat, Share2 } from "lucide-react";
 import Image from "next/image";
 import PostDropdown from "@/app/(landing)/_components/PostDropdown";
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
 
 interface CommentListProps {
   postId: string;
@@ -96,9 +90,10 @@ export default function CommentList({ postId, userId }: CommentListProps) {
   if (commentsError) return <div>Error: {commentsError.message}</div>;
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col w-full h-screen bg-zinc-50 dark:bg-background-content overflow-scroll mt-6 rounded-2xl">
+      {/* Original Post */}
       {postWithUser && (
-        <article className="border-b border-zinc-400/15 p-4 cursor-pointer">
+        <article className="border-b border-zinc-400/15 p-4">
           <div className="flex items-start">
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between flex-wrap flex-row">
@@ -112,32 +107,31 @@ export default function CommentList({ postId, userId }: CommentListProps) {
                       {postWithUser.user.username.charAt(0)}
                     </AvatarFallback>
                   </Avatar>
-                  <span className="font-bold hover:underline">
-                    {postWithUser.user.username}
-                  </span>
-                  <span className="text-zinc-500">
-                    {postWithUser.user.firstName} {postWithUser.user.lastName}
-                  </span>
-                  {postWithUser.user.isVerified && (
-                    <BadgeCheck className="w-4 h-4 text-blue-500" />
-                  )}
-                  <span className="text-zinc-500">·</span>
-                  <span className="text-zinc-500">
-                    {getTimeAgo(postWithUser.createdAt)}
-                  </span>
+                  <div className="flex flex-col">
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold hover:underline">
+                        {postWithUser.user.username}
+                      </span>
+                      {postWithUser.user.isVerified && (
+                        <BadgeCheck className="w-4 h-4 text-blue-500" />
+                      )}
+                    </div>
+                    <span className="text-zinc-500 text-sm">
+                      {getTimeAgo(postWithUser.createdAt)}
+                    </span>
+                  </div>
                 </div>
                 <PostDropdown post={postWithUser} />
               </div>
-              <p className="mt-1 break-words whitespace-pre-wrap">
+              <p className="mt-3 break-words whitespace-pre-wrap">
                 {postWithUser.content}
               </p>
               {postWithUser.media && (
                 <div className="mt-3 rounded-2xl overflow-hidden border border-zinc-800">
                   <div className="relative w-full h-auto">
                     <Image
-                      src={postWithUser.media || "/placeholder.svg"}
+                      src={postWithUser.media}
                       alt="Post media"
-                      layout="responsive"
                       width={700}
                       height={475}
                       className="object-cover"
@@ -147,94 +141,124 @@ export default function CommentList({ postId, userId }: CommentListProps) {
               )}
               <div className="flex items-center justify-between mt-3 max-w-md text-zinc-500">
                 <button className="flex items-center gap-2 group">
-                  <div className="p-2 rounded-full group-hover:bg-red-500/10 group-hover:text-red-500">
+                  <div className="p-2 rounded-full group-hover:bg-red-500/10 group-hover:text-red-500 text-red-500">
                     <Heart className="w-5 h-5" />
                   </div>
-                  <span>{postWithUser.likesCount}</span>
+                  <span>{formatNumber(postWithUser.likesCount)}</span>
                 </button>
                 <button className="flex items-center gap-2 group">
-                  <div className="p-2 rounded-full group-hover:bg-blue-500/10 group-hover:text-blue-500">
+                  <div className="p-2 rounded-full group-hover:bg-blue-500/10 group-hover:text-blue-500 text-blue-500">
                     <MessageCircle className="w-5 h-5" />
                   </div>
-                  <span>{postWithUser.commentsCount}</span>
+                  <span>{formatNumber(postWithUser.commentsCount)}</span>
                 </button>
                 <button className="flex items-center gap-2 group">
-                  <div className="p-2 rounded-full group-hover:bg-green-500/10 group-hover:text-green-500">
+                  <div className="p-2 rounded-full group-hover:bg-green-500/10 group-hover:text-green-500 text-green-500">
                     <Repeat className="w-5 h-5" />
                   </div>
-                  <span>{postWithUser.repostsCount}</span>
+                  <span>{formatNumber(postWithUser.repostsCount)}</span>
                 </button>
-                <div className="group">
-                  <div className="p-2 rounded-full group-hover:bg-blue-500/10 group-hover:text-violet-500">
+                <button className="group">
+                  <div className="p-2 rounded-full group-hover:bg-blue-500/10 group-hover:text-violet-500 text-violet-500">
                     <Share2 className="w-5 h-5" />
                   </div>
-                </div>
+                </button>
               </div>
             </div>
           </div>
         </article>
       )}
-      <form onSubmit={handleCommentSubmit} className="flex gap-2">
-        <input
-          type="text"
-          value={newComment}
-          onChange={(e) => setNewComment(e.target.value)}
-          placeholder="Write a comment..."
-          className="flex-1 border-none focus:outline-none resize-none bg-background-content p-2"
-        />
-        <button type="submit" className="bg-blue-500 text-white px-4 py-2">
-          Post
-        </button>
-      </form>
-      {comments?.map((comment: Comment & { user: User }) => (
-        <div key={comment.id} className="flex flex-col gap-2">
-          <div className="flex items-center gap-2">
-            <Avatar className="w-8 h-8">
-              <AvatarImage
-                src={comment.user.profilePicture}
-                alt={comment.user.username}
-              />
-              <AvatarFallback>{comment.user.username.charAt(0)}</AvatarFallback>
-            </Avatar>
-            <span className="font-bold hover:underline">
-              {comment.user.username}
-            </span>
-            <span className="text-zinc-500">
-              {comment.user.firstName} {comment.user.lastName}
-            </span>
-            {comment.userId === userId && (
-              <DropdownMenu>
-                <DropdownMenuTrigger>
-                  <div className="text-blue-500">Options</div>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  <DropdownMenuItem
-                    onClick={() =>
-                      handleEditComment(comment.id, comment.content)
-                    }
-                  >
-                    Edit
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() => handleDeleteComment(comment.id)}
-                  >
-                    Delete
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
+
+      {/* Comment Input */}
+      <form
+        onSubmit={handleCommentSubmit}
+        className="border-b border-zinc-400/15 p-4"
+      >
+        <div className="flex gap-3">
+          <Avatar className="w-10 h-10">
+            <AvatarImage src={postWithUser?.user.profilePicture} />
+            <AvatarFallback>
+              {postWithUser?.user.username.charAt(0)}
+            </AvatarFallback>
+          </Avatar>
+          <div className="flex-1 flex gap-2">
+            <input
+              type="text"
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
+              placeholder="Post your reply"
+              className="flex-1 bg-transparent border-none focus:outline-none resize-none"
+            />
+            <Button
+              type="submit"
+              disabled={!newComment.trim()}
+              className="bg-blue-500 hover:bg-blue-600 text-white rounded-full px-4"
+            >
+              Reply
+            </Button>
           </div>
-          <p>{comment.content}</p>
-          <span className="text-zinc-500">
-            {getTimeAgo(comment.createdAt?.toString())}
-          </span>
-          {comment.userId === postId && (
-            <div className="text-blue-500">
-              This is a comment on your own post.
-            </div>
-          )}
         </div>
-      ))}
+      </form>
+
+      {/* Comments List */}
+      <div className="flex flex-col">
+        {comments?.map((comment: Comment & { user: User }) => (
+          <div
+            key={comment.id}
+            className="border-b border-zinc-400/15 p-4 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors"
+          >
+            <div className="flex gap-3">
+              <Avatar className="w-10 h-10">
+                <AvatarImage
+                  src={comment.user.profilePicture}
+                  alt={comment.user.username}
+                />
+                <AvatarFallback>
+                  {comment.user.username.charAt(0)}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <span className="font-bold hover:underline">
+                    {comment.user.username}
+                  </span>
+                  {comment.user.isVerified && (
+                    <BadgeCheck className="w-4 h-4 text-blue-500" />
+                  )}
+                  <span className="text-zinc-500 text-sm">
+                    {getTimeAgo(comment.createdAt)}
+                  </span>
+                </div>
+                <p className="mt-2 break-words whitespace-pre-wrap">
+                  {comment.content}
+                </p>
+                <div className="flex items-center gap-6 mt-3 text-zinc-500">
+                  <button className="flex items-center gap-2 group">
+                    <div className="p-2 rounded-full group-hover:bg-red-500/10 group-hover:text-red-500">
+                      <Heart className="w-4 h-4" />
+                    </div>
+                  </button>
+                  <button className="flex items-center gap-2 group">
+                    <div className="p-2 rounded-full group-hover:bg-blue-500/10 group-hover:text-blue-500">
+                      <MessageCircle className="w-4 h-4" />
+                    </div>
+                  </button>
+                  <button className="flex items-center gap-2 group">
+                    <div className="p-2 rounded-full group-hover:bg-green-500/10 group-hover:text-green-500">
+                      <Repeat className="w-4 h-4" />
+                    </div>
+                  </button>
+                  <button className="group">
+                    <div className="p-2 rounded-full group-hover:bg-blue-500/10 group-hover:text-violet-500">
+                      <Share2 className="w-4 h-4" />
+                    </div>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
