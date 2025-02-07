@@ -32,6 +32,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { useAuth } from "@/contexts/AuthContext";
+import { PostSkeleton, CommentSkeleton } from "@/components/ui/skeleton";
 
 interface CommentListProps {
   postId: string;
@@ -146,7 +147,16 @@ export default function CommentList({ postId, userId }: CommentListProps) {
     console.log(comments);
   }, [comments]);
 
-  if (isPostLoading || isCommentsLoading) return <div>Loading...</div>;
+  if (isPostLoading || isCommentsLoading) {
+    return (
+      <div className="flex flex-col w-full h-screen bg-zinc-50 dark:bg-background-content overflow-scroll mt-6 rounded-2xl">
+        <PostSkeleton />
+        {[...Array(3)].map((_, i) => (
+          <CommentSkeleton key={i} />
+        ))}
+      </div>
+    );
+  }
   if (postError) return <div>Error: {postError.message}</div>;
   if (commentsError) return <div>Error: {commentsError.message}</div>;
 
