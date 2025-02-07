@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Heart, MessageCircle, Share } from "lucide-react";
 import { Label } from "./ui/label";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 // Định nghĩa các type cho activities
 interface ActivityCardProps {
@@ -46,8 +47,12 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({
   reply,
   suggestion,
 }) => {
-  // Thêm state để quản lý trạng thái follow
+  const router = useRouter();
   const [isFollowing, setIsFollowing] = useState(false);
+
+  const handleProfileClick = () => {
+    router.push(`/profile/${actor.id}`);
+  };
 
   // Helper function để render action text và button text
   const getActionAndButton = () => {
@@ -74,7 +79,10 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({
   const actionInfo = getActionAndButton();
 
   return (
-    <div className="flex gap-4 py-2">
+    <div
+      className="flex gap-4 py-2 cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors"
+      onClick={handleProfileClick}
+    >
       <Avatar className="h-10 w-10">
         <AvatarImage src={actor.avatar} alt={actor.displayName} />
         <AvatarFallback>
@@ -100,15 +108,20 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({
             </div>
             {(type === "follow" || type === "suggestion") && (
               <Button
-                variant={isFollowing ? "outline" : "default"}
+                variant={
+                  actionInfo.button === "Following" ? "outline" : "default"
+                }
                 size="sm"
                 className={`rounded-[10px] font-semibold px-6 py-1.5 text-sm self-center cursor-pointer
                   ${
-                    isFollowing
+                    actionInfo.button === "Following"
                       ? "bg-transparent hover:bg-background border-[#999999] text-foreground"
                       : "bg-black text-white hover:bg-black/90 dark:bg-foreground dark:text-background"
                   }`}
-                onClick={() => setIsFollowing(!isFollowing)}
+                onClick={(e) => {
+                  e.stopPropagation(); // Ngăn sự kiện click lan ra ngoài
+                  setIsFollowing(!isFollowing);
+                }}
               >
                 {actionInfo.button}
               </Button>
@@ -116,6 +129,7 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({
           </div>
         </div>
 
+        {/* Bio section */}
         {actor.bio && (
           <div className="max-w-[500px]">
             <p className="text-[13px] leading-[1.6] text-zinc-600 dark:text-zinc-400">
@@ -124,6 +138,7 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({
           </div>
         )}
 
+        {/* Mutual followers section */}
         {suggestion && (
           <div className="flex items-center space-x-1">
             <span className="text-sm font-semibold">

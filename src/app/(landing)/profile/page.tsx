@@ -63,16 +63,84 @@ export default function Profile() {
     return (
       <div className="h-full min-h-[90vh] min-w-[700px] rounded-3xl">
         <Card className="flex flex-col h-full bg-card px-8 py-6 rounded-3xl space-y-6">
-          <div className="mb-6 flex items-start bg-card justify-between">
-            <div className="flex flex-col h-full space-y-1">
-              <Skeleton className="h-6 w-[200px]" />
-              <Skeleton className="h-4 w-[150px]" />
-              <Skeleton className="h-4 w-[300px]" />
-              <Skeleton className="h-4 w-[100px] mt-6" />
+          {/* Header section */}
+          <div className="mb-8 flex items-start justify-between">
+            {/* Left column: Info */}
+            <div className="flex flex-col space-y-6">
+              {/* Name & Username */}
+              <div className="space-y-2">
+                <Skeleton className="h-8 w-[250px]" /> {/* Name */}
+                <Skeleton className="h-5 w-[150px]" /> {/* Username */}
+              </div>
+
+              {/* Bio */}
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-[400px]" />
+                <Skeleton className="h-4 w-[350px]" />
+              </div>
+
+              {/* Stats */}
+              <div className="flex items-center space-x-4">
+                <Skeleton className="h-6 w-[100px]" /> {/* Followers count */}
+              </div>
             </div>
-            <Skeleton className="h-16 w-16 rounded-full" />
+
+            {/* Right column: Avatar */}
+            <Skeleton className="h-24 w-24 rounded-full" />
           </div>
-          <Skeleton className="h-10 w-full" />
+
+          {/* Edit Profile button */}
+          <Skeleton className="h-10 w-full rounded-[10px]" />
+
+          {/* Profile Completion Section */}
+          <div className="flex flex-col space-y-4 rounded-xl p-4 bg-card">
+            <div className="flex items-center justify-between bg-card">
+              <Skeleton className="h-6 w-[150px]" /> {/* Title */}
+              <Skeleton className="h-4 w-[50px]" /> {/* Completion count */}
+            </div>
+
+            {/* Profile completion cards */}
+            <div className="w-full overflow-x-auto">
+              <div className="flex flex-row space-x-4 rounded-xl">
+                {/* Skeleton cards for completion items */}
+                {[1, 2, 3, 4].map((i) => (
+                  <div
+                    key={i}
+                    className="w-[200px] flex flex-col rounded-xl items-center gap-4 p-6 text-center bg-secondary shrink-0"
+                  >
+                    <Skeleton className="h-14 w-14 rounded-full" /> {/* Icon */}
+                    <Skeleton className="h-5 w-[120px]" /> {/* Title */}
+                    <Skeleton className="h-4 w-[160px]" /> {/* Description */}
+                    <Skeleton className="h-9 w-full rounded-[10px] mt-auto" />{" "}
+                    {/* Button */}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Tabs */}
+          <div className="space-y-4">
+            <div className="flex gap-4 border-b border-secondary">
+              <Skeleton className="h-10 w-[100px]" /> {/* Posts tab */}
+              <Skeleton className="h-10 w-[100px]" /> {/* Reposts tab */}
+            </div>
+
+            {/* Post composer skeleton */}
+            <div className="flex items-center gap-4 py-6 border-b border-zinc-800">
+              <Skeleton className="h-10 w-10 rounded-full" /> {/* Avatar */}
+              <Skeleton className="h-10 flex-1 rounded-lg" /> {/* Input */}
+              <Skeleton className="h-10 w-[100px] rounded-full" />{" "}
+              {/* Post button */}
+            </div>
+
+            {/* Posts content */}
+            <div className="space-y-4">
+              <Skeleton className="h-[150px] w-full rounded-lg" />
+              <Skeleton className="h-[150px] w-full rounded-lg" />
+              <Skeleton className="h-[150px] w-full rounded-lg" />
+            </div>
+          </div>
         </Card>
       </div>
     );
