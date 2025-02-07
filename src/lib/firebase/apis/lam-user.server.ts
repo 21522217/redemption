@@ -1,7 +1,15 @@
 "server-only";
 
 import { db } from "../config";
-import { collection, getDocs, query, where, orderBy } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  query,
+  where,
+  orderBy,
+  doc,
+  getDoc,
+} from "firebase/firestore";
 import { User } from "@/types/user";
 
 /**
@@ -84,4 +92,43 @@ export async function searchUsers(searchTerm: string, currentUserId: string) {
     });
 
   return users;
+}
+
+/**
+ * Kiểm tra xem user đã hoàn thành profile chưa
+ * @param userId ID của user cần kiểm tra
+ * @returns Object chứa trạng thái hoàn thành của từng mục
+ */
+export async function getProfileCompletion(userId: string) {
+  // Lấy thông tin user
+  const userRef = doc(db, "users", userId);
+  const userDoc = await getDoc(userRef);
+  const userData = userDoc.data() as User;
+
+  // Kiểm tra số lượng post
+  const postsRef = collection(db, "posts");
+  const postsQuery = query(postsRef, where("userId", "==", userId));
+  const postsSnap = await getDocs(postsQuery);
+  const hasPost = !postsSnap.empty;
+
+  // Kiểm tra số lượng following
+  const followsRef = collection(db, "follows");
+  const followsQuery = query(followsRef, where("followerId", "==", userId));
+  const followsSnap = await getDocs(followsQuery);
+  const followingCount = followsSnap.size;
+
+  return {
+    hasPost,
+    hasBio: !!userData.bio,
+    hasAvatar: userData.profilePicture !== "https://github.com/shadcn.png",
+    hasEnoughFollowing: followingCount >= 10,
+    followingCount,
+    totalTasks: 4,
+    completedTasks: [
+      hasPost,
+      !!userData.bio,
+      userData.profilePicture !== "https://github.com/shadcn.png",
+      followingCount >= 10,
+    ].filter(Boolean).length,
+  };
 }

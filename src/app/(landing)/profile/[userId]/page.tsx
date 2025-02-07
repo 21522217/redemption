@@ -113,18 +113,14 @@ export default function Profile() {
         </Button>
 
         {/* Tabs Navigation */}
-        <Tabs defaultValue="stories" className="mb-6 bg-card">
-          <TabsList
-            className=" grid w-full h-fit gap-0 grid-cols-2
-                     bg-card p-0 border-b-[1px] border-secondary rounded-none "
-          >
+        <Tabs defaultValue="posts" className="mb-6 bg-card">
+          <TabsList className="grid w-full h-fit gap-0 grid-cols-2 bg-card p-0 border-b-[1px] border-secondary rounded-none">
             <TabsTrigger
-              value="stories"
+              value="posts"
               className="font-semibold py-2 border-b-[1px] border-transparent rounded-none data-[state=active]:bg-card data-[state=active]:border-primary"
             >
-              Stories
+              Posts
             </TabsTrigger>
-
             <TabsTrigger
               value="reposts"
               className="font-semibold py-2 border-b-[1px] border-transparent rounded-none data-[state=active]:bg-card data-[state=active]:border-primary"
@@ -134,7 +130,7 @@ export default function Profile() {
           </TabsList>
 
           <TabsContent
-            value="stories"
+            value="posts"
             className="w-full h-full max-h-[500px] bg-card overflow-y-auto "
           >
             {!userPosts || userPosts.length === 0 || !user ? (

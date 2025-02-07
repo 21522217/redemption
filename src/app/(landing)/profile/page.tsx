@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Edit, Image, Pencil, UserIcon, Users } from "lucide-react";
+import { Edit, Image, Pencil, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -13,8 +13,9 @@ import { User } from "@/types/user";
 import ChangeProfileModal from "@/components/ChangeProfileModal";
 import Reposts from "@/components/Reposts";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useAuth } from "@/contexts/AuthContext";
 import UserAvatar from "@/components/UserAvatar";
+import { getProfileCompletion } from "@/lib/firebase/apis/lam-user.server";
+import { useRouter } from "next/navigation";
 
 export default function Profile() {
   const [isModalOpen, setModalOpen] = useState(false);
@@ -33,6 +34,12 @@ export default function Profile() {
     retry: 3,
   });
 
+  const { data: profileCompletion } = useQuery({
+    queryKey: ["profileCompletion", currentUser?.id],
+    queryFn: () => getProfileCompletion(currentUser?.id || ""),
+    enabled: !!currentUser?.id,
+  });
+
   const visibleTabsCount = useMemo(() => {
     return 1 + (showRepostTab ? 1 : 0);
   }, [showRepostTab]);
@@ -49,6 +56,8 @@ export default function Profile() {
         return "grid w-full h-fit gap-4 grid-cols-2";
     }
   }, [visibleTabsCount]);
+
+  const router = useRouter();
 
   if (isLoading) {
     return (
@@ -125,16 +134,16 @@ export default function Profile() {
         />
 
         {/* Tabs Navigation */}
-        <Tabs defaultValue="threads" className="mb-6 bg-card">
+        <Tabs defaultValue="posts" className="mb-6 bg-card">
           <TabsList
             className={`${tabsListClassName} 
           bg-card gap-0 p-0 border-b-[1px] border-secondary rounded-none`}
           >
             <TabsTrigger
-              value="threads"
+              value="posts"
               className="font-semibold py-2 border-b-[1px] border-transparent rounded-none data-[state=active]:bg-card data-[state=active]:border-primary"
             >
-              Threads
+              Posts
             </TabsTrigger>
 
             {showRepostTab && (
@@ -147,7 +156,7 @@ export default function Profile() {
             )}
           </TabsList>
 
-          <TabsContent value="threads" className="space-y-4 bg-card">
+          <TabsContent value="posts" className="space-y-4 bg-card">
             {/* Post Composer */}
             <div className="flex items-center py-6 bg-card border-b border-zinc-800 pb-4">
               <UserAvatar userId={currentUser?.id || null} />
@@ -172,81 +181,107 @@ export default function Profile() {
             </div>
 
             {/* Profile Completion Section */}
-            <div className="flex flex-col space-y-4 rounded-xl p-4 bg-card">
-              <div className="flex items-center justify-between bg-card">
-                <h2 className="text-lg font-semibold">Finish your profile</h2>
-                <span className="text-sm text-zinc-400">3 left</span>
-              </div>
-
-              {/* Wrapping div to handle horizontal scrolling */}
-              <div className="w-full overflow-x-auto">
-                <div className="flex flex-row space-x-4 rounded-xl">
-                  <div className="w-[200px] flex flex-col rounded-xl items-center gap-4 p-6 text-center bg-secondary shrink-0">
-                    <div className="rounded-full bg-accent p-4">
-                      <Edit className="h-6 w-6" />
-                    </div>
-                    <h3 className="font-medium">Create thread</h3>
-                    <p className="text-sm text-zinc-400">
-                      Say what&apos;s on your mind or share a recent highlight.
-                    </p>
-                    <Button
-                      variant="outline"
-                      className="mt-auto w-full rounded-xl font-semibold bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground"
-                    >
-                      Create
-                    </Button>
+            {profileCompletion &&
+              profileCompletion.completedTasks <
+                profileCompletion.totalTasks && (
+                <div className="flex flex-col space-y-4 rounded-xl p-4 bg-card">
+                  <div className="flex items-center justify-between bg-card">
+                    <h2 className="text-lg font-semibold">
+                      Finish your profile
+                    </h2>
+                    <span className="text-sm text-zinc-400">
+                      {profileCompletion.completedTasks}/
+                      {profileCompletion.totalTasks}
+                    </span>
                   </div>
 
-                  <div className="w-[200px] flex flex-col rounded-xl items-center gap-4 p-6 text-center bg-secondary shrink-0">
-                    <div className="rounded-full bg-accent p-4">
-                      <Users className="h-6 w-6" />
-                    </div>
-                    <h3 className="font-medium">Follow 10 profiles</h3>
-                    <p className="text-sm text-zinc-400">
-                      Fill your feed with threads that interest you.
-                    </p>
-                    <Button
-                      variant="outline"
-                      className="mt-auto w-full rounded-xl font-semibold bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground"
-                    >
-                      See profiles
-                    </Button>
-                  </div>
+                  {/* Wrapping div to handle horizontal scrolling */}
+                  <div className="w-full overflow-x-auto">
+                    <div className="flex flex-row space-x-4 rounded-xl">
+                      {/* Create post card */}
+                      {!profileCompletion.hasPost && (
+                        <div className="w-[200px] flex flex-col rounded-xl items-center gap-4 p-6 text-center bg-secondary shrink-0">
+                          <div className="rounded-full bg-accent p-4">
+                            <Edit className="h-6 w-6" />
+                          </div>
+                          <h3 className="font-medium">
+                            Create your first post
+                          </h3>
+                          <p className="text-sm text-zinc-400">
+                            Share what&apos;s on your mind with others.
+                          </p>
+                          <Button
+                            onClick={() => showCreatePostModal()}
+                            className="mt-auto w-full rounded-xl font-semibold bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground"
+                          >
+                            Create post
+                          </Button>
+                        </div>
+                      )}
 
-                  <div className="w-[200px] flex flex-col rounded-xl items-center gap-4 p-6 text-center bg-secondary shrink-0">
-                    <div className="rounded-full bg-accent p-4">
-                      <Pencil className="h-6 w-6" />
-                    </div>
-                    <h3 className="font-medium">Add bio</h3>
-                    <p className="text-sm text-zinc-400">
-                      Introduce yourself and tell people what you&apos;re into.
-                    </p>
-                    <Button
-                      variant="outline"
-                      className="mt-auto w-full rounded-xl font-semibold bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground"
-                    >
-                      Add
-                    </Button>
-                  </div>
+                      {/* Follow profiles card */}
+                      {!profileCompletion.hasEnoughFollowing && (
+                        <div className="w-[200px] flex flex-col rounded-xl items-center gap-4 p-6 text-center bg-secondary shrink-0">
+                          <div className="rounded-full bg-accent p-4">
+                            <Users className="h-6 w-6" />
+                          </div>
+                          <h3 className="font-medium">
+                            Follow {10 - profileCompletion.followingCount} more
+                            people
+                          </h3>
+                          <p className="text-sm text-zinc-400">
+                            Connect with people that interest you.
+                          </p>
+                          <Button
+                            onClick={() => router.push("/search")}
+                            className="mt-auto w-full rounded-xl font-semibold bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground"
+                          >
+                            Find people
+                          </Button>
+                        </div>
+                      )}
 
-                  <div className="w-[200px] flex flex-col rounded-xl items-center gap-4 p-6 text-center bg-secondary shrink-0">
-                    <div className="rounded-full bg-accent p-4">
-                      <Image className="h-6 w-6" />
+                      {/* Add bio card */}
+                      {!profileCompletion.hasBio && (
+                        <div className="w-[200px] flex flex-col rounded-xl items-center gap-4 p-6 text-center bg-secondary shrink-0">
+                          <div className="rounded-full bg-accent p-4">
+                            <Pencil className="h-6 w-6" />
+                          </div>
+                          <h3 className="font-medium">Add bio</h3>
+                          <p className="text-sm text-zinc-400">
+                            Tell others about yourself.
+                          </p>
+                          <Button
+                            onClick={() => setModalOpen(true)}
+                            className="mt-auto w-full rounded-xl font-semibold bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground"
+                          >
+                            Add bio
+                          </Button>
+                        </div>
+                      )}
+
+                      {/* Upload avatar card */}
+                      {!profileCompletion.hasAvatar && (
+                        <div className="w-[200px] flex flex-col rounded-xl items-center gap-4 p-6 text-center bg-secondary shrink-0">
+                          <div className="rounded-full bg-accent p-4">
+                            <Image className="h-6 w-6" />
+                          </div>
+                          <h3 className="font-medium">Add profile picture</h3>
+                          <p className="text-sm text-zinc-400">
+                            Choose a picture that represents you.
+                          </p>
+                          <Button
+                            onClick={() => setModalOpen(true)}
+                            className="mt-auto w-full rounded-xl font-semibold bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground"
+                          >
+                            Upload picture
+                          </Button>
+                        </div>
+                      )}
                     </div>
-                    <h3 className="font-medium">Upload your avatar</h3>
-                    <p className="text-sm text-zinc-400">
-                      Add a profile picture to help others recognize you.
-                    </p>
-                    <Button
-                      variant="outline"
-                      className="mt-auto w-full rounded-xl font-semibold bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground"
-                    >
-                      Upload
-                    </Button>
                   </div>
                 </div>
-              </div>
-            </div>
+              )}
           </TabsContent>
 
           {/* Repost */}
