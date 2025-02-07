@@ -12,15 +12,12 @@ import { showCreatePostModal } from "@/components/CreatePostModal";
 import { fetchCurrentUser } from "@/lib/firebase/apis/user.server";
 import { User } from "@/types/user";
 import ChangeProfileModal from "@/components/ChangeProfileModal";
-
+import Reposts from "@/components/Reposts";
 export default function Profile() {
   const [isModalOpen, setModalOpen] = useState(false);
   const [showRepostTab, setShowRepostTab] = useState(true);
 
-  const {
-    data: currentUser,
-    refetch: refetchUser,
-  } = useQuery<User | null>({
+  const { data: currentUser, refetch: refetchUser } = useQuery<User | null>({
     queryKey: ["currentUser"],
     queryFn: fetchCurrentUser,
   });
@@ -222,7 +219,9 @@ export default function Profile() {
           <TabsContent
             value="reposts"
             className="w-full h-full max-h-[500px] bg-card overflow-y-auto "
-          ></TabsContent>
+          >
+            <Reposts userId={currentUser?.id ?? ""} />
+          </TabsContent>
         </Tabs>
       </Card>
     </div>

@@ -20,7 +20,6 @@ export interface Post {
     endsAt: Timestamp;
   };
   isSensitive?: boolean;
-  originalPostId?: string;
 }
 
 export interface LikedPost {

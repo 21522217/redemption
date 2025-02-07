@@ -8,6 +8,7 @@ import {
   isPostLiked,
   toggleLikePost,
 } from "@/lib/firebase/apis/posts.server";
+import { createRepost } from "@/lib/firebase/apis/repost.server";
 import type { Post } from "@/types/post";
 import type { User } from "@/types/user";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -16,6 +17,13 @@ import Image from "next/image";
 import PostDropdown from "./PostDropdown";
 import PostCond from "./PostCond";
 import { getTimeAgo, formatNumber } from "@/lib/utils";
+import {
+  Dialog,
+  DialogOverlay,
+  DialogContent,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 const PostView = () => {
   const { user: AuthUser, isLogin } = useAuth();
@@ -27,6 +35,8 @@ const PostView = () => {
   const [likes, setLikes] = useState(new Map<string, boolean>());
   const [comments, setComments] = useState<number[]>([]);
   const [reposts, setReposts] = useState<number[]>([]);
+  const [showRepostDialog, setShowRepostDialog] = useState(false);
+  const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
 
   const handleLike = async (postId: string) => {
     if (!AuthUser) return;
@@ -57,7 +67,19 @@ const PostView = () => {
   };
 
   const handleRepost = (postId: string) => {
-    router.push(`/posts/${postId}`);
+    setSelectedPostId(postId);
+    setShowRepostDialog(true);
+  };
+
+  const confirmRepost = async () => {
+    if (!AuthUser || !selectedPostId) return;
+    try {
+      await createRepost(selectedPostId, AuthUser.uid);
+      setShowRepostDialog(false);
+      router.push("/profile");
+    } catch (error) {
+      console.error("Failed to create repost:", error);
+    }
   };
 
   useEffect(() => {
@@ -176,6 +198,35 @@ const PostView = () => {
           </div>
         </article>
       ))}
+      {showRepostDialog && (
+        <Dialog
+          open={showRepostDialog}
+          onOpenChange={() => setShowRepostDialog(false)}
+        >
+          <DialogOverlay />
+          <DialogContent>
+            <div className="p-6 rounded-lg shadow-lg">
+              <DialogTitle className="text-lg font-semibold mb-4">
+                Are you sure you want to repost this post?
+              </DialogTitle>
+              <div className="flex justify-end space-x-4">
+                <Button
+                  onClick={() => setShowRepostDialog(false)}
+                  className="px-4 py-2 rounded-md"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={confirmRepost}
+                  className="px-4 py-2 text-white rounded-md"
+                >
+                  Yes
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 };

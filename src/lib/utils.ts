@@ -6,11 +6,14 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export const convertTimestamp = (timestamp: Timestamp) => {
+export const convertTimestamp = (timestamp: Timestamp | undefined) => {
+  if (!timestamp) return "";
   if (timestamp instanceof Timestamp) {
-    return timestamp.toDate();
+    return timestamp.toDate().toLocaleString();
+  } else if (typeof timestamp === "number") {
+    return new Date(timestamp * 1000).toLocaleString();
   }
-  return timestamp;
+  return "Invalid timestamp";
 };
 
 export const getTimeAgo = (
