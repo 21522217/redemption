@@ -35,8 +35,6 @@ const PostView = () => {
   const observer = useRef<IntersectionObserver | null>(null);
 
   const [likes, setLikes] = useState(new Map<string, boolean>());
-  const [comments, setComments] = useState<number[]>([]);
-  const [reposts, setReposts] = useState<number[]>([]);
   const [showRepostDialog, setShowRepostDialog] = useState(false);
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
 
@@ -62,14 +60,6 @@ const PostView = () => {
           new Map(likedPosts.map(({ postId, isLiked }) => [postId, isLiked]))
         );
       }
-      setComments((prev) => [
-        ...prev,
-        ...posts.map((post) => post.commentsCount ?? 0),
-      ]);
-      setReposts((prev) => [
-        ...prev,
-        ...posts.map((post) => post.repostsCount ?? 0),
-      ]);
       return posts;
     },
   });
@@ -213,7 +203,7 @@ const PostView = () => {
                   <div className="p-2 rounded-full group-hover:bg-blue-500/10 group-hover:text-blue-500 text-blue-500">
                     <MessageCircle className="w-5 h-5" />
                   </div>
-                  <span>{formatNumber(comments[index] ?? 0)}</span>
+                  <span>{formatNumber(post.commentsCount ?? 0)}</span>
                 </button>
                 <button
                   className="flex items-center gap-2 group"
@@ -222,7 +212,7 @@ const PostView = () => {
                   <div className="p-2 rounded-full group-hover:bg-green-500/10 group-hover:text-green-500 text-green-500">
                     <Repeat className="w-5 h-5" />
                   </div>
-                  <span>{formatNumber(reposts[index] ?? 0)}</span>
+                  <span>{formatNumber(post.repostsCount ?? 0)}</span>
                 </button>
                 <button className="group">
                   <div className="p-2 rounded-full group-hover:bg-blue-500/10 group-hover:text-violet-500 text-violet-500">
@@ -244,8 +234,8 @@ const PostView = () => {
             <DialogHeader>
               <DialogTitle>Repost this post?</DialogTitle>
               <DialogDescription>
-                This will appear on your profile and in your followers&apos; home
-                timeline.
+                This will appear on your profile and in your followers&apos;
+                home timeline.
               </DialogDescription>
             </DialogHeader>
 
