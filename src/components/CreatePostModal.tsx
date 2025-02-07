@@ -12,6 +12,7 @@ import { createPost } from "@/lib/firebase/apis/posts.server";
 import Image from "next/image";
 import { Post } from "@/types/post";
 import { toast } from "react-toastify";
+import { X } from "lucide-react";
 
 interface CreatePostModalProps {
   isOpen: boolean;
@@ -29,26 +30,89 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
   const [media, setMedia] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const MAX_VIDEO_SIZE_MB = 100; // 100MB
+  const MAX_VIDEO_DURATION = 300; // 5 minutes
+
   const handleFileSelect = () => {
     if (fileInputRef.current) {
       fileInputRef.current.click();
     }
   };
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = event.target.files?.[0];
-    if (selectedFile && (selectedFile.type === "image/png" || selectedFile.type === "image/jpeg" || selectedFile.type === "video/mp4")) {
+  const getMediaDimensions = (
+    file: File
+  ): Promise<{ width: number; height: number }> => {
+    return new Promise((resolve) => {
+      if (file.type.startsWith("image/")) {
+        const img = document.createElement("img") as HTMLImageElement;
+        img.src = URL.createObjectURL(file);
+        img.onload = () => {
+          resolve({ width: img.width, height: img.height });
+        };
+      } else if (file.type.startsWith("video/")) {
+        const video = document.createElement("video");
+        video.src = URL.createObjectURL(file);
+        video.onloadedmetadata = () => {
+          resolve({ width: video.videoWidth, height: video.videoHeight });
+        };
+      }
+    });
+  };
 
-      setMedia(selectedFile);
-    } else {
-      toast("Only PNG, JPEG, and MP4 files are allowed.");
+  const handleFileChange = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const selectedFile = event.target.files?.[0];
+
+    if (!selectedFile) return;
+
+    // Check file type
+    if (
+      !(
+        selectedFile.type === "image/png" ||
+        selectedFile.type === "image/jpeg" ||
+        selectedFile.type === "video/mp4"
+      )
+    ) {
+      toast.error("Only PNG, JPEG, and MP4 files are allowed.");
+      return;
     }
+
+    // Check video size
+    if (selectedFile.type === "video/mp4") {
+      const fileSizeMB = selectedFile.size / (1024 * 1024);
+      if (fileSizeMB > MAX_VIDEO_SIZE_MB) {
+        toast.error(`Video must be smaller than ${MAX_VIDEO_SIZE_MB}MB`);
+        return;
+      }
+
+      // Check video duration
+      const video = document.createElement("video");
+      video.src = URL.createObjectURL(selectedFile);
+
+      await new Promise((resolve) => {
+        video.onloadedmetadata = () => {
+          if (video.duration > MAX_VIDEO_DURATION) {
+            toast.error("Video must be shorter than 5 minutes");
+            resolve(false);
+          }
+          resolve(true);
+        };
+      });
+    }
+
+    const dimensions = await getMediaDimensions(selectedFile);
+    if (dimensions.width > 600 || dimensions.height > 600) {
+      toast.info("Large media will be resized to fit the post.");
+    }
+
+    setMedia(selectedFile);
   };
 
   const handlePost = async () => {
     setLoadingState(true);
-    if (!content.trim() && !media) {
-      toast("Post cannot be empty.");
+    if (!content.trim()) {
+      toast("Please add some text to your post.");
       setLoadingState(false);
       return;
     }
@@ -58,7 +122,10 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
 
       if (media) {
         const formData = new FormData();
-        formData.append(media.type.startsWith("image/") ? "image" : "video", media);
+        formData.append(
+          media.type.startsWith("image/") ? "image" : "video",
+          media
+        );
 
         const response = await fetch("/api/upload", {
           method: "POST",
@@ -76,7 +143,11 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
       const newPost: Post = {
         id: "",
         userId: user?.uid || "",
-        type: media ? (media.type.startsWith("image/") ? "image" : "video") : "text",
+        type: media
+          ? media.type.startsWith("image/")
+            ? "image"
+            : "video"
+          : "text",
         content: content,
         tags: ["#test", "#test2"],
         likesCount: 0,
@@ -107,9 +178,9 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
       <Dialog.Portal>
         <Dialog.Overlay className="z-50 bg-neutral-900/90 backdrop-blur-sm fixed inset-0">
           <Dialog.Content
-            className="fixed drop-shadow-md border border-neutral-200 dark:border-neutral-700 top-1/2 left-1/2 max-h-full 
-            w-full md:w-[600px] h-[400px] md:h-auto md:max-h-[85vh] -translate-x-1/2 -translate-y-1/2 rounded-xl p-6 
-            focus:outline-none bg-white dark:bg-neutral-800"
+            className="fixed drop-shadow-md border border-neutral-200 dark:border-neutral-700 top-1/2 left-1/2
+            w-full md:w-[600px] md:min-h-[300px] md:max-h-[80vh] -translate-x-1/2 -translate-y-1/2 rounded-xl p-6 
+            focus:outline-none bg-white dark:bg-neutral-800 overflow-y-auto"
           >
             <div className="flex justify-between items-center mb-4 p-4">
               <span
@@ -125,10 +196,6 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
             </div>
 
             <div className="flex gap-4">
-              {/* <Avatar className="w-10 h-10">
-                <AvatarImage src={user?.profilePicture || "/placeholder.svg"} />
-                <AvatarFallback>{user?.username.charAt(0) || "UN"}</AvatarFallback>
-              </Avatar> */}
               <div className="flex-1">
                 <textarea
                   placeholder="What's on your mind?"
@@ -136,46 +203,58 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
                   onChange={(e) => setContent(e.target.value)}
                   className="w-full bg-transparent border-none outline-none resize-none text-lg min-h-[100px]"
                 />
-                <div className="flex items-center gap-2 text-neutral-400">
-                  {media ? (
-                    media.type.startsWith("image/") ? (
-                      <Image
-                        src={URL.createObjectURL(media)}
-                        alt="Uploaded Media"
-                        width={400}
-                        height={600}
-                        className="rounded-lg"
-                      />
-                    ) : (
-                      <video
-                        src={URL.createObjectURL(media)}
-                        controls
-                        width={400}
-                        height={600}
-                        className="rounded-lg"
-                      />
-                    )
-                  ) : (
-                    <>
-                      <LucideImage
-                        size={35}
-                        className="hover:bg-neutral-800 rounded-full cursor-pointer"
-                        onClick={handleFileSelect}
-                      />
-                      <LucideVideo
-                        size={35}
-                        className="hover:bg-neutral-800 rounded-full cursor-pointer"
-                        onClick={handleFileSelect}
-                      />
-                    </>
+                <div className="flex flex-col gap-2">
+                  {media && (
+                    <div className="relative w-full rounded-lg bg-neutral-100 dark:bg-neutral-900">
+                      {media.type.startsWith("image/") ? (
+                        <div className="relative w-full">
+                          <Image
+                            src={URL.createObjectURL(media)}
+                            alt="Uploaded Media"
+                            width={600}
+                            height={400}
+                            className="rounded-lg w-full h-auto object-contain max-h-[400px]"
+                            style={{ objectFit: "contain" }}
+                          />
+                        </div>
+                      ) : (
+                        <video
+                          src={URL.createObjectURL(media)}
+                          controls
+                          className="w-full rounded-lg object-contain max-h-[400px]"
+                        />
+                      )}
+                      <button
+                        onClick={() => setMedia(null)}
+                        className="absolute top-2 right-2 p-1.5 rounded-full bg-black/50 hover:bg-black/70"
+                      >
+                        <X className="w-4 h-4 text-white" />
+                      </button>
+                    </div>
                   )}
-                  <input
-                    type="file"
-                    accept="image/png, image/jpeg, video/mp4"
-                    ref={fileInputRef}
-                    style={{ display: "none" }}
-                    onChange={handleFileChange}
-                  />
+                  <div className="flex items-center gap-2 text-neutral-400">
+                    {!media && (
+                      <>
+                        <LucideImage
+                          size={35}
+                          className="hover:bg-neutral-800 rounded-full cursor-pointer p-2"
+                          onClick={handleFileSelect}
+                        />
+                        <LucideVideo
+                          size={35}
+                          className="hover:bg-neutral-800 rounded-full cursor-pointer p-2"
+                          onClick={handleFileSelect}
+                        />
+                      </>
+                    )}
+                    <input
+                      type="file"
+                      accept="image/png, image/jpeg, video/mp4"
+                      ref={fileInputRef}
+                      style={{ display: "none" }}
+                      onChange={handleFileChange}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
@@ -185,8 +264,9 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
                 Your followers can reply & quote
               </p>
               <Button
-                className="bg-neutral-100 text-neutral-900 hover:bg-neutral-200 disabled:bg-neutral-300"
                 onClick={handlePost}
+                disabled={!content.trim()}
+                className="bg-blue-500 hover:bg-blue-600 text-white rounded-full px-6"
               >
                 Post
               </Button>

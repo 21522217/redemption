@@ -18,7 +18,10 @@ const PostCond = () => {
       >
         What&apos;s new?
       </span>
-      <Button variant="default" className="rounded-lg h-10">
+      <Button
+        onClick={showCreatePostModal}
+        className="bg-blue-500 hover:bg-blue-600 text-white rounded-full px-6"
+      >
         Post
       </Button>
     </div>
