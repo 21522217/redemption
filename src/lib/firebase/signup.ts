@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { createUserDocument } from "./apis/user.server";
 import { User } from "@/types/user";
 import { FirebaseError } from "firebase/app";
+import { getFriendlyFirebaseErrorMessage } from "./firebaseErrors";
 
 const auth = getAuth(firebase_app);
 
@@ -62,7 +63,7 @@ export default function useSignUp() {
     } catch (error) {
       const errorMessage =
         error instanceof FirebaseError
-          ? error.message
+          ? getFriendlyFirebaseErrorMessage(error.code)
           : "An unexpected error occurred.";
       toast.error(`Failed to create account: ${errorMessage}`, {
         position: "top-right",

@@ -11,7 +11,6 @@ import {
   SidebarFooter,
 } from "@/components/ui/sidebar";
 import { usePathname, useRouter } from "next/navigation";
-import DynamicImage from "./custom/SquareImage";
 import { Heart, Home, Plus, Search, User } from "lucide-react";
 import SettingButton from "./SettingButton";
 import { showCreatePostModal } from "./CreatePostModal";

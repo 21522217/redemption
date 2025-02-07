@@ -37,7 +37,8 @@ export async function createPost(
   return postId;
 }
 
-export async function fetchPostsWithUsers() {
+export async function fetchPostsWithUsers(page: number) {
+  const postsPerPage = 10; // Define the number of posts per page
   const postsCollection = collection(db, "posts");
   const postsSnapshot = await getDocs(postsCollection);
 
@@ -73,7 +74,12 @@ export async function fetchPostsWithUsers() {
     return 0;
   });
 
-  return postsWithUsers;
+  // Calculate the start and end index for pagination
+  const startIndex = (page - 1) * postsPerPage;
+  const endIndex = startIndex + postsPerPage;
+
+  // Return the paginated posts
+  return postsWithUsers.slice(startIndex, endIndex);
 }
 
 export async function getPostAndUserById(postId: string) {

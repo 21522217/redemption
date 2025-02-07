@@ -44,9 +44,6 @@ export default function SettingButton() {
         {isLogin ? (
           <>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="bg-popover px-2 py-3 text-md rounded-xl cursor-pointer hover:bg-accent/50">
-              Report a problem
-            </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => logout()}
               className="bg-popover px-2 py-3 text-md rounded-xl text-red-600 hover:text-red-600 focus:text-red-600 cursor-pointer hover:bg-red-100 dark:hover:bg-red-950/50"

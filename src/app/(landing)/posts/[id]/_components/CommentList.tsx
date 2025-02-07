@@ -7,11 +7,7 @@ import {
   fetchCommentsWithUsers,
   deleteComment,
 } from "@/lib/firebase/apis/comment.server";
-import {
-  increaseCommentCount,
-  decreaseCommentCount,
-  getPostAndUserById,
-} from "@/lib/firebase/apis/posts.server";
+import { getPostAndUserById } from "@/lib/firebase/apis/posts.server";
 
 import { getTimeAgo } from "@/lib/utils";
 import { Comment } from "@/types/comment";
@@ -21,6 +17,12 @@ import { BadgeCheck } from "lucide-react";
 import { Heart, MessageCircle, Repeat, Share2 } from "lucide-react";
 import Image from "next/image";
 import PostDropdown from "@/app/(landing)/_components/PostDropdown";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
 
 interface CommentListProps {
   postId: string;
@@ -51,8 +53,7 @@ export default function CommentList({ postId, userId }: CommentListProps) {
 
   const commentMutation = useMutation({
     mutationFn: async (comment: string) => {
-      await createComment({ userId, postId, content: comment });
-      await increaseCommentCount(postId);
+      await createComment(postId, { userId, postId, content: comment });
     },
     onSuccess: () => {
       setNewComment("");
@@ -63,8 +64,7 @@ export default function CommentList({ postId, userId }: CommentListProps) {
 
   const deleteCommentMutation = useMutation({
     mutationFn: async (commentId: string) => {
-      await deleteComment(commentId);
-      await decreaseCommentCount(postId);
+      await deleteComment(postId, commentId);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["comments", postId] });
@@ -81,6 +81,10 @@ export default function CommentList({ postId, userId }: CommentListProps) {
 
   const handleDeleteComment = (commentId: string) => {
     deleteCommentMutation.mutate(commentId);
+  };
+
+  const handleEditComment = (commentId: string, newContent: string) => {
+    // Implement the edit comment functionality here
   };
 
   useEffect(() => {
@@ -129,11 +133,13 @@ export default function CommentList({ postId, userId }: CommentListProps) {
               </p>
               {postWithUser.media && (
                 <div className="mt-3 rounded-2xl overflow-hidden border border-zinc-800">
-                  <div className="aspect-video relative">
+                  <div className="relative w-full h-auto">
                     <Image
                       src={postWithUser.media || "/placeholder.svg"}
                       alt="Post media"
-                      fill
+                      layout="responsive"
+                      width={700}
+                      height={475}
                       className="object-cover"
                     />
                   </div>
@@ -158,11 +164,11 @@ export default function CommentList({ postId, userId }: CommentListProps) {
                   </div>
                   <span>{postWithUser.repostsCount}</span>
                 </button>
-                <button className="group">
+                <div className="group">
                   <div className="p-2 rounded-full group-hover:bg-blue-500/10 group-hover:text-violet-500">
                     <Share2 className="w-5 h-5" />
                   </div>
-                </button>
+                </div>
               </div>
             </div>
           </div>
@@ -188,9 +194,7 @@ export default function CommentList({ postId, userId }: CommentListProps) {
                 src={comment.user.profilePicture}
                 alt={comment.user.username}
               />
-              <AvatarFallback>
-                {comment.user.username.charAt(0)}
-              </AvatarFallback>
+              <AvatarFallback>{comment.user.username.charAt(0)}</AvatarFallback>
             </Avatar>
             <span className="font-bold hover:underline">
               {comment.user.username}
@@ -198,19 +202,32 @@ export default function CommentList({ postId, userId }: CommentListProps) {
             <span className="text-zinc-500">
               {comment.user.firstName} {comment.user.lastName}
             </span>
+            {comment.userId === userId && (
+              <DropdownMenu>
+                <DropdownMenuTrigger>
+                  <div className="text-blue-500">Options</div>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem
+                    onClick={() =>
+                      handleEditComment(comment.id, comment.content)
+                    }
+                  >
+                    Edit
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => handleDeleteComment(comment.id)}
+                  >
+                    Delete
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           </div>
           <p>{comment.content}</p>
           <span className="text-zinc-500">
             {getTimeAgo(comment.createdAt?.toString())}
           </span>
-          {comment.userId === userId && (
-            <button
-              onClick={() => handleDeleteComment(comment.id)}
-              className="text-red-500"
-            >
-              Delete
-            </button>
-          )}
           {comment.userId === postId && (
             <div className="text-blue-500">
               This is a comment on your own post.

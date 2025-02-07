@@ -18,11 +18,13 @@ import { loginFormSchema, type LoginFormValues } from "@/lib/validations/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FaGoogle } from "react-icons/fa";
 // import Footer from "@/components/Footer";
+import useGoogleAuth from "@/lib/firebase/google-auth";
 import useSignIn from "@/lib/firebase/login";
 import { Card } from "@/components/ui/card";
 
 export default function LoginForm() {
   const { signIn } = useSignIn();
+  const { signInWithGoogle } = useGoogleAuth();
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginFormSchema),
@@ -44,7 +46,7 @@ export default function LoginForm() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-slate-900">
+    <div className="flex min-h-screen flex-col items-center justify-center">
       <Card className="w-full min-w-[468px] p-8 space-y-6 animate-fadeIn shadow-xl border-0 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
         {/* Logo section */}
         <div className="flex flex-col items-center space-y-3">
@@ -69,6 +71,7 @@ export default function LoginForm() {
         <Button
           variant="outline"
           className="w-full h-12 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 transition-all duration-200"
+          onClick={() => signInWithGoogle()}
         >
           <FaGoogle className="mr-2 h-5 w-5 text-red-500" />
           Continue with Google

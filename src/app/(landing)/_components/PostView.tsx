@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import {
@@ -9,8 +9,6 @@ import {
   toggleLikePost,
 } from "@/lib/firebase/apis/posts.server";
 import { createRepost } from "@/lib/firebase/apis/repost.server";
-import type { Post } from "@/types/post";
-import type { User } from "@/types/user";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { MessageCircle, Heart, Repeat, Share2, BadgeCheck } from "lucide-react";
 import Image from "next/image";
@@ -24,19 +22,59 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { useQuery } from "@tanstack/react-query";
+import SpinningLoading from "@/components/SpinningLoading";
 
 const PostView = () => {
   const { user: AuthUser, isLogin } = useAuth();
   const router = useRouter();
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const observer = useRef<IntersectionObserver | null>(null);
 
-  const [postsWithUsers, setPostsWithUsers] = useState<
-    Array<Post & { user: User }>
-  >([]);
   const [likes, setLikes] = useState(new Map<string, boolean>());
   const [comments, setComments] = useState<number[]>([]);
   const [reposts, setReposts] = useState<number[]>([]);
   const [showRepostDialog, setShowRepostDialog] = useState(false);
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
+
+  const { data: postsWithUsers = [], refetch, isLoading } = useQuery({
+    queryKey: ["postsWithUsers", page],
+    queryFn: async () => {
+      const posts = await fetchPostsWithUsers(page);
+      if (posts.length === 0) {
+        setHasMore(false);
+      }
+      if (AuthUser) {
+        const likedPosts = await Promise.all(
+          posts.map(async (post) => ({
+            postId: post.id,
+            isLiked: await isPostLiked(post.id, AuthUser.uid),
+          }))
+        );
+        setLikes(
+          new Map(likedPosts.map(({ postId, isLiked }) => [postId, isLiked]))
+        );
+      }
+      setComments((prev) => [...prev, ...posts.map((post) => post.commentsCount ?? 0)]);
+      setReposts((prev) => [...prev, ...posts.map((post) => post.repostsCount ?? 0)]);
+      return posts;
+    },
+  });
+
+  const lastPostElementRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (observer.current) observer.current.disconnect();
+    observer.current = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting && hasMore) {
+        setPage((prevPage) => prevPage + 1);
+      }
+    });
+    if (lastPostElementRef.current) {
+      observer.current.observe(lastPostElementRef.current);
+    }
+  }, [hasMore]);
 
   const handleLike = async (postId: string) => {
     if (!AuthUser) return;
@@ -47,16 +85,7 @@ const PostView = () => {
         updatedLikes.set(postId, !updatedLikes.get(postId));
         return updatedLikes;
       });
-      setPostsWithUsers((prevPosts) =>
-        prevPosts.map((post) =>
-          post.id === postId
-            ? {
-              ...post,
-              likesCount: post.likesCount + (likes.get(postId) ? -1 : 1),
-            }
-            : post
-        )
-      );
+      refetch();
     } catch (error) {
       console.error("Failed to toggle like status:", error);
     }
@@ -82,32 +111,6 @@ const PostView = () => {
     }
   };
 
-  useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        const posts = await fetchPostsWithUsers();
-        setPostsWithUsers(posts);
-        setComments(posts.map((post) => post.commentsCount));
-        setReposts(posts.map((post) => post.repostsCount));
-
-        if (AuthUser) {
-          const likedPosts = await Promise.all(
-            posts.map(async (post) => ({
-              postId: post.id,
-              isLiked: await isPostLiked(post.id, AuthUser.uid),
-            }))
-          );
-          setLikes(
-            new Map(likedPosts.map(({ postId, isLiked }) => [postId, isLiked]))
-          );
-        }
-      } catch (error) {
-        console.error("Failed to fetch posts:", error);
-      }
-    };
-    fetchPosts();
-  }, [AuthUser]);
-
   return (
     <div className="flex flex-col w-full h-screen bg-zinc-50 dark:bg-background-content overflow-scroll mt-6 rounded-2xl">
       {isLogin && <PostCond />}
@@ -115,6 +118,7 @@ const PostView = () => {
         <article
           key={post.id ?? `post-${index}`}
           className="border-b border-zinc-400/15 p-4 cursor-pointer"
+          ref={index === postsWithUsers.length - 1 ? lastPostElementRef : null}
         >
           <div className="flex items-start">
             <div className="flex-1 min-w-0">
@@ -161,11 +165,13 @@ const PostView = () => {
               </p>
               {post.media && (
                 <div className="mt-3 rounded-2xl overflow-hidden border border-zinc-800">
-                  <div className="aspect-video relative">
+                  <div className="relative w-full h-auto">
                     <Image
                       src={post.media || "/placeholder.svg"}
                       alt="Post media"
-                      fill
+                      layout="responsive"
+                      width={700}
+                      height={475}
                       className="object-cover"
                     />
                   </div>
@@ -182,7 +188,7 @@ const PostView = () => {
                       fill={likes.get(post.id) ? "currentColor" : "none"}
                     />
                   </div>
-                  <span>{formatNumber(post.likesCount)}</span>
+                  <span>{formatNumber(post.likesCount ?? 0)}</span>
                 </button>
                 <button
                   className="flex items-center gap-2 group"
@@ -191,7 +197,7 @@ const PostView = () => {
                   <div className="p-2 rounded-full group-hover:bg-blue-500/10 group-hover:text-blue-500 text-blue-500">
                     <MessageCircle className="w-5 h-5" />
                   </div>
-                  <span>{formatNumber(comments[index])}</span>
+                  <span>{formatNumber(comments[index] ?? 0)}</span>
                 </button>
                 <button
                   className="flex items-center gap-2 group"
@@ -200,7 +206,7 @@ const PostView = () => {
                   <div className="p-2 rounded-full group-hover:bg-green-500/10 group-hover:text-green-500 text-green-500">
                     <Repeat className="w-5 h-5" />
                   </div>
-                  <span>{formatNumber(reposts[index])}</span>
+                  <span>{formatNumber(reposts[index] ?? 0)}</span>
                 </button>
                 <button className="group">
                   <div className="p-2 rounded-full group-hover:bg-blue-500/10 group-hover:text-violet-500 text-violet-500">
@@ -212,6 +218,7 @@ const PostView = () => {
           </div>
         </article>
       ))}
+      {isLoading && <SpinningLoading />}
       {showRepostDialog && (
         <Dialog
           open={showRepostDialog}
