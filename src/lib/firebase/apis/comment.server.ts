@@ -53,7 +53,9 @@ export async function createComment(
 
 export async function updateComment(
   commentId: string,
-  updatedContent: Partial<Omit<Comment, "id" | "createdAt" | "userId" | "postId">>
+  updatedContent: Partial<
+    Omit<Comment, "id" | "createdAt" | "userId" | "postId">
+  >
 ): Promise<void> {
   if (!commentId) {
     throw new Error("Invalid commentId: It must be a non-empty string.");
@@ -152,12 +154,20 @@ export async function fetchCommentsWithUsers(
   }));
 }
 
-export async function deleteComment(postId: string, commentId: string) {
-  const commentRef = doc(db, "comments", commentId);
-  await deleteDoc(commentRef);
+export async function deleteComment(
+  postId: string,
+  commentId: string
+): Promise<void> {
+  try {
+    const commentRef = doc(db, "comments", commentId);
+    await deleteDoc(commentRef);
 
-  const postRef = doc(db, "posts", postId);
-  await updateDoc(postRef, {
-    commentCounts: increment(-1),
-  });
+    const postRef = doc(db, "posts", postId);
+    await updateDoc(postRef, {
+      commentsCount: increment(-1),
+    });
+  } catch (error) {
+    console.error("Error deleting comment:", error);
+    throw new Error("Failed to delete comment");
+  }
 }

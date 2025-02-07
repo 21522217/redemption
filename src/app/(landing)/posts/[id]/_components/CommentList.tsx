@@ -34,6 +34,13 @@ import {
 import { useAuth } from "@/contexts/AuthContext";
 import { PostSkeleton, CommentSkeleton } from "@/components/ui/skeleton";
 import { fetchCurrentUser } from "@/lib/firebase/apis/user.server";
+import { MoreHorizontal, Trash } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface CommentListProps {
   postId: string;
@@ -111,8 +118,17 @@ export default function CommentList({ postId, userId }: CommentListProps) {
     }
   };
 
-  const handleDeleteComment = (commentId: string) => {
-    deleteCommentMutation.mutate(commentId);
+  const handleDeleteComment = async (commentId: string) => {
+    if (!AuthUser) return;
+
+    try {
+      await deleteComment(postId, commentId);
+      // Refresh lại danh sách comments
+      queryClient.invalidateQueries({ queryKey: ["comments", postId] });
+      queryClient.invalidateQueries({ queryKey: ["post", postId] });
+    } catch (error) {
+      console.error("Error deleting comment:", error);
+    }
   };
 
   const handleEditComment = (commentId: string, newContent: string) => {
@@ -327,16 +343,36 @@ export default function CommentList({ postId, userId }: CommentListProps) {
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1">
-                <div className="flex items-center gap-2">
-                  <span className="font-bold hover:underline">
-                    {comment.user.username}
-                  </span>
-                  {comment.user.isVerified && (
-                    <BadgeCheck className="w-4 h-4 text-blue-500" />
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="font-bold hover:underline">
+                      {comment.user.username}
+                    </span>
+                    {comment.user.isVerified && (
+                      <BadgeCheck className="w-4 h-4 text-blue-500" />
+                    )}
+                    <span className="text-zinc-500 text-sm">
+                      {getTimeAgo(comment.createdAt)}
+                    </span>
+                  </div>
+                  {AuthUser && comment.userId === AuthUser.uid && (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button className="p-1 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded-full">
+                          <MoreHorizontal className="w-5 h-5" />
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                          className="text-red-500 focus:text-red-500"
+                          onClick={() => handleDeleteComment(comment.id)}
+                        >
+                          <Trash className="w-4 h-4 mr-2" />
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   )}
-                  <span className="text-zinc-500 text-sm">
-                    {getTimeAgo(comment.createdAt)}
-                  </span>
                 </div>
                 <p className="mt-2 break-words whitespace-pre-wrap">
                   {comment.content}
