@@ -140,7 +140,7 @@ const PostView = () => {
                   onClick={() => handleLike(post.id)}
                   className="flex items-center gap-2 group"
                 >
-                  <div className="p-2 rounded-full group-hover:bg-red-500/10 group-hover:text-red-500">
+                  <div className="p-2 rounded-full group-hover:bg-red-500/10 group-hover:text-red-500 text-red-500">
                     <Heart
                       className="w-5 h-5"
                       fill={likes.get(post.id) ? "currentColor" : "none"}
@@ -152,7 +152,7 @@ const PostView = () => {
                   className="flex items-center gap-2 group"
                   onClick={() => handleComment(post.id)}
                 >
-                  <div className="p-2 rounded-full group-hover:bg-blue-500/10 group-hover:text-blue-500">
+                  <div className="p-2 rounded-full group-hover:bg-blue-500/10 group-hover:text-blue-500 text-blue-500">
                     <MessageCircle className="w-5 h-5" />
                   </div>
                   <span>{formatNumber(comments[index])}</span>
@@ -161,13 +161,13 @@ const PostView = () => {
                   className="flex items-center gap-2 group"
                   onClick={() => handleRepost(post.id)}
                 >
-                  <div className="p-2 rounded-full group-hover:bg-green-500/10 group-hover:text-green-500">
+                  <div className="p-2 rounded-full group-hover:bg-green-500/10 group-hover:text-green-500 text-green-500">
                     <Repeat className="w-5 h-5" />
                   </div>
                   <span>{formatNumber(reposts[index])}</span>
                 </button>
                 <button className="group">
-                  <div className="p-2 rounded-full group-hover:bg-blue-500/10 group-hover:text-violet-500">
+                  <div className="p-2 rounded-full group-hover:bg-blue-500/10 group-hover:text-violet-500 text-violet-500">
                     <Share2 className="w-5 h-5" />
                   </div>
                 </button>
