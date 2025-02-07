@@ -137,11 +137,21 @@ const ChangeProfileModal: React.FC<ChangeProfileModalProps> = ({
                 name="lastName"
                 label="Last Name"
               />
-              <FormFieldInput
-                control={form.control}
-                name="bio"
-                label="Your bio"
-              />
+              <fieldset className="mb-[15px] flex flex-col justify-start">
+                <label
+                  className="text-[13px] leading-none mb-2.5"
+                  htmlFor="bio"
+                >
+                  Bio
+                </label>
+                <textarea
+                  id="bio"
+                  defaultValue={currentUser?.bio}
+                  onChange={(e) => form.setValue("bio", e.target.value)}
+                  className="w-full flex-1 bg-transparent text-[15px] leading-normal shadow-violet7 shadow-[0_0_0_1px] outline-none resize-none rounded px-2.5 py-2 h-[120px]"
+                  placeholder="Tell us about yourself..."
+                />
+              </fieldset>
 
               {/* Preferences */}
               <FormFieldSwitch

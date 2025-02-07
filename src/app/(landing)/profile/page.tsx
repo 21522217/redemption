@@ -13,13 +13,23 @@ import { fetchCurrentUser } from "@/lib/firebase/apis/user.server";
 import { User } from "@/types/user";
 import ChangeProfileModal from "@/components/ChangeProfileModal";
 import Reposts from "@/components/Reposts";
+import { Skeleton } from "@/components/ui/skeleton";
+
 export default function Profile() {
   const [isModalOpen, setModalOpen] = useState(false);
   const [showRepostTab, setShowRepostTab] = useState(true);
 
-  const { data: currentUser, refetch: refetchUser } = useQuery<User | null>({
+  const {
+    data: currentUser,
+    isLoading,
+    error,
+    refetch: refetchUser,
+  } = useQuery<User | null>({
     queryKey: ["currentUser"],
     queryFn: fetchCurrentUser,
+    staleTime: 1000 * 60 * 5,
+    gcTime: 1000 * 60 * 30,
+    retry: 3,
   });
 
   const visibleTabsCount = useMemo(() => {
@@ -39,6 +49,44 @@ export default function Profile() {
     }
   }, [visibleTabsCount]);
 
+  if (isLoading) {
+    return (
+      <div className="h-full min-h-[90vh] min-w-[700px] rounded-3xl">
+        <Card className="flex flex-col h-full bg-card px-8 py-6 rounded-3xl space-y-6">
+          <div className="mb-6 flex items-start bg-card justify-between">
+            <div className="flex flex-col h-full space-y-1">
+              <Skeleton className="h-6 w-[200px]" />
+              <Skeleton className="h-4 w-[150px]" />
+              <Skeleton className="h-4 w-[300px]" />
+              <Skeleton className="h-4 w-[100px] mt-6" />
+            </div>
+            <Skeleton className="h-16 w-16 rounded-full" />
+          </div>
+          <Skeleton className="h-10 w-full" />
+        </Card>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="h-full min-h-[90vh] min-w-[700px] rounded-3xl">
+        <Card className="flex flex-col h-full bg-card px-8 py-6 rounded-3xl space-y-6">
+          <div className="text-center text-red-500">
+            Error loading profile. Please try again later.
+          </div>
+          <Button onClick={() => refetchUser()} className="mx-auto">
+            Retry
+          </Button>
+        </Card>
+      </div>
+    );
+  }
+
+  if (!currentUser) {
+    return null;
+  }
+
   return (
     <div className="h-full min-h-[90vh] min-w-[700px] rounded-3xl">
       <Card className="flex flex-col h-full bg-card px-8 py-6 rounded-3xl space-y-6">
@@ -48,7 +96,9 @@ export default function Profile() {
               {currentUser?.firstName + " " + (currentUser?.lastName || "")}
             </h1>
             <p className="text-md font-semibold">{currentUser?.username}</p>
-            <p className="text-sm text-accent-foreground">{currentUser?.bio}</p>
+            <p className="text-sm text-accent-foreground whitespace-pre-wrap break-words max-w-[500px]">
+              {currentUser?.bio}
+            </p>
             <p className="text-sm mt-6 text-accent-foreground">
               {currentUser?.followers} followers
             </p>
