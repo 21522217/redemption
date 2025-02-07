@@ -3,7 +3,6 @@
 import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Edit, Image, Pencil, UserIcon, Users } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -14,6 +13,8 @@ import { User } from "@/types/user";
 import ChangeProfileModal from "@/components/ChangeProfileModal";
 import Reposts from "@/components/Reposts";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useAuth } from "@/contexts/AuthContext";
+import UserAvatar from "@/components/UserAvatar";
 
 export default function Profile() {
   const [isModalOpen, setModalOpen] = useState(false);
@@ -103,17 +104,7 @@ export default function Profile() {
               {currentUser?.followers} followers
             </p>
           </div>
-          <div className="flex items-center gap-4">
-            <Avatar className="h-16 w-16">
-              <AvatarImage
-                src={currentUser?.profilePicture}
-                alt="Profile picture"
-              />
-              <AvatarFallback className="[&_svg]:size-7">
-                <UserIcon className="w-16 h-16" />
-              </AvatarFallback>
-            </Avatar>
-          </div>
+          <UserAvatar userId={currentUser?.id || null} />
         </div>
 
         {/* Edit Profile Button */}
@@ -159,13 +150,7 @@ export default function Profile() {
           <TabsContent value="threads" className="space-y-4 bg-card">
             {/* Post Composer */}
             <div className="flex items-center py-6 bg-card border-b border-zinc-800 pb-4">
-              <Avatar className="h-10 w-10">
-                <AvatarImage
-                  src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-FXQJ5FQ4Nv8SXIfqqeoDv2kbCYimji.png"
-                  alt="Profile picture"
-                />
-                <AvatarFallback>KT</AvatarFallback>
-              </Avatar>
+              <UserAvatar userId={currentUser?.id || null} />
               <div className="flex-1">
                 <Input
                   readOnly
@@ -173,15 +158,14 @@ export default function Profile() {
                     showCreatePostModal();
                   }}
                   placeholder="What's new?"
-                  className="border-0 bg-card text-white placeholder:text-zinc-400 focus-visible:ring-0"
+                  className="border-0 bg-card text-white placeholder:text-zinc-400 focus-visible:ring-0 cursor-pointer"
                 />
               </div>
               <Button
                 onClick={() => {
                   showCreatePostModal();
                 }}
-                variant="outline"
-                className="rounded-xl font-semibold"
+                className="bg-blue-500 hover:bg-blue-600 text-white rounded-full px-6"
               >
                 Post
               </Button>
