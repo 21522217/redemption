@@ -12,7 +12,6 @@ import {
 } from "@/components/ui/sidebar";
 import { usePathname, useRouter } from "next/navigation";
 import { Heart, Home, Plus, Search, User } from "lucide-react";
-import { PiHouseLight } from "react-icons/pi";
 import SettingButton from "./SettingButton";
 import { showCreatePostModal } from "./CreatePostModal";
 import { showAuthModal } from "./auth/AuthModal";
@@ -41,8 +40,8 @@ const AppSidebar = () => {
       >
         <Sidebar className="w-fit h-full px-1 border-none">
           <SidebarHeader className="flex items-center justify-center">
-            <div
-              className="w-12 h-12 p-2 flex items-center justify-center cursor-pointer"
+            <div 
+              className="w-12 h-12 p-2 flex items-center justify-center cursor-pointer" 
               onClick={() => router.push("/")}
             >
               <Image
@@ -62,9 +61,7 @@ const AppSidebar = () => {
                   className="w-fit h-full py-3 px-5 [&_svg]:size-7 rounded-xl"
                   variant="ghost"
                 >
-                  <PiHouseLight
-                    className={pathname === "/" ? "fill-foreground" : ""}
-                  />
+                  <Home className={pathname === "/" ? "fill-foreground" : ""} />
                 </Button>
               </SidebarMenuItem>
               <SidebarMenuItem>
