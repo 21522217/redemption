@@ -11,7 +11,7 @@ const PostCond = () => {
 
   return (
     <div className="flex flex-row w-full items-center space-x-2 p-4 border-b border-zinc-400/15">
-      <UserAvatar user={user} />
+      <UserAvatar userId={user?.uid || null} />
       <span
         className="text-muted-foreground cursor-pointer flex w-full"
         onClick={showCreatePostModal}

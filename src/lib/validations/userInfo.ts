@@ -7,6 +7,5 @@ export const userSettingFormSchema = z.object({
    bio: z.string().optional(),
    profilePicture: z.string().optional().nullable(),
    link: z.string().optional(),
-   showReplyTab: z.boolean(),
    showRepostTab: z.boolean(),
 });

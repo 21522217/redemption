@@ -101,6 +101,58 @@ export async function fetchUserBaseInfo(
   };
 }
 
+export async function fetchUserById(userId: string): Promise<User> {
+  const userDoc = await getDoc(doc(db, "users", userId));
+
+  if (!userDoc.exists()) {
+    throw new Error(`User with ID ${userId} not found.`);
+  }
+
+  const userData = userDoc.data();
+
+  return {
+    id: userId,
+    username: "",
+    firstName: "",
+    lastName: "",
+    profilePicture: "",
+    email: "",
+    bio: "",
+    followers: 0,
+    isVerified: false,
+    passwordHash: "",
+    createdAt: 0,
+    updatedAt: 0,
+    ...userData,
+  } as User;
+}
+
+export async function fetchUserByUsername(username: string): Promise<User> {
+  const userDoc = await getDoc(doc(db, "users", username));
+
+  if (!userDoc.exists()) {
+    throw new Error(`User with name ${username} not found.`);
+  }
+
+  const userData = userDoc.data();
+
+  return {
+    id: "",
+    username: "",
+    firstName: "",
+    lastName: "",
+    profilePicture: "",
+    email: "",
+    bio: "",
+    followers: 0,
+    isVerified: false,
+    passwordHash: "",
+    createdAt: 0,
+    updatedAt: 0,
+    ...userData,
+  } as User;
+}
+
 export async function updateUserProfile(
   updates: UpdateUserData
 ): Promise<void> {

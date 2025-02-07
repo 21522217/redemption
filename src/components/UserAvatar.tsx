@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { fetchUserBaseInfo } from "@/lib/firebase/apis/user.server";
+import { useRouter } from "next/navigation";
 
 const UserAvatar = ({ userId }: { userId: string | null }) => {
   const [userBaseInfo, setUserBaseInfo] = useState<{
@@ -26,8 +27,15 @@ const UserAvatar = ({ userId }: { userId: string | null }) => {
     );
   }
 
+  const router = useRouter();
   return (
-    <Avatar className="h-10 w-10">
+    <Avatar
+      onClick={() => {
+        //console.log("Clicked on user avatar");
+        router.push(`/profile`);
+      }}
+      className="h-10 w-10"
+    >
       <AvatarImage src={userBaseInfo.profilePicture || ""} alt={userBaseInfo.firstName || ""} />
       <AvatarFallback>
         {userBaseInfo.firstName

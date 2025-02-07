@@ -41,9 +41,9 @@ const PostView = () => {
         prevPosts.map((post) =>
           post.id === postId
             ? {
-                ...post,
-                likesCount: post.likesCount + (likes.get(postId) ? -1 : 1),
-              }
+              ...post,
+              likesCount: post.likesCount + (likes.get(postId) ? -1 : 1),
+            }
             : post
         )
       );
@@ -98,7 +98,14 @@ const PostView = () => {
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between flex-wrap flex-row">
                 <div className="flex items-center gap-2 flex-wrap flex-row">
-                  <Avatar className="w-10 h-10">
+                  <Avatar
+                    onClick={() =>
+                      router.push(
+                        post.user.id === AuthUser?.uid ? "/profile" : `/profile/${post.user.id}`
+                      )
+                    }
+                    className="w-10 h-10"
+                  >
                     <AvatarImage
                       src={post.user.profilePicture}
                       alt={post.user.username}
@@ -107,7 +114,14 @@ const PostView = () => {
                       {post.user.username.charAt(0)}
                     </AvatarFallback>
                   </Avatar>
-                  <span className="font-bold hover:underline">
+                  <span
+                    onClick={() =>
+                      router.push(
+                        post.user.id === AuthUser?.uid ? "/profile" : `/profile/${post.user.id}`
+                      )
+                    }
+                    className="font-bold hover:underline"
+                  >
                     {post.user.username}
                   </span>
                   {post.user.isVerified && (
