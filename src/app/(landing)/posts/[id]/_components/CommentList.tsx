@@ -33,6 +33,7 @@ import {
 } from "@/components/ui/dialog";
 import { useAuth } from "@/contexts/AuthContext";
 import { PostSkeleton, CommentSkeleton } from "@/components/ui/skeleton";
+import { fetchCurrentUser } from "@/lib/firebase/apis/user.server";
 
 interface CommentListProps {
   postId: string;
@@ -71,6 +72,15 @@ export default function CommentList({ postId, userId }: CommentListProps) {
   } = useQuery({
     queryKey: ["comments", postId],
     queryFn: () => fetchCommentsWithUsers(postId),
+  });
+
+  const { data: currentUser } = useQuery({
+    queryKey: ["currentUser"],
+    queryFn: async () => {
+      if (!AuthUser) return null;
+      return await fetchCurrentUser();
+    },
+    enabled: !!AuthUser,
   });
 
   const commentMutation = useMutation({
@@ -274,10 +284,11 @@ export default function CommentList({ postId, userId }: CommentListProps) {
       >
         <div className="flex gap-3">
           <Avatar className="w-10 h-10">
-            <AvatarImage src={postWithUser?.user.profilePicture} />
-            <AvatarFallback>
-              {postWithUser?.user.username.charAt(0)}
-            </AvatarFallback>
+            <AvatarImage
+              src={currentUser?.profilePicture}
+              alt={currentUser?.username}
+            />
+            <AvatarFallback>{currentUser?.username?.charAt(0)}</AvatarFallback>
           </Avatar>
           <div className="flex-1 flex gap-2">
             <input
