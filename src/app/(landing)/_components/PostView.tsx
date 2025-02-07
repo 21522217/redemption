@@ -26,6 +26,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import SpinningLoading from "@/components/SpinningLoading";
+import { useQueryClient } from "@tanstack/react-query";
 
 const PostView = () => {
   const { user: AuthUser, isLogin } = useAuth();
@@ -37,6 +38,8 @@ const PostView = () => {
   const [likes, setLikes] = useState(new Map<string, boolean>());
   const [showRepostDialog, setShowRepostDialog] = useState(false);
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
+
+  const queryClient = useQueryClient();
 
   const {
     data: postsWithUsers = [],
@@ -80,16 +83,40 @@ const PostView = () => {
 
   const handleLike = async (postId: string) => {
     if (!AuthUser) return;
+
+    // Optimistic update
+    const oldLikes = new Map(likes);
+    const oldPostData = queryClient.getQueryData(["postsWithUsers", page]);
+
+    // Update likes state immediately
+    setLikes((prevLikes) => {
+      const updatedLikes = new Map(prevLikes);
+      updatedLikes.set(postId, !updatedLikes.get(postId));
+      return updatedLikes;
+    });
+
+    // Update post likes count immediately
+    queryClient.setQueryData(["postsWithUsers", page], (old: any) => {
+      return old.map((post: any) => {
+        if (post.id === postId) {
+          return {
+            ...post,
+            likesCount: likes.get(postId)
+              ? post.likesCount - 1
+              : post.likesCount + 1,
+          };
+        }
+        return post;
+      });
+    });
+
     try {
       await toggleLikePost(postId, AuthUser.uid);
-      setLikes((prevLikes) => {
-        const updatedLikes = new Map(prevLikes);
-        updatedLikes.set(postId, !updatedLikes.get(postId));
-        return updatedLikes;
-      });
-      refetch();
     } catch (error) {
+      // Rollback on error
       console.error("Failed to toggle like status:", error);
+      setLikes(oldLikes);
+      queryClient.setQueryData(["postsWithUsers", page], oldPostData);
     }
   };
 

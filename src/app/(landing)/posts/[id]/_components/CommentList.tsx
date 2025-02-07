@@ -111,16 +111,31 @@ export default function CommentList({ postId, userId }: CommentListProps) {
 
   const handleLike = async (postId: string) => {
     if (!AuthUser) return;
+
+    // Optimistic update
+    const oldLikes = new Map(likes);
+    const oldPostData = queryClient.getQueryData(["post", postId]);
+
+    // Update likes state immediately
+    setLikes((prevLikes) => {
+      const updatedLikes = new Map(prevLikes);
+      updatedLikes.set(postId, !updatedLikes.get(postId));
+      return updatedLikes;
+    });
+
+    // Update post likes count immediately
+    queryClient.setQueryData(["post", postId], (old: any) => ({
+      ...old,
+      likesCount: likes.get(postId) ? old.likesCount - 1 : old.likesCount + 1,
+    }));
+
     try {
       await toggleLikePost(postId, AuthUser.uid);
-      setLikes((prevLikes) => {
-        const updatedLikes = new Map(prevLikes);
-        updatedLikes.set(postId, !updatedLikes.get(postId));
-        return updatedLikes;
-      });
-      refetch();
     } catch (error) {
+      // Rollback on error
       console.error("Failed to toggle like status:", error);
+      setLikes(oldLikes);
+      queryClient.setQueryData(["post", postId], oldPostData);
     }
   };
 
