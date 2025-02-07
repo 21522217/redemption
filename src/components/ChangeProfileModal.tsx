@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { User } from "@/types/user";
@@ -13,6 +13,15 @@ import { FormFieldAvatar } from "./FormFieldAvatar";
 import { FormFieldSwitch } from "./FormFieldSwitch";
 import { toast } from "react-toastify";
 import { updateUserProfile } from "@/lib/firebase/apis/user.server";
+import { Camera } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { UserIcon } from "lucide-react";
 
 interface ChangeProfileModalProps {
   isOpen: boolean;
@@ -29,6 +38,8 @@ type UserProfileUpdate = Partial<
   showRepostTab?: boolean;
 };
 
+const MAX_BIO_LENGTH = 500; // Giới hạn 500 ký tự
+
 const ChangeProfileModal: React.FC<ChangeProfileModalProps> = ({
   isOpen,
   onChange,
@@ -38,6 +49,8 @@ const ChangeProfileModal: React.FC<ChangeProfileModalProps> = ({
   onProfileUpdate,
 }) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [bioLength, setBioLength] = useState(currentUser?.bio?.length || 0);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const form = useForm<UserProfileUpdate>({
     resolver: zodResolver(userSettingFormSchema),
@@ -119,11 +132,31 @@ const ChangeProfileModal: React.FC<ChangeProfileModalProps> = ({
                   name="username"
                   label="Username"
                 />
-                <FormFieldAvatar
-                  control={form.control}
-                  name="profilePicture"
-                  setSelectedFile={setSelectedFile}
-                />
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="relative group cursor-pointer">
+                        <Avatar className="h-16 w-16 transition-opacity group-hover:opacity-75">
+                          <AvatarImage
+                            src={currentUser?.profilePicture}
+                            alt="Profile picture"
+                          />
+                          <AvatarFallback>
+                            <UserIcon className="h-8 w-8" />
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                          <div className="rounded-full bg-black/50 p-2">
+                            <Camera className="h-6 w-6 text-white" />
+                          </div>
+                        </div>
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Click to change avatar</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </div>
 
               {/* User Details */}
@@ -138,19 +171,46 @@ const ChangeProfileModal: React.FC<ChangeProfileModalProps> = ({
                 label="Last Name"
               />
               <fieldset className="mb-[15px] flex flex-col justify-start">
-                <label
-                  className="text-[13px] leading-none mb-2.5"
-                  htmlFor="bio"
-                >
-                  Bio
-                </label>
-                <textarea
-                  id="bio"
-                  defaultValue={currentUser?.bio}
-                  onChange={(e) => form.setValue("bio", e.target.value)}
-                  className="w-full flex-1 bg-transparent text-[15px] leading-normal shadow-violet7 shadow-[0_0_0_1px] outline-none resize-none rounded px-2.5 py-2 h-[120px]"
-                  placeholder="Tell us about yourself..."
-                />
+                <div className="flex justify-between items-center mb-2.5">
+                  <label className="text-[13px] leading-none" htmlFor="bio">
+                    Bio
+                  </label>
+                  <span
+                    className={`text-xs ${
+                      bioLength > MAX_BIO_LENGTH
+                        ? "text-red-500"
+                        : "text-zinc-400"
+                    }`}
+                  >
+                    {bioLength}/{MAX_BIO_LENGTH}
+                  </span>
+                </div>
+                <div className="relative">
+                  <textarea
+                    id="bio"
+                    defaultValue={currentUser?.bio}
+                    onChange={(e) => {
+                      setBioLength(e.target.value.length);
+                      form.setValue("bio", e.target.value);
+                    }}
+                    maxLength={MAX_BIO_LENGTH}
+                    className="w-full bg-transparent text-[15px] leading-normal 
+                      border border-zinc-700 outline-none resize-none rounded-xl 
+                      px-4 py-3 h-[150px] focus:ring-2 focus:ring-primary 
+                      transition-all duration-200 ease-in-out overflow-y-auto
+                      placeholder:text-zinc-500"
+                    placeholder="Tell us about yourself... 
+• What do you do?
+• What are your interests?
+• What are you working on?"
+                  />
+                  <div className="absolute bottom-2 right-2 text-xs text-zinc-400 bg-card px-2 py-1 rounded-md opacity-70">
+                    Press Enter ↵ for new line
+                  </div>
+                </div>
+                <p className="mt-2 text-xs text-zinc-400">
+                  Pro tip: Use emojis 🎨 to make your bio more engaging!
+                </p>
               </fieldset>
 
               {/* Preferences */}
