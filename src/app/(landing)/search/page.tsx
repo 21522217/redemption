@@ -49,16 +49,15 @@ export default function SearchPage() {
   // Query cho tìm kiếm users
   const { data: searchResults, isLoading: isSearching } = useQuery({
     queryKey: ["users", "search", debouncedSearchTerm],
-    queryFn: () => searchUsers(debouncedSearchTerm, AuthUser?.uid || ""),
-    enabled: !!debouncedSearchTerm && !!AuthUser,
+    queryFn: () => searchUsers(debouncedSearchTerm, AuthUser?.uid),
+    enabled: !!debouncedSearchTerm,
     staleTime: 1000 * 60 * 5, // Cache 5 phút
   });
 
   // Query cho user suggestions
   const { data: suggestionsData, isLoading: isLoadingSuggestions } = useQuery({
     queryKey: ["users", "suggestions", AuthUser?.uid],
-    queryFn: () => getUserSuggestions(AuthUser?.uid || ""),
-    enabled: !!AuthUser,
+    queryFn: () => getUserSuggestions(AuthUser?.uid),
     staleTime: 1000 * 60 * 5,
   });
 
@@ -68,10 +67,21 @@ export default function SearchPage() {
     return [...suggestionsData].sort(() => 0.5 - Math.random());
   }, [suggestionsData]);
 
-  // Kiểm tra follow status khi có data mới
+  // Kiểm tra follow status chỉ khi có AuthUser
   useEffect(() => {
     const checkFollowStatus = async (users: User[]) => {
-      if (!AuthUser) return;
+      if (!AuthUser) {
+        // Nếu không có AuthUser, set tất cả status về false
+        const status: Record<string, FollowState> = {};
+        users.forEach((user) => {
+          status[user.id] = {
+            theyFollowMe: false,
+            iFollowThem: false,
+          };
+        });
+        setFollowStatus(status);
+        return;
+      }
 
       const status: Record<string, FollowState> = {};
       for (const user of users) {
@@ -100,6 +110,8 @@ export default function SearchPage() {
   }, []);
 
   const getFollowButtonText = (userId: string) => {
+    if (!AuthUser) return "Sign in to follow"; // Thêm text cho user chưa đăng nhập
+
     const status = followStatus[userId];
     if (!status) return "Follow";
     if (status.iFollowThem) return "Following";

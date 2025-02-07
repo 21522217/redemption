@@ -18,7 +18,7 @@ import { User } from "@/types/user";
  * @param currentUserId ID của user hiện tại
  * @returns Danh sách các user được đề xuất
  */
-export async function getUserSuggestions(currentUserId: string) {
+export async function getUserSuggestions(currentUserId?: string) {
   const usersRef = collection(db, "users");
   // Thêm orderBy để sắp xếp theo thời gian tạo
   const q = query(usersRef, orderBy("createdAt", "desc"));
@@ -32,7 +32,8 @@ export async function getUserSuggestions(currentUserId: string) {
           ...doc.data(),
         } as User)
     )
-    .filter((user) => user.id !== currentUserId); // Lọc bỏ current user
+    // Chỉ lọc currentUser nếu có currentUserId
+    .filter((user) => (currentUserId ? user.id !== currentUserId : true));
 
   return users;
 }
@@ -64,7 +65,7 @@ export async function isFollowing(
  * @param currentUserId ID của user hiện tại
  * @returns Danh sách users phù hợp với từ khóa
  */
-export async function searchUsers(searchTerm: string, currentUserId: string) {
+export async function searchUsers(searchTerm: string, currentUserId?: string) {
   const usersRef = collection(db, "users");
   const usersSnap = await getDocs(usersRef);
 
@@ -79,8 +80,8 @@ export async function searchUsers(searchTerm: string, currentUserId: string) {
         } as User)
     )
     .filter((user) => {
-      // Bỏ qua current user
-      if (user.id === currentUserId) return false;
+      // Chỉ lọc currentUser nếu có currentUserId
+      if (currentUserId && user.id === currentUserId) return false;
 
       // Search theo firstName + lastName hoặc username
       const fullName = `${user.firstName} ${user.lastName}`.toLowerCase();
