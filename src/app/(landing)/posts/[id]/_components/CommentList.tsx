@@ -7,7 +7,12 @@ import {
   fetchCommentsWithUsers,
   deleteComment,
 } from "@/lib/firebase/apis/comment.server";
-import { getPostAndUserById } from "@/lib/firebase/apis/posts.server";
+import {
+  getPostAndUserById,
+  isPostLiked,
+  toggleLikePost,
+} from "@/lib/firebase/apis/posts.server";
+import { createRepost } from "@/lib/firebase/apis/repost.server";
 import { getTimeAgo, formatNumber } from "@/lib/utils";
 import { Comment } from "@/types/comment";
 import { User } from "@/types/user";
@@ -17,6 +22,16 @@ import { Heart, MessageCircle, Repeat, Share2 } from "lucide-react";
 import Image from "next/image";
 import PostDropdown from "@/app/(landing)/_components/PostDropdown";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogOverlay,
+  DialogTitle,
+  DialogHeader,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface CommentListProps {
   postId: string;
@@ -24,16 +39,28 @@ interface CommentListProps {
 }
 
 export default function CommentList({ postId, userId }: CommentListProps) {
+  const { user: AuthUser } = useAuth();
   const [newComment, setNewComment] = useState("");
   const queryClient = useQueryClient();
+
+  const [likes, setLikes] = useState(new Map<string, boolean>());
+  const [showRepostDialog, setShowRepostDialog] = useState(false);
 
   const {
     data: postWithUser,
     isLoading: isPostLoading,
     error: postError,
+    refetch,
   } = useQuery({
     queryKey: ["post", postId],
-    queryFn: () => getPostAndUserById(postId),
+    queryFn: async () => {
+      const post = await getPostAndUserById(postId);
+      if (AuthUser) {
+        const isLiked = await isPostLiked(postId, AuthUser.uid);
+        setLikes(new Map([[postId, isLiked]]));
+      }
+      return post;
+    },
   });
 
   const {
@@ -79,6 +106,40 @@ export default function CommentList({ postId, userId }: CommentListProps) {
 
   const handleEditComment = (commentId: string, newContent: string) => {
     // Implement the edit comment functionality here
+  };
+
+  const handleLike = async (postId: string) => {
+    if (!AuthUser) return;
+    try {
+      await toggleLikePost(postId, AuthUser.uid);
+      setLikes((prevLikes) => {
+        const updatedLikes = new Map(prevLikes);
+        updatedLikes.set(postId, !updatedLikes.get(postId));
+        return updatedLikes;
+      });
+      refetch();
+    } catch (error) {
+      console.error("Failed to toggle like status:", error);
+    }
+  };
+
+  const handleComment = () => {
+    queryClient.invalidateQueries({ queryKey: ["comments", postId] });
+  };
+
+  const handleRepost = () => {
+    setShowRepostDialog(true);
+  };
+
+  const confirmRepost = async () => {
+    if (!AuthUser) return;
+    try {
+      await createRepost(postId, AuthUser.uid);
+      setShowRepostDialog(false);
+      refetch();
+    } catch (error) {
+      console.error("Failed to create repost:", error);
+    }
   };
 
   useEffect(() => {
@@ -140,23 +201,35 @@ export default function CommentList({ postId, userId }: CommentListProps) {
                 </div>
               )}
               <div className="flex items-center justify-between mt-3 max-w-md text-zinc-500">
-                <button className="flex items-center gap-2 group">
+                <button
+                  onClick={() => handleLike(postId)}
+                  className="flex items-center gap-2 group"
+                >
                   <div className="p-2 rounded-full group-hover:bg-red-500/10 group-hover:text-red-500 text-red-500">
-                    <Heart className="w-5 h-5" />
+                    <Heart
+                      className="w-5 h-5"
+                      fill={likes.get(postId) ? "currentColor" : "none"}
+                    />
                   </div>
-                  <span>{formatNumber(postWithUser.likesCount)}</span>
+                  <span>{formatNumber(postWithUser.likesCount ?? 0)}</span>
                 </button>
-                <button className="flex items-center gap-2 group">
+                <button
+                  className="flex items-center gap-2 group"
+                  onClick={handleComment}
+                >
                   <div className="p-2 rounded-full group-hover:bg-blue-500/10 group-hover:text-blue-500 text-blue-500">
                     <MessageCircle className="w-5 h-5" />
                   </div>
-                  <span>{formatNumber(postWithUser.commentsCount)}</span>
+                  <span>{formatNumber(postWithUser.commentsCount ?? 0)}</span>
                 </button>
-                <button className="flex items-center gap-2 group">
+                <button
+                  className="flex items-center gap-2 group"
+                  onClick={handleRepost}
+                >
                   <div className="p-2 rounded-full group-hover:bg-green-500/10 group-hover:text-green-500 text-green-500">
                     <Repeat className="w-5 h-5" />
                   </div>
-                  <span>{formatNumber(postWithUser.repostsCount)}</span>
+                  <span>{formatNumber(postWithUser.repostsCount ?? 0)}</span>
                 </button>
                 <button className="group">
                   <div className="p-2 rounded-full group-hover:bg-blue-500/10 group-hover:text-violet-500 text-violet-500">
@@ -232,33 +305,37 @@ export default function CommentList({ postId, userId }: CommentListProps) {
                 <p className="mt-2 break-words whitespace-pre-wrap">
                   {comment.content}
                 </p>
-                <div className="flex items-center gap-6 mt-3 text-zinc-500">
-                  <button className="flex items-center gap-2 group">
-                    <div className="p-2 rounded-full group-hover:bg-red-500/10 group-hover:text-red-500">
-                      <Heart className="w-4 h-4" />
-                    </div>
-                  </button>
-                  <button className="flex items-center gap-2 group">
-                    <div className="p-2 rounded-full group-hover:bg-blue-500/10 group-hover:text-blue-500">
-                      <MessageCircle className="w-4 h-4" />
-                    </div>
-                  </button>
-                  <button className="flex items-center gap-2 group">
-                    <div className="p-2 rounded-full group-hover:bg-green-500/10 group-hover:text-green-500">
-                      <Repeat className="w-4 h-4" />
-                    </div>
-                  </button>
-                  <button className="group">
-                    <div className="p-2 rounded-full group-hover:bg-blue-500/10 group-hover:text-violet-500">
-                      <Share2 className="w-4 h-4" />
-                    </div>
-                  </button>
-                </div>
               </div>
             </div>
           </div>
         ))}
       </div>
+
+      {showRepostDialog && (
+        <Dialog
+          open={showRepostDialog}
+          onOpenChange={() => setShowRepostDialog(false)}
+        >
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Repost this post?</DialogTitle>
+              <DialogDescription>
+                This will appear on your profile and in your followers&apos;
+                home timeline.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setShowRepostDialog(false)}
+              >
+                Cancel
+              </Button>
+              <Button onClick={confirmRepost}>Repost</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }

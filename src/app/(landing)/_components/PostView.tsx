@@ -17,8 +17,10 @@ import PostCond from "./PostCond";
 import { getTimeAgo, formatNumber } from "@/lib/utils";
 import {
   Dialog,
-  DialogOverlay,
   DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -38,7 +40,11 @@ const PostView = () => {
   const [showRepostDialog, setShowRepostDialog] = useState(false);
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
 
-  const { data: postsWithUsers = [], refetch, isLoading } = useQuery({
+  const {
+    data: postsWithUsers = [],
+    refetch,
+    isLoading,
+  } = useQuery({
     queryKey: ["postsWithUsers", page],
     queryFn: async () => {
       const posts = await fetchPostsWithUsers(page);
@@ -56,8 +62,14 @@ const PostView = () => {
           new Map(likedPosts.map(({ postId, isLiked }) => [postId, isLiked]))
         );
       }
-      setComments((prev) => [...prev, ...posts.map((post) => post.commentsCount ?? 0)]);
-      setReposts((prev) => [...prev, ...posts.map((post) => post.repostsCount ?? 0)]);
+      setComments((prev) => [
+        ...prev,
+        ...posts.map((post) => post.commentsCount ?? 0),
+      ]);
+      setReposts((prev) => [
+        ...prev,
+        ...posts.map((post) => post.repostsCount ?? 0),
+      ]);
       return posts;
     },
   });
@@ -127,7 +139,9 @@ const PostView = () => {
                   <Avatar
                     onClick={() =>
                       router.push(
-                        post.user.id === AuthUser?.uid ? "/profile" : `/profile/${post.user.id}`
+                        post.user.id === AuthUser?.uid
+                          ? "/profile"
+                          : `/profile/${post.user.id}`
                       )
                     }
                     className="w-10 h-10"
@@ -143,7 +157,9 @@ const PostView = () => {
                   <span
                     onClick={() =>
                       router.push(
-                        post.user.id === AuthUser?.uid ? "/profile" : `/profile/${post.user.id}`
+                        post.user.id === AuthUser?.uid
+                          ? "/profile"
+                          : `/profile/${post.user.id}`
                       )
                     }
                     className="font-bold hover:underline"
@@ -224,27 +240,24 @@ const PostView = () => {
           open={showRepostDialog}
           onOpenChange={() => setShowRepostDialog(false)}
         >
-          <DialogOverlay />
-          <DialogContent>
-            <div className="p-6 rounded-lg shadow-lg">
-              <DialogTitle className="text-lg font-semibold mb-4">
-                Are you sure you want to repost this post?
-              </DialogTitle>
-              <div className="flex justify-end space-x-4">
-                <Button
-                  onClick={() => setShowRepostDialog(false)}
-                  className="px-4 py-2 rounded-md"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  onClick={confirmRepost}
-                  className="px-4 py-2 text-white rounded-md"
-                >
-                  Yes
-                </Button>
-              </div>
-            </div>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Repost this post?</DialogTitle>
+              <DialogDescription>
+                This will appear on your profile and in your followers&apos; home
+                timeline.
+              </DialogDescription>
+            </DialogHeader>
+
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setShowRepostDialog(false)}
+              >
+                Cancel
+              </Button>
+              <Button onClick={confirmRepost}>Repost</Button>
+            </DialogFooter>
           </DialogContent>
         </Dialog>
       )}
