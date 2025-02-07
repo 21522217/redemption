@@ -1,75 +1,36 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
-import {
-  BarChart2,
-  Edit,
-  Image,
-  Pencil,
-  Plus,
-  UserIcon,
-  Users,
-} from "lucide-react";
-
+import { useState, useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { Edit, Image, Pencil, UserIcon, Users } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
 import { showCreatePostModal } from "@/components/CreatePostModal";
-
 import { fetchCurrentUser } from "@/lib/firebase/apis/user.server";
 import { User } from "@/types/user";
 import ChangeProfileModal from "@/components/ChangeProfileModal";
-import { Label } from "@/components/ui/label";
-import { fetchPostsByUser } from "@/lib/firebase/apis/posts.server";
-import { Post } from "@/types/post";
-import { ActivityCard } from "@/components/ActivityCard";
-import { Separator } from "@/components/ui/separator";
 
 export default function Profile() {
   const [isModalOpen, setModalOpen] = useState(false);
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [showRepostTab, setShowRepostTab] = useState(true);
-  const [userPosts, setUserPosts] = useState<Post[] | null>(null);
 
-  useEffect(() => {
-    fetchCurrentUser()
-      .then((user) => {
-        setCurrentUser(user);
-        console.log("User:", user);
-        if (user) {
-          fetchPostsByUser()
-            .then((posts) => {
-              setUserPosts(posts);
-              console.log("User Posts:", posts);
-            })
-            .catch((error) => {
-              console.error("Error fetching user posts:", error);
-              setUserPosts(null);
-            });
-        }
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-        setCurrentUser(null); // Handle cases where user is not found
-      });
-  }, []);
+  const {
+    data: currentUser,
+    refetch: refetchUser,
+  } = useQuery<User | null>({
+    queryKey: ["currentUser"],
+    queryFn: fetchCurrentUser,
+  });
 
   const visibleTabsCount = useMemo(() => {
     return 1 + (showRepostTab ? 1 : 0);
   }, [showRepostTab]);
 
   const handleProfileUpdate = () => {
-    // Fetch the updated user data and update the state
-    fetchCurrentUser()
-      .then((user) => {
-        setCurrentUser(user);
-        console.log("Updated User:", user);
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-      });
+    refetchUser();
   };
 
   const tabsListClassName = useMemo(() => {
@@ -119,7 +80,7 @@ export default function Profile() {
         <ChangeProfileModal
           isOpen={isModalOpen}
           onChange={setModalOpen}
-          currentUser={currentUser}
+          currentUser={currentUser ?? null}
           showRepostTab={showRepostTab}
           setShowRepostTab={setShowRepostTab}
           onProfileUpdate={handleProfileUpdate}
