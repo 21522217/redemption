@@ -2,21 +2,15 @@
 
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Edit, Image, Pencil, UserIcon, Users } from "lucide-react";
+import { UserIcon } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
-import { User } from "@/types/user";
-import {
-  fetchUserById,
-  fetchUserByUsername,
-} from "@/lib/firebase/apis/user.server";
+import { fetchUserById } from "@/lib/firebase/apis/user.server";
 import { useRouter, useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { fetchPostsByUser } from "@/lib/firebase/apis/posts.server";
-import { Post } from "@/types/post";
 import { Label } from "@/components/ui/label";
-import { ActivityCard } from "@/components/ActivityCard";
 import { Separator } from "@/components/ui/separator";
 import PostCard from "../../_components/PostCard";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -126,7 +120,12 @@ export default function Profile() {
         </div>
 
         <Button
-          className={`w-1/4 rounded-lg font-semibold`}
+          className={`w-1/4 rounded-[10px] font-semibold cursor-pointer
+            ${
+              isFollowing
+                ? "bg-transparent hover:bg-background border-[#999999] text-foreground"
+                : "bg-black text-white hover:bg-black/90 dark:bg-foreground dark:text-background"
+            }`}
           variant={isFollowing ? "outline" : "default"}
           onClick={() => setIsFollowing(!isFollowing)}
         >

@@ -1,7 +1,8 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Heart, MessageCircle, Repeat2, Share, UserPlus } from "lucide-react";
+import { Heart, MessageCircle, Share } from "lucide-react";
 import { Label } from "./ui/label";
+import { useState } from "react";
 
 // Định nghĩa các type cho activities
 interface ActivityCardProps {
@@ -32,31 +33,34 @@ interface ActivityCardProps {
 }
 
 // Thay đổi cách format số để đảm bảo nhất quán giữa server và client
-const formatNumber = (num: number) => {
-  // Sử dụng en-US locale để đảm bảo format nhất quán
-  return num.toLocaleString("en-US");
-};
+// const formatNumber = (num: number) => {
+//   // Sử dụng en-US locale để đảm bảo format nhất quán
+//   return num.toLocaleString("en-US");
+// };
 
 export const ActivityCard: React.FC<ActivityCardProps> = ({
   actor,
   type,
-  timestamp,
+  // timestamp,
   originalPost,
   reply,
   suggestion,
 }) => {
+  // Thêm state để quản lý trạng thái follow
+  const [isFollowing, setIsFollowing] = useState(false);
+
   // Helper function để render action text và button text
   const getActionAndButton = () => {
     switch (type) {
       case "follow":
         return {
           text: "followed you",
-          button: "Follow back",
+          button: isFollowing ? "Following" : "Follow back",
         };
       case "suggestion":
         return {
           text: suggestion?.reason || "Suggested for you",
-          button: "Follow",
+          button: isFollowing ? "Following" : "Follow",
         };
       case "like":
         return { text: "liked your post" };
@@ -81,43 +85,55 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({
         </AvatarFallback>
       </Avatar>
 
-      <div className="flex-1 flex-col">
-        <div className="flex flex-col">
+      <div className="flex-1 flex-col space-y-3">
+        <div className="space-y-1">
           <div className="flex items-center justify-between">
-            <div className="flex flex-col">
-              <div className="flex items-center gap-1">
-                <Label className="font-semibold text-[15px]">
-                  {actor.displayName}
-                </Label>
-                <span className="text-sm text-[#999999]">
-                  · {actionInfo.text}
-                </span>
-              </div>
+            <div className="space-y-0.5">
+              <Label className="text-[15px] font-semibold">
+                {actor.displayName}
+              </Label>
               {actor.tagName && (
-                <span className="text-[#999999] text-sm">@{actor.tagName}</span>
-              )}
-              {actor.bio && (
-                <p className="text-sm mt-1 text-neutral-700 dark:text-neutral-300 line-clamp-2">
-                  {actor.bio}
+                <p className="text-sm text-muted-foreground">
+                  @{actor.tagName}
                 </p>
               )}
             </div>
             {(type === "follow" || type === "suggestion") && (
               <Button
-                variant="outline"
+                variant={isFollowing ? "outline" : "default"}
                 size="sm"
-                className="rounded-xl px-4 py-1.5 border-[1px] border-neutral-400 font-medium text-sm"
+                className={`rounded-[10px] font-semibold px-6 py-1.5 text-sm self-center cursor-pointer
+                  ${
+                    isFollowing
+                      ? "bg-transparent hover:bg-background border-[#999999] text-foreground"
+                      : "bg-black text-white hover:bg-black/90 dark:bg-foreground dark:text-background"
+                  }`}
+                onClick={() => setIsFollowing(!isFollowing)}
               >
                 {actionInfo.button}
               </Button>
             )}
           </div>
-          {suggestion && (
-            <Label className="text-[15px] text-[#999999] mt-0.5">
-              {suggestion.mutualFollowers} mutual followers
-            </Label>
-          )}
         </div>
+
+        {actor.bio && (
+          <div className="max-w-[500px]">
+            <p className="text-[13px] leading-[1.6] text-zinc-600 dark:text-zinc-400">
+              {actor.bio}
+            </p>
+          </div>
+        )}
+
+        {suggestion && (
+          <div className="flex items-center space-x-1">
+            <span className="text-sm font-semibold">
+              {suggestion.mutualFollowers}
+            </span>
+            <span className="text-sm text-muted-foreground">
+              mutual followers
+            </span>
+          </div>
+        )}
 
         {/* Original post with faded style */}
         {originalPost &&
