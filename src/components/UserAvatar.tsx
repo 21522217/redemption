@@ -5,12 +5,18 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { fetchUserBaseInfo } from "@/lib/firebase/apis/user.server";
 import { useRouter } from "next/navigation";
 
-const UserAvatar = ({ userId }: { userId: string | null }) => {
+interface UserAvatarProps {
+  userId: string | null;
+  className?: string;
+}
+
+const UserAvatar = ({ userId, className }: UserAvatarProps) => {
   const [userBaseInfo, setUserBaseInfo] = useState<{
     profilePicture: string;
     isVerified: boolean;
     firstName: string;
   }>({ profilePicture: "", isVerified: false, firstName: "" });
+  const router = useRouter();
 
   useEffect(() => {
     if (userId) {
@@ -27,16 +33,12 @@ const UserAvatar = ({ userId }: { userId: string | null }) => {
     );
   }
 
-  const router = useRouter();
   return (
-    <Avatar
-      onClick={() => {
-        //console.log("Clicked on user avatar");
-        router.push(`/profile`);
-      }}
-      className="h-10 w-10"
-    >
-      <AvatarImage src={userBaseInfo.profilePicture || ""} alt={userBaseInfo.firstName || ""} />
+    <Avatar onClick={() => router.push(`/profile`)} className={className}>
+      <AvatarImage
+        src={userBaseInfo.profilePicture || ""}
+        alt={userBaseInfo.firstName || ""}
+      />
       <AvatarFallback>
         {userBaseInfo.firstName
           ?.split(" ")

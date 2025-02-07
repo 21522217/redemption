@@ -81,24 +81,45 @@ export default function Profile() {
   return (
     <div className="h-full min-h-[90vh] min-w-[700px] rounded-3xl">
       <Card className="flex flex-col h-full bg-card px-8 py-6 rounded-3xl space-y-6">
-        <div className="mb-6 flex items-start bg-card justify-between">
-          <div className="flex flex-col h-full space-y-1">
-            <h1 className="text-xl font-semibold">
-              {user?.firstName + " " + (user?.lastName || "")}
-            </h1>
-            <p className="text-md font-semibold">{user?.username}</p>
-            <p className="text-sm text-accent-foreground whitespace-pre-wrap break-words max-w-[500px]">
-              {user?.bio}
-            </p>
-            <p className="text-sm mt-6 text-accent-foreground">
-              {user?.followers} followers
-            </p>
+        <div className="mb-8 flex items-start justify-between">
+          {/* Left column: Info */}
+          <div className="flex flex-col space-y-6">
+            {/* Name & Username section */}
+            <div className="space-y-1">
+              <h1 className="text-2xl font-bold tracking-tight">
+                {user?.firstName + " " + (user?.lastName || "")}
+              </h1>
+              <p className="text-base text-muted-foreground">
+                @{user?.username}
+              </p>
+            </div>
+
+            {/* Bio section - only show if exists */}
+            {user?.bio && (
+              <div className="max-w-[500px]">
+                <p className="text-sm leading-relaxed text-muted-foreground whitespace-pre-wrap break-words">
+                  {user.bio}
+                </p>
+              </div>
+            )}
+
+            {/* Stats section */}
+            <div className="flex items-center space-x-4">
+              <div className="flex items-baseline space-x-1">
+                <span className="text-base font-semibold">
+                  {user?.followers || 0}
+                </span>
+                <span className="text-sm text-muted-foreground">followers</span>
+              </div>
+            </div>
           </div>
-          <div className="flex items-center gap-4">
-            <Avatar className="h-16 w-16">
+
+          {/* Right column: Avatar */}
+          <div className="flex-shrink-0">
+            <Avatar className="h-24 w-24">
               <AvatarImage src={user?.profilePicture} alt="Profile picture" />
-              <AvatarFallback className="[&_svg]:size-7">
-                <UserIcon className="w-16 h-16" />
+              <AvatarFallback className="[&_svg]:size-10">
+                <UserIcon className="w-24 h-24" />
               </AvatarFallback>
             </Avatar>
           </div>

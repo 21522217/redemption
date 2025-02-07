@@ -100,20 +100,46 @@ export default function Profile() {
   return (
     <div className="h-full min-h-[90vh] min-w-[700px] rounded-3xl">
       <Card className="flex flex-col h-full bg-card px-8 py-6 rounded-3xl space-y-6">
-        <div className="mb-6 flex items-start bg-card justify-between">
-          <div className="flex flex-col h-full space-y-1">
-            <h1 className="text-xl font-semibold">
-              {currentUser?.firstName + " " + (currentUser?.lastName || "")}
-            </h1>
-            <p className="text-md font-semibold">{currentUser?.username}</p>
-            <p className="text-sm text-accent-foreground whitespace-pre-wrap break-words max-w-[500px]">
-              {currentUser?.bio}
-            </p>
-            <p className="text-sm mt-6 text-accent-foreground">
-              {currentUser?.followers} followers
-            </p>
+        <div className="mb-8 flex items-start justify-between">
+          {/* Left column: Info */}
+          <div className="flex flex-col space-y-6">
+            {/* Name & Username section */}
+            <div className="space-y-1">
+              <h1 className="text-2xl font-bold tracking-tight">
+                {currentUser?.firstName + " " + (currentUser?.lastName || "")}
+              </h1>
+              <p className="text-base text-muted-foreground">
+                @{currentUser?.username}
+              </p>
+            </div>
+
+            {/* Bio section - only show if exists */}
+            {currentUser?.bio && (
+              <div className="max-w-[500px]">
+                <p className="text-sm leading-relaxed text-muted-foreground whitespace-pre-wrap break-words">
+                  {currentUser.bio}
+                </p>
+              </div>
+            )}
+
+            {/* Stats section */}
+            <div className="flex items-center space-x-4">
+              <div className="flex items-baseline space-x-1">
+                <span className="text-base font-semibold">
+                  {currentUser?.followers || 0}
+                </span>
+                <span className="text-sm text-muted-foreground">followers</span>
+              </div>
+            </div>
           </div>
-          <UserAvatar userId={currentUser?.id || null} />
+
+          {/* Right column: Avatar */}
+          <div className="flex-shrink-0">
+            <UserAvatar
+              userId={currentUser?.id || null}
+              className="h-24 w-24" // Larger avatar
+            />
+          </div>
         </div>
 
         {/* Edit Profile Button */}
