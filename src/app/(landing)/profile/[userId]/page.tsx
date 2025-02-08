@@ -1,28 +1,34 @@
 "use client";
 
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useState, useEffect } from "react";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import { UserIcon } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
 import { fetchUserById } from "@/lib/firebase/apis/user.server";
-import { useRouter, useParams } from "next/navigation";
+import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { fetchPostsByUserId } from "@/lib/firebase/apis/posts.server";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import PostCard from "../../_components/PostCard";
 import { Skeleton } from "@/components/ui/skeleton";
-import { createFollow } from "@/lib/firebase/apis/follow.server";
+import {
+  createFollow,
+  deleteFollow,
+  checkIfFollowing,
+} from "@/lib/firebase/apis/follow.server";
 import { Post } from "@/types/post";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function Profile() {
   const { userId } = useParams();
   const { user: currentUser } = useAuth();
-  const router = useRouter();
   const [isFollowing, setIsFollowing] = useState(false);
+  const [isCheckingFollow, setIsCheckingFollow] = useState(true);
+  const queryClient = useQueryClient();
 
   const { data: user, isLoading: isLoadingUser } = useQuery({
     queryKey: ["user", userId],
@@ -34,7 +40,29 @@ export default function Profile() {
     queryFn: () => fetchPostsByUserId(userId as string),
   });
 
-  if (isLoadingUser || isLoadingPosts) {
+  const followMutation = useMutation({
+    mutationFn: isFollowing
+      ? () => deleteFollow(currentUser?.uid as string, userId as string)
+      : () => createFollow(currentUser?.uid as string, userId as string),
+    onSuccess: () => {
+      setIsFollowing(!isFollowing);
+      queryClient.invalidateQueries({ queryKey: ["user"] });
+      queryClient.invalidateQueries({ queryKey: ["userPosts", userId] });
+    },
+  });
+
+  useEffect(() => {
+    if (currentUser && userId) {
+      checkIfFollowing(currentUser.uid as string, userId as string).then(
+        (isFollowing) => {
+          setIsFollowing(isFollowing);
+          setIsCheckingFollow(false);
+        }
+      );
+    }
+  }, [currentUser, userId]);
+
+  if (isLoadingUser || isLoadingPosts || isCheckingFollow) {
     return (
       <div className="h-full min-h-[90vh] min-w-[700px] rounded-3xl">
         <Card className="flex flex-col h-full bg-card px-8 py-6 rounded-3xl space-y-6">
@@ -117,7 +145,7 @@ export default function Profile() {
                 : "bg-black text-white hover:bg-black/90 dark:bg-foreground dark:text-background"
             }`}
           variant={isFollowing ? "outline" : "default"}
-          onClick={() => setIsFollowing(!isFollowing)}
+          onClick={() => followMutation.mutate()}
         >
           {isFollowing ? "Unfollow" : "Follow"}
         </Button>
@@ -148,9 +176,9 @@ export default function Profile() {
               </div>
             ) : (
               userPosts.map((post) => (
-                <div key={post.id}>
+                <div key={post.id} className="flex flex-col space-y-2">
                   <PostCard user={user} post={post as Post} />
-                  <Separator />
+                  <Separator className=""/>
                 </div>
               ))
             )}
@@ -158,7 +186,9 @@ export default function Profile() {
           <TabsContent
             value="reposts"
             className="flex flex-col bg-card overflow-y-scroll w-full"
-          ></TabsContent>
+          >
+
+          </TabsContent>
         </Tabs>
       </Card>
     </div>

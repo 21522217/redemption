@@ -16,6 +16,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 import UserAvatar from "@/components/UserAvatar";
 import { getProfileCompletion } from "@/lib/firebase/apis/lam-user.server";
 import { useRouter } from "next/navigation";
+import { fetchPostsByUserId } from "@/lib/firebase/apis/posts.server";
+import PostCard from "../_components/PostCard";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
+import { Post } from "@/types/post";
 
 export default function Profile() {
   const [isModalOpen, setModalOpen] = useState(false);
@@ -24,16 +29,21 @@ export default function Profile() {
   const {
     data: currentUser,
     isLoading,
-    error,
     refetch: refetchUser,
   } = useQuery<User | null>({
     queryKey: ["currentUser"],
-    queryFn: fetchCurrentUser,
+    queryFn: async () => await fetchCurrentUser(),
   });
 
   const { data: profileCompletion, error: profileCompletionError } = useQuery({
     queryKey: ["profileCompletion", currentUser?.id],
     queryFn: () => getProfileCompletion(currentUser?.id || ""),
+    enabled: !!currentUser?.id,
+  });
+
+  const { data: userPosts, isLoading: userPostsLoading } = useQuery({
+    queryKey: ["userPosts", currentUser?.id],
+    queryFn: () => fetchPostsByUserId(currentUser?.id || ""),
     enabled: !!currentUser?.id,
   });
 
@@ -55,21 +65,6 @@ export default function Profile() {
       <div className="h-full min-h-[90vh] min-w-[700px] rounded-3xl">
         <Card className="flex flex-col h-full bg-card px-8 py-6 rounded-3xl space-y-6">
           <LoadingSkeleton />
-        </Card>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="h-full min-h-[90vh] min-w-[700px] rounded-3xl">
-        <Card className="flex flex-col h-full bg-card px-8 py-6 rounded-3xl space-y-6">
-          <div className="text-center text-red-500">
-            Error loading profile. Please try again later.
-          </div>
-          <Button onClick={() => refetchUser()} className="mx-auto">
-            Retry
-          </Button>
         </Card>
       </div>
     );
@@ -163,22 +158,31 @@ export default function Profile() {
               </div>
             ) : (
               profileCompletion &&
-              profileCompletion.completedTasks <
-                profileCompletion.totalTasks && (
+              (profileCompletion.completedTasks <
+              profileCompletion.totalTasks ? (
                 <div className="flex flex-col space-y-4 rounded-xl p-4 bg-card">
                   <div className="flex items-center justify-between bg-card">
-                    <h2 className="text-lg font-semibold">Finish your profile</h2>
+                    <h2 className="text-lg font-semibold">
+                      Finish your profile
+                    </h2>
                     <span className="text-sm text-zinc-400">
-                      {profileCompletion.completedTasks}/{profileCompletion.totalTasks}
+                      {profileCompletion.completedTasks}/
+                      {profileCompletion.totalTasks}
                     </span>
                   </div>
                   <div className="w-full overflow-x-auto">
                     <div className="flex flex-row space-x-4 rounded-xl">
                       {!profileCompletion.hasPost && (
                         <div className="w-[200px] flex flex-col rounded-xl items-center gap-4 p-6 text-center bg-secondary shrink-0">
-                          <div className="rounded-full bg-accent p-4"><Edit className="h-6 w-6" /></div>
-                          <h3 className="font-medium">Create your first post</h3>
-                          <p className="text-sm text-zinc-400">Share what&apos;s on your mind with others.</p>
+                          <div className="rounded-full bg-accent p-4">
+                            <Edit className="h-6 w-6" />
+                          </div>
+                          <h3 className="font-medium">
+                            Create your first post
+                          </h3>
+                          <p className="text-sm text-zinc-400">
+                            Share what&apos;s on your mind with others.
+                          </p>
                           <Button
                             onClick={showCreatePostModal}
                             className="mt-auto w-full rounded-xl font-semibold bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground"
@@ -189,9 +193,16 @@ export default function Profile() {
                       )}
                       {!profileCompletion.hasEnoughFollowing && (
                         <div className="w-[200px] flex flex-col rounded-xl items-center gap-4 p-6 text-center bg-secondary shrink-0">
-                          <div className="rounded-full bg-accent p-4"><Users className="h-6 w-6" /></div>
-                          <h3 className="font-medium">Follow {10 - profileCompletion.followingCount} more people</h3>
-                          <p className="text-sm text-zinc-400">Connect with people that interest you.</p>
+                          <div className="rounded-full bg-accent p-4">
+                            <Users className="h-6 w-6" />
+                          </div>
+                          <h3 className="font-medium">
+                            Follow {10 - profileCompletion.followingCount} more
+                            people
+                          </h3>
+                          <p className="text-sm text-zinc-400">
+                            Connect with people that interest you.
+                          </p>
                           <Button
                             onClick={() => router.push("/search")}
                             className="mt-auto w-full rounded-xl font-semibold bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground"
@@ -202,9 +213,13 @@ export default function Profile() {
                       )}
                       {!profileCompletion.hasBio && (
                         <div className="w-[200px] flex flex-col rounded-xl items-center gap-4 p-6 text-center bg-secondary shrink-0">
-                          <div className="rounded-full bg-accent p-4"><Pencil className="h-6 w-6" /></div>
+                          <div className="rounded-full bg-accent p-4">
+                            <Pencil className="h-6 w-6" />
+                          </div>
                           <h3 className="font-medium">Add bio</h3>
-                          <p className="text-sm text-zinc-400">Tell others about yourself.</p>
+                          <p className="text-sm text-zinc-400">
+                            Tell others about yourself.
+                          </p>
                           <Button
                             onClick={() => setModalOpen(true)}
                             className="mt-auto w-full rounded-xl font-semibold bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground"
@@ -215,9 +230,13 @@ export default function Profile() {
                       )}
                       {!profileCompletion.hasAvatar && (
                         <div className="w-[200px] flex flex-col rounded-xl items-center gap-4 p-6 text-center bg-secondary shrink-0">
-                          <div className="rounded-full bg-accent p-4"><Image className="h-6 w-6" /></div>
+                          <div className="rounded-full bg-accent p-4">
+                            <Image className="h-6 w-6" />
+                          </div>
                           <h3 className="font-medium">Add profile picture</h3>
-                          <p className="text-sm text-zinc-400">Choose a picture that represents you.</p>
+                          <p className="text-sm text-zinc-400">
+                            Choose a picture that represents you.
+                          </p>
                           <Button
                             onClick={() => setModalOpen(true)}
                             className="mt-auto w-full rounded-xl font-semibold bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground"
@@ -229,7 +248,24 @@ export default function Profile() {
                     </div>
                   </div>
                 </div>
-              )
+              ) : (
+                <>
+                  {!userPosts || userPosts.length === 0 || !currentUser ? (
+                    <div className="w-full h-full bg-card text-center content-center">
+                      <Label className="text-md text-accent-foreground">
+                        No post yet
+                      </Label>
+                    </div>
+                  ) : (
+                    userPosts.map((post) => (
+                      <div key={post.id} className="flex flex-col space-y-2">
+                        <PostCard user={currentUser} post={post as Post} />
+                        <Separator className="" />
+                      </div>
+                    ))
+                  )}
+                </>
+              ))
             )}
           </TabsContent>
           {showRepostTab && (

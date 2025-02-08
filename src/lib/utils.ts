@@ -1,6 +1,9 @@
+"use client";
+
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { Timestamp } from "firebase/firestore";
+import { useState, useEffect } from "react";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -50,4 +53,24 @@ export const getTimeAgo = (
 };
 
 export const formatNumber = (num: number | undefined) =>
-  num === undefined ? "0" : num >= 1000 ? `${(num / 1000).toFixed(1)}K` : num.toString();
+  num === undefined
+    ? "0"
+    : num >= 1000
+    ? `${(num / 1000).toFixed(1)}K`
+    : num.toString();
+
+export function useDebounce<T>(value: T, delay: number): T {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+}

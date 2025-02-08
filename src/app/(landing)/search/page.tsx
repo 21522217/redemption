@@ -13,23 +13,9 @@ import { User } from "@/types/user";
 import { Search, Loader2 } from "lucide-react";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { useQuery } from "@tanstack/react-query";
-
+import { createFollow, deleteFollow } from "@/lib/firebase/apis/follow.server";
+import { useDebounce } from "@/lib/utils";
 // Hook useDebounce được đặt trong cùng file
-function useDebounce<T>(value: T, delay: number): T {
-  const [debouncedValue, setDebouncedValue] = useState<T>(value);
-
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedValue(value);
-    }, delay);
-
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [value, delay]);
-
-  return debouncedValue;
-}
 
 interface FollowState {
   theyFollowMe: boolean; // Họ follow mình
@@ -50,15 +36,12 @@ export default function SearchPage() {
   const { data: searchResults, isLoading: isSearching } = useQuery({
     queryKey: ["users", "search", debouncedSearchTerm],
     queryFn: () => searchUsers(debouncedSearchTerm, AuthUser?.uid),
-    enabled: !!debouncedSearchTerm,
-    staleTime: 1000 * 60 * 5, // Cache 5 phút
   });
 
   // Query cho user suggestions
   const { data: suggestionsData, isLoading: isLoadingSuggestions } = useQuery({
     queryKey: ["users", "suggestions", AuthUser?.uid],
     queryFn: () => getUserSuggestions(AuthUser?.uid),
-    staleTime: 1000 * 60 * 5,
   });
 
   // Tách riêng phần random suggestions ra

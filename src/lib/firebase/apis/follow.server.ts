@@ -64,7 +64,7 @@ export async function deleteFollow(followerId: string, followingId: string) {
   });
 }
 
-export async function isFollowing(followerId: string, followingId: string): Promise<boolean> {
+export async function checkIfFollowing(followerId: string, followingId: string): Promise<boolean> {
   const followQuery = collection(db, "follows");
   const followSnapshot = await getDocs(
     query(
