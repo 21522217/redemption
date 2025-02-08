@@ -5,9 +5,8 @@ import { AuthContextProvider, useAuth } from "@/contexts/AuthContext";
 import { useLoading, LoadingProvider } from "@/contexts/LoadingContext";
 import { createRoot } from "react-dom/client";
 import * as Dialog from "@radix-ui/react-dialog";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Image as LucideImage, Video as LucideVideo } from "lucide-react";
+import { Image as LucideImage } from "lucide-react";
 import { createPost } from "@/lib/firebase/apis/posts.server";
 import Image from "next/image";
 import { Post } from "@/types/post";
@@ -30,8 +29,8 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
   const [media, setMedia] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const MAX_VIDEO_SIZE_MB = 100; // 100MB
-  const MAX_VIDEO_DURATION = 300; // 5 minutes
+  const MAX_VIDEO_SIZE_MB = 100; 
+  const MAX_VIDEO_DURATION = 300;
 
   const handleFileSelect = () => {
     if (fileInputRef.current) {
@@ -236,11 +235,6 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
                     {!media && (
                       <>
                         <LucideImage
-                          size={35}
-                          className="hover:bg-neutral-800 rounded-full cursor-pointer p-2"
-                          onClick={handleFileSelect}
-                        />
-                        <LucideVideo
                           size={35}
                           className="hover:bg-neutral-800 rounded-full cursor-pointer p-2"
                           onClick={handleFileSelect}

@@ -95,41 +95,38 @@ export async function searchUsers(searchTerm: string, currentUserId?: string) {
   return users;
 }
 
-/**
- * Kiểm tra xem user đã hoàn thành profile chưa
- * @param userId ID của user cần kiểm tra
- * @returns Object chứa trạng thái hoàn thành của từng mục
- */
 export async function getProfileCompletion(userId: string) {
-  // Lấy thông tin user
+  // Fetch user information
   const userRef = doc(db, "users", userId);
   const userDoc = await getDoc(userRef);
+
+  if (!userDoc.exists()) {
+    throw new Error("User not found");
+  }
+
   const userData = userDoc.data() as User;
 
-  // Kiểm tra số lượng post
+  // Check the number of posts
   const postsRef = collection(db, "posts");
   const postsQuery = query(postsRef, where("userId", "==", userId));
   const postsSnap = await getDocs(postsQuery);
   const hasPost = !postsSnap.empty;
 
-  // Kiểm tra số lượng following
-  const followsRef = collection(db, "follows");
-  const followsQuery = query(followsRef, where("followerId", "==", userId));
-  const followsSnap = await getDocs(followsQuery);
-  const followingCount = followsSnap.size;
+  // Check the number of followers using user.followers
+  const followerCount = userData.followers || 0;
 
   return {
     hasPost,
-    hasBio: !!userData.bio,
+    hasBio: Boolean(userData.bio),
     hasAvatar: userData.profilePicture !== "https://github.com/shadcn.png",
-    hasEnoughFollowing: followingCount >= 10,
-    followingCount,
+    hasEnoughFollowing: followerCount >= 10,
+    followingCount: followerCount,
     totalTasks: 4,
     completedTasks: [
       hasPost,
-      !!userData.bio,
+      Boolean(userData.bio),
       userData.profilePicture !== "https://github.com/shadcn.png",
-      followingCount >= 10,
+      followerCount >= 10,
     ].filter(Boolean).length,
   };
 }

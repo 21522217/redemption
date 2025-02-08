@@ -38,7 +38,7 @@ export async function createPost(
 }
 
 export async function fetchPostsWithUsers(page: number) {
-  const postsPerPage = 10; // Define the number of posts per page
+  const postsPerPage = 3;
   const postsCollection = collection(db, "posts");
   const postsSnapshot = await getDocs(postsCollection);
 
@@ -91,7 +91,7 @@ export async function getPostAndUserById(postId: string) {
 
   if (!postDoc.exists()) {
     throw new Error("Post does not exist");
-  } 
+  }
 
   const postData = postDoc.data() as Post;
 
@@ -205,6 +205,13 @@ export async function fetchPostsByUser() {
   }
 
   return postsWithUsers;
+}
+
+export async function fetchPostsByUserId(userId: string) {
+  const postsCollection = collection(db, "posts");
+  const postsQuery = query(postsCollection, where("userId", "==", userId));
+  const postsSnapshot = await getDocs(postsQuery);
+  return postsSnapshot.docs.map((doc) => doc.data());
 }
 
 export async function increaseCommentCount(postId: string) {
