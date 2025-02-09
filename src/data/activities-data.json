@@ -1,0 +1,66 @@
+{
+  "activities": [
+    {
+      "id": "1",
+      "type": "reply",
+      "source": "user",
+      "actorId": "2",
+      "targetUserId": "1",
+      "postId": "1",
+      "commentId": "1",
+      "createdAt": "2024-03-17T04:00:00.000Z",
+      "isRead": false
+    },
+    {
+      "id": "2",
+      "type": "like",
+      "source": "user",
+      "actorId": "3",
+      "targetUserId": "1",
+      "postId": "2",
+      "createdAt": "2024-03-17T03:00:00.000Z",
+      "isRead": false
+    },
+    {
+      "id": "3",
+      "type": "share",
+      "source": "user",
+      "actorId": "4",
+      "targetUserId": "1",
+      "postId": "1",
+      "createdAt": "2024-03-17T02:00:00.000Z",
+      "isRead": true
+    },
+    {
+      "id": "4",
+      "type": "follow",
+      "source": "user",
+      "actorId": "5",
+      "targetUserId": "1",
+      "createdAt": "2024-03-17T01:00:00.000Z",
+      "isRead": false
+    },
+    {
+      "id": "5",
+      "type": "suggestion",
+      "source": "system",
+      "targetUserId": "1",
+      "actorId": "6",
+      "reason": "Popular in Photography",
+      "mutualFollowers": 12,
+      "createdAt": "2024-03-17T00:00:00.000Z",
+      "isRead": false
+    },
+    {
+      "id": "6",
+      "type": "suggestion",
+      "source": "system",
+      "targetUserId": "1",
+      "actorId": "7",
+      "reason": "Followed by emma_watson",
+      "mutualFollowers": 8,
+      "createdAt": "2024-03-16T23:00:00.000Z",
+      "isRead": false
+    }
+  ]
+}
