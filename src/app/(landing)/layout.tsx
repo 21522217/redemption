@@ -3,18 +3,19 @@ import "../globals.css";
 import type { Metadata } from "next";
 import AppSidebar from "@/components/AppSidebar";
 import Providers from "../providers";
+import { Geist } from "next/font/google";
+
+const geistSans = Geist({
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
+});
 
 export const metadata: Metadata = {
   title: "Redemption",
   description: "Powerful Social Media Platform",
-  // icons: {
-  //   icon: [
-  //     {
-  //       url: "/favicon.ico",
-  //       href: "/favicon.ico",
-  //     },
-  //   ],
-  // },
+  icons: {
+    icon: "images/favicon.ico",
+  },
 };
 
 export default function RootLayout({
@@ -23,12 +24,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html>
+    <html lang="en" className={geistSans.variable}>
       <body>
         <Providers>
           <div className="flex flex-row">
             <AppSidebar />
-            <main className=" flex flex-col justify-center w-full items-center">
+            <main className="flex flex-col justify-center w-full items-center">
               <div className="flex w-[672px]">{children}</div>
             </main>
           </div>
