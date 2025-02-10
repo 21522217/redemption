@@ -232,7 +232,9 @@ export default function CommentList({ postId, userId }: CommentListProps) {
                     </span>
                   </div>
                 </div>
-                <PostDropdown post={postWithUser} />
+                {AuthUser?.uid !== postWithUser.userId && (
+                  <PostDropdown post={postWithUser} />
+                )}
               </div>
               <p className="mt-3 break-words whitespace-pre-wrap">
                 {postWithUser.content}
@@ -272,15 +274,17 @@ export default function CommentList({ postId, userId }: CommentListProps) {
                   </div>
                   <span>{formatNumber(postWithUser.commentsCount ?? 0)}</span>
                 </button>
-                <button
-                  className="flex items-center gap-2 group"
-                  onClick={handleRepost}
-                >
-                  <div className="p-2 rounded-full group-hover:bg-green-500/10 group-hover:text-green-500 text-green-500">
-                    <Repeat className="w-5 h-5" />
-                  </div>
-                  <span>{formatNumber(postWithUser.repostsCount ?? 0)}</span>
-                </button>
+                {AuthUser?.uid !== postWithUser.userId && (
+                  <button
+                    className="flex items-center gap-2 group"
+                    onClick={handleRepost}
+                  >
+                    <div className="p-2 rounded-full group-hover:bg-green-500/10 group-hover:text-green-500 text-green-500">
+                      <Repeat className="w-5 h-5" />
+                    </div>
+                    <span>{formatNumber(postWithUser.repostsCount ?? 0)}</span>
+                  </button>
+                )}
                 <button className="group">
                   <div className="p-2 rounded-full group-hover:bg-blue-500/10 group-hover:text-violet-500 text-violet-500">
                     <Share2 className="w-5 h-5" />
