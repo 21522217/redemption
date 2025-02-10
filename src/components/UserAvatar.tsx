@@ -21,6 +21,7 @@ const UserAvatar = ({ userId, className }: UserAvatarProps) => {
   useEffect(() => {
     if (userId) {
       fetchUserBaseInfo(userId).then((info) => setUserBaseInfo(info));
+      console.log("info", userBaseInfo);
     }
   }, [userId]);
 
