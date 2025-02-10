@@ -60,7 +60,7 @@ export default function ForgotPasswordForm() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-slate-900">
+    <div className="flex min-h-screen flex-col items-center justify-center ">
       <Card className="w-full min-w-[448px] p-8 space-y-6 animate-fadeIn shadow-xl border-0 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
         <div className="flex flex-col items-center space-y-3">
           <Image
