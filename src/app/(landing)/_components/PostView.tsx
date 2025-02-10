@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import {
   fetchPostsWithUsers,
   toggleLikePost,
+  isPostLiked,
 } from "@/lib/firebase/apis/posts.server";
 import { createRepost } from "@/lib/firebase/apis/repost.server";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -81,23 +82,23 @@ const PostView = () => {
     // Update likes state immediately
     setLikes((prevLikes) => {
       const updatedLikes = new Map(prevLikes);
-      updatedLikes.set(postId, !updatedLikes.get(postId));
+      updatedLikes.set(postId, !prevLikes.get(postId));
       return updatedLikes;
     });
 
     queryClient.setQueryData(["postsWithUsers"], (old: any) => {
+      if (!old) return old;
       return {
         ...old,
         pages: old.pages.map((page: any) => ({
           ...page,
           posts: page.posts.map((post: any) => {
             if (post.id === postId) {
+              const isCurrentlyLiked = likes.get(postId);
               return {
                 ...post,
-                likesCount: Math.max(
-                  0,
-                  likes.get(postId) ? post.likesCount - 1 : post.likesCount + 1
-                ),
+                isLiked: !isCurrentlyLiked, // Update the local state
+                likesCount: isCurrentlyLiked ? post.likesCount - 1 : post.likesCount + 1,
               };
             }
             return post;
