@@ -13,17 +13,11 @@ import {
 import { User } from "@/types/user";
 
 export async function getUserSuggestions(page: number, currentUserId?: string) {
-  const usersPerPage = 10;
+  const usersPerPage = 2;
   const usersRef = collection(db, "users");
-  const q = query(
-    usersRef,
+  const usersSnap = await getDocs(usersRef);
 
-    where("id", "!=", currentUserId),
-    orderBy("followers", "desc")
-  );
-  const usersSnap = await getDocs(q);
-
-  const users = usersSnap.docs.map(
+  let users = usersSnap.docs.map(
     (doc) =>
       ({
         id: doc.id,
@@ -31,7 +25,15 @@ export async function getUserSuggestions(page: number, currentUserId?: string) {
       } as User)
   );
 
-  return users;
+  // Filter out the current user
+  if (currentUserId) {
+    users = users.filter((user) => user.id !== currentUserId);
+  }
+
+  const startIndex = (page - 1) * usersPerPage;
+  const endIndex = startIndex + usersPerPage;
+
+  return users.slice(startIndex, endIndex);
 }
 
 export async function getAllUserSuggestions(
@@ -42,10 +44,7 @@ export async function getAllUserSuggestions(
     const usersPerPage = 10;
     const usersRef = collection(db, "users");
 
-    const q = query(
-      usersRef,
-      orderBy("followers", "desc")
-    );
+    const q = query(usersRef, orderBy("followers", "desc"));
     const usersSnap = await getDocs(q);
 
     let users = usersSnap.docs.map(
@@ -57,14 +56,18 @@ export async function getAllUserSuggestions(
     );
 
     if (currentUserId) {
-      users = users.filter(user => user.id !== currentUserId);
-      
+      users = users.filter((user) => user.id !== currentUserId);
+
       // Filter out already followed users
       const followsRef = collection(db, "follows");
-      const followsSnap = await getDocs(query(followsRef, where("followerId", "==", currentUserId)));
-      const followedUserIds = followsSnap.docs.map(doc => doc.data().followingId);
-      
-      users = users.filter(user => !followedUserIds.includes(user.id));
+      const followsSnap = await getDocs(
+        query(followsRef, where("followerId", "==", currentUserId))
+      );
+      const followedUserIds = followsSnap.docs.map(
+        (doc) => doc.data().followingId
+      );
+
+      users = users.filter((user) => !followedUserIds.includes(user.id));
     }
 
     const startIndex = (page - 1) * usersPerPage;

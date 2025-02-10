@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { ActivityCard } from "@/components/ActivityCard";
 import {
   getUserSuggestions,
@@ -21,6 +21,7 @@ export default function Activity() {
   const [followStatus, setFollowStatus] = useState<Record<string, FollowState>>(
     {}
   );
+  const observerRef = useRef<IntersectionObserver | null>(null);
 
   const {
     data: suggestionsData,
@@ -112,6 +113,32 @@ export default function Activity() {
     return "Follow";
   };
 
+  useEffect(() => {
+    if (!observerRef.current) {
+      observerRef.current = new IntersectionObserver(
+        (entries) => {
+          if (entries[0].isIntersecting && hasNextPage) {
+            fetchNextPage();
+          }
+        },
+        { threshold: 1.0 }
+      );
+    }
+
+    const observer = observerRef.current;
+    const target = document.querySelector("#scroll-anchor");
+
+    if (target) {
+      observer.observe(target);
+    }
+
+    return () => {
+      if (target) {
+        observer.unobserve(target);
+      }
+    };
+  }, [hasNextPage, fetchNextPage]);
+
   return (
     <div className="flex flex-col w-full h-screen bg-zinc-50 dark:bg-background-content overflow-scroll mt-6 rounded-2xl">
       <div className="flex flex-col w-full">
@@ -129,10 +156,8 @@ export default function Activity() {
                 <ActivityCard
                   actor={{
                     id: user.id,
-                    displayName: user.firstName + " " + user.lastName,
                     avatar: user.profilePicture,
                     tagName: user.username,
-                    bio: user.bio || "This is a test bio",
                   }}
                   type="suggestion"
                   timestamp="Suggested for you"
@@ -146,11 +171,6 @@ export default function Activity() {
               </div>
             </div>
           ))
-        )}
-        {hasNextPage && (
-          <button onClick={() => fetchNextPage()} className="p-4">
-            Load More
-          </button>
         )}
       </div>
     </div>

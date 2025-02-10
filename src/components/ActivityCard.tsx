@@ -13,8 +13,8 @@ import { checkIfFollowing } from "@/lib/firebase/apis/follow.server";
 interface ActivityCardProps {
   actor: {
     id: string;
-    displayName: string;
-    avatar: string;
+    displayName?: string;
+    avatar?: string;
     tagName?: string;
     bio?: string;
   };
@@ -101,9 +101,10 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({
         <AvatarImage src={actor.avatar} alt={actor.displayName} />
         <AvatarFallback>
           {actor.displayName
-            .split(" ")
+            ?.split(" ")
             .map((name) => name[0])
             .join("")}
+
         </AvatarFallback>
       </Avatar>
 
@@ -158,12 +159,11 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({
         )}
 
         {/* Mutual followers section */}
-        {suggestion && (
+        {suggestion && followers !== undefined && followers != 0 && (
           <div className="flex items-center space-x-1">
-            <span className="text-sm font-semibold">{followers || 0}</span>
+            <span className="text-sm font-semibold">{followers}</span>
             <span className="text-sm text-muted-foreground">followers</span>
           </div>
-
         )}
 
         {/* Original post with faded style */}
