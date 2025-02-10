@@ -5,9 +5,8 @@ import { NextRequest, NextResponse } from "next/server";
 export async function middleware(request: NextRequest) {
   const token = request.cookies.get("firebaseAuthToken")?.value;
 
-  // const protectedRoutes = ["/profile", "/dashboard"];
-  const protectedRoutes = ["/dashboard"];
-  
+  const protectedRoutes = ["/profile", "/activity", "/posts"];
+
   const currentPath = request.nextUrl.pathname;
 
   const isProtectedRoute = protectedRoutes.some((route) =>
@@ -18,14 +17,19 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  // if (currentPath.startsWith("/login") && token) {
-  //   return NextResponse.redirect(new URL("/profile", request.url));
-  // }
-
   return NextResponse.next();
 }
 
 export const config = {
-  //matcher: ["/profile", "/login"],
-  matcher: ["/login"],
+  matcher: [
+    "/login",
+    "/",
+    "/profile",
+    "/profile/:path*",
+    "/activity",
+    "/posts",
+    "/posts/:path*",
+    "/comments",
+    "/comments/:path*",
+  ],
 };

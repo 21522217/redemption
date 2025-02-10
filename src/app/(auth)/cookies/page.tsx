@@ -19,7 +19,7 @@ export default function CookiesPage() {
   }, []);
 
   return (
-    <Card className="w-full max-w-4xl mx-auto p-8 space-y-8 shadow-xl border-0 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm">
+    <Card className="w-full max-w-4xl mx-auto p-8 space-y-8 shadow-xl border-0 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm mt-6">
       <div className="flex items-center justify-between border-b pb-6">
         <div className="flex items-center space-x-4">
           <Button
