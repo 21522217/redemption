@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect, useRef, useCallback } from "react";
+import { useState, useMemo, useRef, useCallback } from "react";
 import { ActivityCard } from "@/components/ActivityCard";
 import {
   getUserSuggestions,
