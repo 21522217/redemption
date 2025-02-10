@@ -6,6 +6,7 @@ import {
   createComment,
   fetchCommentsWithUsers,
   deleteComment,
+  updateComment,
 } from "@/lib/firebase/apis/comment.server";
 import {
   getPostAndUserById,
@@ -49,6 +50,8 @@ interface CommentListProps {
 export default function CommentList({ postId, userId }: CommentListProps) {
   const { user: AuthUser } = useAuth();
   const [newComment, setNewComment] = useState("");
+  const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
+  const [editingCommentContent, setEditingCommentContent] = useState("");
   const queryClient = useQueryClient();
 
   const [likes, setLikes] = useState(new Map<string, boolean>());
@@ -110,6 +113,24 @@ export default function CommentList({ postId, userId }: CommentListProps) {
     },
   });
 
+  const updateCommentMutation = useMutation({
+    mutationFn: async ({
+      commentId,
+      newContent,
+    }: {
+      commentId: string;
+      newContent: string;
+    }) => {
+      await updateComment(commentId, newContent);
+    },
+    onSuccess: () => {
+      setEditingCommentId(null);
+      setEditingCommentContent("");
+      queryClient.invalidateQueries({ queryKey: ["comments", postId] });
+      queryClient.invalidateQueries({ queryKey: ["post", postId] });
+    },
+  });
+
   const handleCommentSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     if (newComment.trim()) {
@@ -117,21 +138,27 @@ export default function CommentList({ postId, userId }: CommentListProps) {
     }
   };
 
-  const handleDeleteComment = async (commentId: string) => {
+  const handleDeleteComment = (commentId: string) => {
     if (!AuthUser) return;
 
-    try {
-      await deleteComment(postId, commentId);
-      // Refresh lại danh sách comments
-      queryClient.invalidateQueries({ queryKey: ["comments", postId] });
-      queryClient.invalidateQueries({ queryKey: ["post", postId] });
-    } catch (error) {
-      console.error("Error deleting comment:", error);
-    }
+    deleteCommentMutation.mutate(commentId, {
+      onError: (error) => {
+        console.error("Error deleting comment:", error);
+      },
+    });
   };
 
   const handleEditComment = (commentId: string, newContent: string) => {
-    // Implement the edit comment functionality here
+    if (!AuthUser) return;
+
+    updateCommentMutation.mutate(
+      { commentId, newContent },
+      {
+        onError: (error) => {
+          console.error("Error updating comment:", error);
+        },
+      }
+    );
   };
 
   const handleLike = async (postId: string) => {
@@ -373,13 +400,45 @@ export default function CommentList({ postId, userId }: CommentListProps) {
                           <Trash className="w-4 h-4 mr-2" />
                           Delete
                         </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => {
+                            setEditingCommentId(comment.id);
+                            setEditingCommentContent(comment.content);
+                          }}
+                        >
+                          Edit
+                        </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   )}
                 </div>
-                <p className="mt-2 break-words whitespace-pre-wrap">
-                  {comment.content}
-                </p>
+                {editingCommentId === comment.id ? (
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      handleEditComment(comment.id, editingCommentContent);
+                    }}
+                    className="mt-2"
+                  >
+                    <input
+                      type="text"
+                      value={editingCommentContent}
+                      onChange={(e) => setEditingCommentContent(e.target.value)}
+                      className="w-full bg-transparent border-none focus:outline-none resize-none"
+                    />
+                    <Button
+                      type="submit"
+                      disabled={!editingCommentContent.trim()}
+                      className="bg-blue-500 hover:bg-blue-600 text-white rounded-full px-4 mt-2"
+                    >
+                      Update
+                    </Button>
+                  </form>
+                ) : (
+                  <p className="mt-2 break-words whitespace-pre-wrap">
+                    {comment.content}
+                  </p>
+                )}
               </div>
             </div>
           </div>

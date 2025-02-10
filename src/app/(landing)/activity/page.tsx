@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect, useRef } from "react";
+import { useState, useMemo, useEffect, useRef, useCallback } from "react";
 import { ActivityCard } from "@/components/ActivityCard";
 import {
   getUserSuggestions,
@@ -113,44 +113,33 @@ export default function Activity() {
     return "Follow";
   };
 
-  useEffect(() => {
-    if (!observerRef.current) {
-      observerRef.current = new IntersectionObserver(
-        (entries) => {
-          if (entries[0].isIntersecting && hasNextPage) {
-            fetchNextPage();
-          }
-        },
-        { threshold: 1.0 }
-      );
-    }
-
-    const observer = observerRef.current;
-    const target = document.querySelector("#scroll-anchor");
-
-    if (target) {
-      observer.observe(target);
-    }
-
-    return () => {
-      if (target) {
-        observer.unobserve(target);
-      }
-    };
-  }, [hasNextPage, fetchNextPage]);
+  const lastElementRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      if (isLoading) return;
+      if (observerRef.current) observerRef.current.disconnect();
+      observerRef.current = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && hasNextPage) {
+          fetchNextPage();
+        }
+      });
+      if (node) observerRef.current.observe(node);
+    },
+    [isLoading, hasNextPage, fetchNextPage]
+  );
 
   return (
-    <div className="flex flex-col w-full h-screen bg-zinc-50 dark:bg-background-content overflow-scroll mt-6 rounded-2xl">
+    <div className="flex flex-col w-full min-h-screen bg-zinc-50 dark:bg-background-content overflow-scroll mt-6 rounded-2xl">
       <div className="flex flex-col w-full">
         {isLoading ? (
           <div className="flex justify-center items-center py-8">
             <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
           </div>
         ) : (
-          suggestions.map((user) => (
-            <div
+          suggestions.map((user, index) => (
+            <article
               key={user.id}
               className="border-b border-zinc-200 dark:border-zinc-400/15 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors"
+              ref={index === suggestions.length - 1 ? lastElementRef : null}
             >
               <div className="p-4">
                 <ActivityCard
@@ -169,7 +158,7 @@ export default function Activity() {
                   onUnfollow={() => unfollowMutation.mutate(user.id)}
                 />
               </div>
-            </div>
+            </article>
           ))
         )}
       </div>
