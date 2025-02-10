@@ -5,9 +5,8 @@ import { AuthContextProvider, useAuth } from "@/contexts/AuthContext";
 import { useLoading, LoadingProvider } from "@/contexts/LoadingContext";
 import { createRoot } from "react-dom/client";
 import * as Dialog from "@radix-ui/react-dialog";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Image as LucideImage, Video as LucideVideo } from "lucide-react";
+import { Loader2, Image as LucideImage } from "lucide-react";
 import { createPost } from "@/lib/firebase/apis/posts.server";
 import Image from "next/image";
 import { Post } from "@/types/post";
@@ -16,6 +15,7 @@ import { X } from "lucide-react";
 
 interface CreatePostModalProps {
   isOpen: boolean;
+  // eslint-disable-next-line no-unused-vars
   onChange: (open: boolean) => void;
 }
 
@@ -24,14 +24,14 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
   onChange,
 }) => {
   const { user } = useAuth();
-  const { setLoadingState } = useLoading();
+  const { setLoadingState, isLoading } = useLoading();
 
   const [content, setContent] = useState<string>("");
   const [media, setMedia] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const MAX_VIDEO_SIZE_MB = 100; // 100MB
-  const MAX_VIDEO_DURATION = 300; // 5 minutes
+  const MAX_VIDEO_SIZE_MB = 100;
+  const MAX_VIDEO_DURATION = 300;
 
   const handleFileSelect = () => {
     if (fileInputRef.current) {
@@ -202,6 +202,7 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
                   value={content}
                   onChange={(e) => setContent(e.target.value)}
                   className="w-full bg-transparent border-none outline-none resize-none text-lg min-h-[100px]"
+                  disabled={isLoading}
                 />
                 <div className="flex flex-col gap-2">
                   {media && (
@@ -240,11 +241,6 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
                           className="hover:bg-neutral-800 rounded-full cursor-pointer p-2"
                           onClick={handleFileSelect}
                         />
-                        <LucideVideo
-                          size={35}
-                          className="hover:bg-neutral-800 rounded-full cursor-pointer p-2"
-                          onClick={handleFileSelect}
-                        />
                       </>
                     )}
                     <input
@@ -265,10 +261,16 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
               </p>
               <Button
                 onClick={handlePost}
-                disabled={!content.trim()}
+                disabled={!content.trim() || isLoading}
                 className="bg-blue-500 hover:bg-blue-600 text-white rounded-full px-6"
               >
-                Post
+                {isLoading ? (
+                  <div className="flex justify-center items-center py-8">
+                    <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+                  </div>
+                ) : (
+                  "Post"
+                )}
               </Button>
             </div>
           </Dialog.Content>

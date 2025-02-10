@@ -16,6 +16,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 import UserAvatar from "@/components/UserAvatar";
 import { getProfileCompletion } from "@/lib/firebase/apis/lam-user.server";
 import { useRouter } from "next/navigation";
+import { fetchPostsByUserId } from "@/lib/firebase/apis/posts.server";
+import PostCard from "../_components/PostCard";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
+import { Post } from "@/types/post";
+import Followers from "@/components/Followers";
 
 export default function Profile() {
   const [isModalOpen, setModalOpen] = useState(false);
@@ -24,37 +30,33 @@ export default function Profile() {
   const {
     data: currentUser,
     isLoading,
-    error,
     refetch: refetchUser,
   } = useQuery<User | null>({
     queryKey: ["currentUser"],
-    queryFn: fetchCurrentUser,
-    staleTime: 1000 * 60 * 5,
-    gcTime: 1000 * 60 * 30,
-    retry: 3,
+    queryFn: async () => await fetchCurrentUser(),
   });
 
-  const { data: profileCompletion } = useQuery({
+  const { data: profileCompletion, error: profileCompletionError } = useQuery({
     queryKey: ["profileCompletion", currentUser?.id],
     queryFn: () => getProfileCompletion(currentUser?.id || ""),
     enabled: !!currentUser?.id,
   });
 
-  const visibleTabsCount = useMemo(() => {
-    return 1 + (showRepostTab ? 1 : 0);
-  }, [showRepostTab]);
+  const { data: userPosts, isLoading: userPostsLoading } = useQuery({
+    queryKey: ["userPosts", currentUser?.id],
+    queryFn: () => fetchPostsByUserId(currentUser?.id || ""),
+    enabled: !!currentUser?.id,
+  });
 
-  const handleProfileUpdate = () => {
-    refetchUser();
-  };
+  const visibleTabsCount = useMemo(
+    () => 1 + (showRepostTab ? 1 : 0),
+    [showRepostTab]
+  );
 
   const tabsListClassName = useMemo(() => {
-    switch (visibleTabsCount) {
-      case 1:
-        return "grid w-full h-fit gap-4 grid-cols-1";
-      default:
-        return "grid w-full h-fit gap-4 grid-cols-2";
-    }
+    return visibleTabsCount === 1
+      ? "grid w-full h-fit gap-4 grid-cols-1"
+      : "grid w-full h-fit gap-4 grid-cols-3";
   }, [visibleTabsCount]);
 
   const router = useRouter();
@@ -63,99 +65,7 @@ export default function Profile() {
     return (
       <div className="h-full min-h-[90vh] min-w-[700px] rounded-3xl">
         <Card className="flex flex-col h-full bg-card px-8 py-6 rounded-3xl space-y-6">
-          {/* Header section */}
-          <div className="mb-8 flex items-start justify-between">
-            {/* Left column: Info */}
-            <div className="flex flex-col space-y-6">
-              {/* Name & Username */}
-              <div className="space-y-2">
-                <Skeleton className="h-8 w-[250px]" /> {/* Name */}
-                <Skeleton className="h-5 w-[150px]" /> {/* Username */}
-              </div>
-
-              {/* Bio */}
-              <div className="space-y-2">
-                <Skeleton className="h-4 w-[400px]" />
-                <Skeleton className="h-4 w-[350px]" />
-              </div>
-
-              {/* Stats */}
-              <div className="flex items-center space-x-4">
-                <Skeleton className="h-6 w-[100px]" /> {/* Followers count */}
-              </div>
-            </div>
-
-            {/* Right column: Avatar */}
-            <Skeleton className="h-24 w-24 rounded-full" />
-          </div>
-
-          {/* Edit Profile button */}
-          <Skeleton className="h-10 w-full rounded-[10px]" />
-
-          {/* Profile Completion Section */}
-          <div className="flex flex-col space-y-4 rounded-xl p-4 bg-card">
-            <div className="flex items-center justify-between bg-card">
-              <Skeleton className="h-6 w-[150px]" /> {/* Title */}
-              <Skeleton className="h-4 w-[50px]" /> {/* Completion count */}
-            </div>
-
-            {/* Profile completion cards */}
-            <div className="w-full overflow-x-auto">
-              <div className="flex flex-row space-x-4 rounded-xl">
-                {/* Skeleton cards for completion items */}
-                {[1, 2, 3, 4].map((i) => (
-                  <div
-                    key={i}
-                    className="w-[200px] flex flex-col rounded-xl items-center gap-4 p-6 text-center bg-secondary shrink-0"
-                  >
-                    <Skeleton className="h-14 w-14 rounded-full" /> {/* Icon */}
-                    <Skeleton className="h-5 w-[120px]" /> {/* Title */}
-                    <Skeleton className="h-4 w-[160px]" /> {/* Description */}
-                    <Skeleton className="h-9 w-full rounded-[10px] mt-auto" />{" "}
-                    {/* Button */}
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Tabs */}
-          <div className="space-y-4">
-            <div className="flex gap-4 border-b border-secondary">
-              <Skeleton className="h-10 w-[100px]" /> {/* Posts tab */}
-              <Skeleton className="h-10 w-[100px]" /> {/* Reposts tab */}
-            </div>
-
-            {/* Post composer skeleton */}
-            <div className="flex items-center gap-4 py-6 border-b border-zinc-800">
-              <Skeleton className="h-10 w-10 rounded-full" /> {/* Avatar */}
-              <Skeleton className="h-10 flex-1 rounded-lg" /> {/* Input */}
-              <Skeleton className="h-10 w-[100px] rounded-full" />{" "}
-              {/* Post button */}
-            </div>
-
-            {/* Posts content */}
-            <div className="space-y-4">
-              <Skeleton className="h-[150px] w-full rounded-lg" />
-              <Skeleton className="h-[150px] w-full rounded-lg" />
-              <Skeleton className="h-[150px] w-full rounded-lg" />
-            </div>
-          </div>
-        </Card>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="h-full min-h-[90vh] min-w-[700px] rounded-3xl">
-        <Card className="flex flex-col h-full bg-card px-8 py-6 rounded-3xl space-y-6">
-          <div className="text-center text-red-500">
-            Error loading profile. Please try again later.
-          </div>
-          <Button onClick={() => refetchUser()} className="mx-auto">
-            Retry
-          </Button>
+          <LoadingSkeleton />
         </Card>
       </div>
     );
@@ -169,48 +79,35 @@ export default function Profile() {
     <div className="h-full min-h-[90vh] min-w-[700px] rounded-3xl">
       <Card className="flex flex-col h-full bg-card px-8 py-6 rounded-3xl space-y-6">
         <div className="mb-8 flex items-start justify-between">
-          {/* Left column: Info */}
           <div className="flex flex-col space-y-6">
-            {/* Name & Username section */}
             <div className="space-y-1">
               <h1 className="text-2xl font-bold tracking-tight">
-                {currentUser?.firstName + " " + (currentUser?.lastName || "")}
+                {currentUser.firstName + " " + (currentUser.lastName || "")}
               </h1>
               <p className="text-base text-muted-foreground">
-                @{currentUser?.username}
+                @{currentUser.username}
               </p>
             </div>
-
-            {/* Bio section - only show if exists */}
-            {currentUser?.bio && (
+            {currentUser.bio && (
               <div className="max-w-[500px]">
                 <p className="text-sm leading-relaxed text-muted-foreground whitespace-pre-wrap break-words">
                   {currentUser.bio}
                 </p>
               </div>
             )}
-
-            {/* Stats section */}
             <div className="flex items-center space-x-4">
               <div className="flex items-baseline space-x-1">
                 <span className="text-base font-semibold">
-                  {currentUser?.followers || 0}
+                  {currentUser.followers || 0}
                 </span>
                 <span className="text-sm text-muted-foreground">followers</span>
               </div>
             </div>
           </div>
-
-          {/* Right column: Avatar */}
           <div className="flex-shrink-0">
-            <UserAvatar
-              userId={currentUser?.id || null}
-              className="h-24 w-24" // Larger avatar
-            />
+            <UserAvatar userId={currentUser.id} className="h-24 w-24" />
           </div>
         </div>
-
-        {/* Edit Profile Button */}
         <Button
           onClick={() => setModalOpen(true)}
           variant="outline"
@@ -221,17 +118,14 @@ export default function Profile() {
         <ChangeProfileModal
           isOpen={isModalOpen}
           onChange={setModalOpen}
-          currentUser={currentUser ?? null}
+          currentUser={currentUser}
           showRepostTab={showRepostTab}
           setShowRepostTab={setShowRepostTab}
-          onProfileUpdate={handleProfileUpdate}
+          onProfileUpdate={refetchUser}
         />
-
-        {/* Tabs Navigation */}
         <Tabs defaultValue="posts" className="mb-6 bg-card">
           <TabsList
-            className={`${tabsListClassName} 
-          bg-card gap-0 p-0 border-b-[1px] border-secondary rounded-none`}
+            className={`${tabsListClassName} bg-card gap-0 p-0 border-b-[1px] border-secondary rounded-none`}
           >
             <TabsTrigger
               value="posts"
@@ -239,7 +133,6 @@ export default function Profile() {
             >
               Posts
             </TabsTrigger>
-
             {showRepostTab && (
               <TabsTrigger
                 value="reposts"
@@ -248,36 +141,39 @@ export default function Profile() {
                 Reposts
               </TabsTrigger>
             )}
+            <TabsTrigger
+              value="followers"
+              className="font-semibold py-2 border-b-[1px] border-transparent rounded-none data-[state=active]:bg-card data-[state=active]:border-primary"
+            >
+              Followers
+            </TabsTrigger>
           </TabsList>
-
           <TabsContent value="posts" className="space-y-4 bg-card">
-            {/* Post Composer */}
             <div className="flex items-center py-6 bg-card border-b border-zinc-800 pb-4">
-              <UserAvatar userId={currentUser?.id || null} />
+              <UserAvatar userId={currentUser.id} />
               <div className="flex-1">
                 <Input
                   readOnly
-                  onClick={() => {
-                    showCreatePostModal();
-                  }}
+                  onClick={showCreatePostModal}
                   placeholder="What's new?"
                   className="border-0 bg-card text-white placeholder:text-zinc-400 focus-visible:ring-0 cursor-pointer"
                 />
               </div>
               <Button
-                onClick={() => {
-                  showCreatePostModal();
-                }}
+                onClick={showCreatePostModal}
                 className="bg-blue-500 hover:bg-blue-600 text-white rounded-full px-6"
               >
                 Post
               </Button>
             </div>
-
-            {/* Profile Completion Section */}
-            {profileCompletion &&
-              profileCompletion.completedTasks <
-                profileCompletion.totalTasks && (
+            {profileCompletionError ? (
+              <div className="text-center text-red-500">
+                Error loading profile completion. Please try again later.
+              </div>
+            ) : (
+              profileCompletion &&
+              (profileCompletion.completedTasks <
+              profileCompletion.totalTasks ? (
                 <div className="flex flex-col space-y-4 rounded-xl p-4 bg-card">
                   <div className="flex items-center justify-between bg-card">
                     <h2 className="text-lg font-semibold">
@@ -288,11 +184,8 @@ export default function Profile() {
                       {profileCompletion.totalTasks}
                     </span>
                   </div>
-
-                  {/* Wrapping div to handle horizontal scrolling */}
                   <div className="w-full overflow-x-auto">
                     <div className="flex flex-row space-x-4 rounded-xl">
-                      {/* Create post card */}
                       {!profileCompletion.hasPost && (
                         <div className="w-[200px] flex flex-col rounded-xl items-center gap-4 p-6 text-center bg-secondary shrink-0">
                           <div className="rounded-full bg-accent p-4">
@@ -305,15 +198,13 @@ export default function Profile() {
                             Share what&apos;s on your mind with others.
                           </p>
                           <Button
-                            onClick={() => showCreatePostModal()}
+                            onClick={showCreatePostModal}
                             className="mt-auto w-full rounded-xl font-semibold bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground"
                           >
                             Create post
                           </Button>
                         </div>
                       )}
-
-                      {/* Follow profiles card */}
                       {!profileCompletion.hasEnoughFollowing && (
                         <div className="w-[200px] flex flex-col rounded-xl items-center gap-4 p-6 text-center bg-secondary shrink-0">
                           <div className="rounded-full bg-accent p-4">
@@ -334,8 +225,6 @@ export default function Profile() {
                           </Button>
                         </div>
                       )}
-
-                      {/* Add bio card */}
                       {!profileCompletion.hasBio && (
                         <div className="w-[200px] flex flex-col rounded-xl items-center gap-4 p-6 text-center bg-secondary shrink-0">
                           <div className="rounded-full bg-accent p-4">
@@ -353,8 +242,6 @@ export default function Profile() {
                           </Button>
                         </div>
                       )}
-
-                      {/* Upload avatar card */}
                       {!profileCompletion.hasAvatar && (
                         <div className="w-[200px] flex flex-col rounded-xl items-center gap-4 p-6 text-center bg-secondary shrink-0">
                           <div className="rounded-full bg-accent p-4">
@@ -375,18 +262,100 @@ export default function Profile() {
                     </div>
                   </div>
                 </div>
-              )}
+              ) : (
+                <>
+                  {!userPosts || userPosts.length === 0 || !currentUser ? (
+                    <div className="w-full h-full bg-card text-center content-center">
+                      <Label className="text-md text-accent-foreground">
+                        No post yet
+                      </Label>
+                    </div>
+                  ) : (
+                    userPosts.map((post) => (
+                      <div key={post.id} className="flex flex-col space-y-2">
+                        <PostCard user={currentUser} post={post as Post} />
+                        <Separator className="" />
+                      </div>
+                    ))
+                  )}
+                </>
+              ))
+            )}
           </TabsContent>
-
-          {/* Repost */}
-          <TabsContent
-            value="reposts"
-            className="w-full h-full max-h-[500px] bg-card overflow-y-auto "
-          >
-            <Reposts userId={currentUser?.id ?? ""} />
+          {showRepostTab && (
+            <TabsContent
+              value="reposts"
+              className="w-full h-full max-h-[500px] bg-card overflow-y-auto"
+            >
+              <Reposts userId={currentUser.id} />
+            </TabsContent>
+          )}
+          <TabsContent value="followers">
+            <Followers userId={currentUser.id} />
           </TabsContent>
         </Tabs>
       </Card>
     </div>
+  );
+}
+
+function LoadingSkeleton() {
+  return (
+    <>
+      <div className="mb-8 flex items-start justify-between">
+        <div className="flex flex-col space-y-6">
+          <div className="space-y-2">
+            <Skeleton className="h-8 w-[250px]" />
+            <Skeleton className="h-5 w-[150px]" />
+          </div>
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-[400px]" />
+            <Skeleton className="h-4 w-[350px]" />
+          </div>
+          <div className="flex items-center space-x-4">
+            <Skeleton className="h-6 w-[100px]" />
+          </div>
+        </div>
+        <Skeleton className="h-24 w-24 rounded-full" />
+      </div>
+      <Skeleton className="h-10 w-full rounded-[10px]" />
+      <div className="flex flex-col space-y-4 rounded-xl p-4 bg-card">
+        <div className="flex items-center justify-between bg-card">
+          <Skeleton className="h-6 w-[150px]" />
+          <Skeleton className="h-4 w-[50px]" />
+        </div>
+        <div className="w-full overflow-x-auto">
+          <div className="flex flex-row space-x-4 rounded-xl">
+            {[1, 2, 3, 4].map((i) => (
+              <div
+                key={i}
+                className="w-[200px] flex flex-col rounded-xl items-center gap-4 p-6 text-center bg-secondary shrink-0"
+              >
+                <Skeleton className="h-14 w-14 rounded-full" />
+                <Skeleton className="h-5 w-[120px]" />
+                <Skeleton className="h-4 w-[160px]" />
+                <Skeleton className="h-9 w-full rounded-[10px] mt-auto" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      <div className="space-y-4">
+        <div className="flex gap-4 border-b border-secondary">
+          <Skeleton className="h-10 w-[100px]" />
+          <Skeleton className="h-10 w-[100px]" />
+        </div>
+        <div className="flex items-center gap-4 py-6 border-b border-zinc-800">
+          <Skeleton className="h-10 w-10 rounded-full" />
+          <Skeleton className="h-10 flex-1 rounded-lg" />
+          <Skeleton className="h-10 w-[100px] rounded-full" />
+        </div>
+        <div className="space-y-4">
+          <Skeleton className="h-[150px] w-full rounded-lg" />
+          <Skeleton className="h-[150px] w-full rounded-lg" />
+          <Skeleton className="h-[150px] w-full rounded-lg" />
+        </div>
+      </div>
+    </>
   );
 }

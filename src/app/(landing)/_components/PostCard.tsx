@@ -12,22 +12,17 @@ import { useRouter } from "next/navigation";
 import { isPostLiked, toggleLikePost } from "@/lib/firebase/apis/posts.server";
 import { useAuth } from "@/contexts/AuthContext";
 
-
 interface PostCardProps {
   user: User;
   post: Post;
 }
 
-const PostCard: React.FC<PostCardProps> = ({
-  user,
-  post,
-}) => {
+const PostCard: React.FC<PostCardProps> = ({ user, post }) => {
   const router = useRouter();
   const { user: AuthUser } = useAuth();
 
   const [likes, setLikes] = useState(new Map<string, boolean>());
-  const [comments, setComments] = useState<number>(post.commentsCount);
-  const [reposts, setReposts] = useState<number>(post.repostsCount);
+  const [likesCount, setLikesCount] = useState(post.likesCount);
 
   useEffect(() => {
     const fetchLikes = async () => {
@@ -39,18 +34,23 @@ const PostCard: React.FC<PostCardProps> = ({
     fetchLikes();
   }, [AuthUser, post.id]);
 
-
   const handleLike = async (postId: string) => {
     if (!AuthUser) return;
     try {
-      await toggleLikePost(postId, AuthUser.uid);
+      setLikesCount((prevCount) =>
+        likes.get(postId) ? prevCount - 1 : prevCount + 1
+      );
       setLikes((prevLikes) => {
         const updatedLikes = new Map(prevLikes);
         updatedLikes.set(postId, !updatedLikes.get(postId));
         return updatedLikes;
       });
+      await toggleLikePost(postId, AuthUser.uid);
     } catch (error) {
       console.error("Failed to toggle like status:", error);
+      setLikesCount((prevCount) =>
+        likes.get(postId) ? prevCount + 1 : prevCount - 1
+      );
     }
   };
 
@@ -63,92 +63,81 @@ const PostCard: React.FC<PostCardProps> = ({
     router.push(`/posts/${postId}`);
   };
 
-
   return (
-    <div className="flex items-start" >
+    <div className="flex items-start">
       <div className="flex-1 min-w-0">
         <div className="flex items-center justify-between flex-wrap flex-row">
           <div className="flex items-center gap-2 flex-wrap flex-row">
-            <Avatar
-              className="w-10 h-10"
-            >
-              <AvatarImage
-                src={user.profilePicture}
-                alt={user.username}
-              />
-              <AvatarFallback>
-                {user.username.charAt(0)}
-              </AvatarFallback>
+            <Avatar className="w-10 h-10">
+              <AvatarImage src={user.profilePicture} alt={user.username} />
+              <AvatarFallback>{user.username.charAt(0)}</AvatarFallback>
             </Avatar>
-            <span
-              className="font-bold hover:underline"
-            >
-              {user.username}
-            </span>
+            <span className="font-bold hover:underline">{user.username}</span>
             {user.isVerified && (
               <BadgeCheck className="w-4 h-4 text-blue-500" />
             )}
             <span className="text-zinc-500">·</span>
-            <span className="text-zinc-500">
-              {getTimeAgo(post.createdAt)}
-            </span>
+            <span className="text-zinc-500">{getTimeAgo(post.createdAt)}</span>
           </div>
-          <PostDropdown post={post} />
+          {AuthUser?.uid !== user.id && <PostDropdown post={post} />}
         </div>
-        <p className="mt-1 break-words whitespace-pre-wrap">
-          {post.content}
-        </p>
+        <p className="mt-1 break-words whitespace-pre-wrap">{post.content}</p>
         {post.media && (
           <div className="mt-3 rounded-2xl overflow-hidden border border-zinc-800">
-            <div className="aspect-video relative">
+            <div className="relative w-full h-auto">
               <Image
                 src={post.media || "/placeholder.svg"}
                 alt="Post media"
-                fill
+                layout="responsive"
+                width={700}
+                height={475}
                 className="object-cover"
               />
             </div>
           </div>
         )}
-        <div className="flex items-center justify-between mt-3 max-w-md text-zinc-500">
+        <div className="flex items-center justify-between mt-3 w-fit space-x-4 text-zinc-500">
           <button
             onClick={() => handleLike(post.id)}
             className="flex items-center gap-2 group"
           >
-            <div className="p-2 rounded-full group-hover:bg-red-500/10 group-hover:text-red-500">
+            <div className="p-2 rounded-full group-hover:bg-red-500/10 group-hover:text-red-500 text-red-500">
               <Heart
                 className="w-5 h-5"
                 fill={likes.get(post.id) ? "currentColor" : "none"}
               />
             </div>
-            <span>{formatNumber(post.likesCount)}</span>
+            <span>{formatNumber(likesCount)}</span>
           </button>
           <button
             className="flex items-center gap-2 group"
             onClick={() => handleComment(post.id)}
           >
-            <div className="p-2 rounded-full group-hover:bg-blue-500/10 group-hover:text-blue-500">
+            <div className="p-2 rounded-full group-hover:bg-blue-500/10 group-hover:text-blue-500 text-blue-500">
               <MessageCircle className="w-5 h-5" />
             </div>
-            <span>{formatNumber(comments)}</span>
+            <span>{formatNumber(post.commentsCount)}</span>
           </button>
-          <button
-            className="flex items-center gap-2 group"
-            onClick={() => handleRepost(post.id)}
-          >
-            <div className="p-2 rounded-full group-hover:bg-green-500/10 group-hover:text-green-500">
-              <Repeat className="w-5 h-5" />
-            </div>
-            <span>{formatNumber(reposts)}</span>
-          </button>
+          {AuthUser?.uid !== user.id && (
+            <button
+              className="flex items-center gap-2 group"
+              onClick={() => handleRepost(post.id)}
+            >
+              <div className="p-2 rounded-full group-hover:bg-green-500/10 group-hover:text-green-500 text-green-500">
+                <Repeat className="w-5 h-5" />
+              </div>
+              <span>{formatNumber(post.repostsCount)}</span>
+            </button>
+          )}
+
           <button className="group">
-            <div className="p-2 rounded-full group-hover:bg-blue-500/10 group-hover:text-violet-500">
+            <div className="p-2 rounded-full group-hover:bg-blue-500/10 group-hover:text-violet-500 text-violet-500">
               <Share2 className="w-5 h-5" />
             </div>
           </button>
         </div>
       </div>
-    </div >
+    </div>
   );
 };
 

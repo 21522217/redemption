@@ -6,7 +6,6 @@ import { convertTimestamp } from "@/lib/utils";
 import { Post } from "@/types/post";
 import { User } from "@/types/user";
 
-// Repost here represent post but not the user's own post
 const Reposts = ({ userId }: { userId: string }) => {
   const {
     data: reposts,

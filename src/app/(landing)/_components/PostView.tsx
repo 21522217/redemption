@@ -1,16 +1,22 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef, useCallback } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import {
   fetchPostsWithUsers,
-  isPostLiked,
   toggleLikePost,
 } from "@/lib/firebase/apis/posts.server";
 import { createRepost } from "@/lib/firebase/apis/repost.server";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { MessageCircle, Heart, Repeat, Share2, BadgeCheck } from "lucide-react";
+import {
+  MessageCircle,
+  Heart,
+  Repeat,
+  Share2,
+  BadgeCheck,
+  Loader2,
+} from "lucide-react";
 import Image from "next/image";
 import PostDropdown from "./PostDropdown";
 import PostCond from "./PostCond";
@@ -24,15 +30,12 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { useQuery } from "@tanstack/react-query";
-import SpinningLoading from "@/components/SpinningLoading";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { useQueryClient } from "@tanstack/react-query";
 
 const PostView = () => {
   const { user: AuthUser, isLogin } = useAuth();
   const router = useRouter();
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
   const observer = useRef<IntersectionObserver | null>(null);
 
   const [likes, setLikes] = useState(new Map<string, boolean>());
@@ -41,52 +44,39 @@ const PostView = () => {
 
   const queryClient = useQueryClient();
 
-  const {
-    data: postsWithUsers = [],
-    refetch,
-    isLoading,
-  } = useQuery({
-    queryKey: ["postsWithUsers", page],
-    queryFn: async () => {
-      const posts = await fetchPostsWithUsers(page);
-      if (posts.length === 0) {
-        setHasMore(false);
-      }
-      if (AuthUser) {
-        const likedPosts = await Promise.all(
-          posts.map(async (post) => ({
-            postId: post.id,
-            isLiked: await isPostLiked(post.id, AuthUser.uid),
-          }))
-        );
-        setLikes(
-          new Map(likedPosts.map(({ postId, isLiked }) => [postId, isLiked]))
-        );
-      }
-      return posts;
-    },
-  });
-
-  const lastPostElementRef = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    if (observer.current) observer.current.disconnect();
-    observer.current = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting && hasMore) {
-        setPage((prevPage) => prevPage + 1);
-      }
+  const { data, isLoading, isFetching, fetchNextPage, hasNextPage } =
+    useInfiniteQuery({
+      queryKey: ["postsWithUsers"],
+      queryFn: async ({ pageParam = 1 }) => {
+        const posts = await fetchPostsWithUsers(pageParam);
+        return { posts, nextPage: posts.length ? pageParam + 1 : undefined };
+      },
+      getNextPageParam: (lastPage) => lastPage.nextPage,
+      initialPageParam: 1,
     });
-    if (lastPostElementRef.current) {
-      observer.current.observe(lastPostElementRef.current);
-    }
-  }, [hasMore]);
+
+  const postsWithUsers = data?.pages.flatMap((page) => page.posts) || [];
+
+  const lastPostElementRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      if (isLoading) return;
+      if (observer.current) observer.current.disconnect();
+      observer.current = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && hasNextPage) {
+          fetchNextPage();
+        }
+      });
+      if (node) observer.current.observe(node);
+    },
+    [isLoading, hasNextPage, fetchNextPage]
+  );
 
   const handleLike = async (postId: string) => {
     if (!AuthUser) return;
 
     // Optimistic update
     const oldLikes = new Map(likes);
-    const oldPostData = queryClient.getQueryData(["postsWithUsers", page]);
+    const oldPostData = queryClient.getQueryData(["postsWithUsers"]);
 
     // Update likes state immediately
     setLikes((prevLikes) => {
@@ -95,19 +85,25 @@ const PostView = () => {
       return updatedLikes;
     });
 
-    // Update post likes count immediately
-    queryClient.setQueryData(["postsWithUsers", page], (old: any) => {
-      return old.map((post: any) => {
-        if (post.id === postId) {
-          return {
-            ...post,
-            likesCount: likes.get(postId)
-              ? post.likesCount - 1
-              : post.likesCount + 1,
-          };
-        }
-        return post;
-      });
+    queryClient.setQueryData(["postsWithUsers"], (old: any) => {
+      return {
+        ...old,
+        pages: old.pages.map((page: any) => ({
+          ...page,
+          posts: page.posts.map((post: any) => {
+            if (post.id === postId) {
+              return {
+                ...post,
+                likesCount: Math.max(
+                  0,
+                  likes.get(postId) ? post.likesCount - 1 : post.likesCount + 1
+                ),
+              };
+            }
+            return post;
+          }),
+        })),
+      };
     });
 
     try {
@@ -116,7 +112,7 @@ const PostView = () => {
       // Rollback on error
       console.error("Failed to toggle like status:", error);
       setLikes(oldLikes);
-      queryClient.setQueryData(["postsWithUsers", page], oldPostData);
+      queryClient.setQueryData(["postsWithUsers"], oldPostData);
     }
   };
 
@@ -133,15 +129,14 @@ const PostView = () => {
     if (!AuthUser || !selectedPostId) return;
     try {
       await createRepost(selectedPostId, AuthUser.uid);
-      setShowRepostDialog(false);
-      router.push("/profile");
+      await Promise.all([setShowRepostDialog(false), router.push("/profile")]);
     } catch (error) {
       console.error("Failed to create repost:", error);
     }
   };
 
   return (
-    <div className="flex flex-col w-full h-screen bg-zinc-50 dark:bg-background-content overflow-scroll mt-6 rounded-2xl">
+    <div className="flex flex-col w-full min-h-screen bg-zinc-50 dark:bg-background-content overflow-scroll mt-6 rounded-2xl">
       {isLogin && <PostCond />}
       {postsWithUsers.map((post, index) => (
         <article
@@ -191,7 +186,7 @@ const PostView = () => {
                     {getTimeAgo(post.createdAt)}
                   </span>
                 </div>
-                <PostDropdown post={post} />
+                {post.user.id !== AuthUser?.uid && <PostDropdown post={post} />}
               </div>
               <p className="mt-1 break-words whitespace-pre-wrap">
                 {post.content}
@@ -210,7 +205,7 @@ const PostView = () => {
                   </div>
                 </div>
               )}
-              <div className="flex items-center justify-between mt-3 max-w-md text-zinc-500">
+              <div className="flex w-fit items-center justify-between mt-3 space-x-4 text-zinc-500">
                 <button
                   onClick={() => handleLike(post.id)}
                   className="flex items-center gap-2 group"
@@ -232,15 +227,17 @@ const PostView = () => {
                   </div>
                   <span>{formatNumber(post.commentsCount ?? 0)}</span>
                 </button>
-                <button
-                  className="flex items-center gap-2 group"
-                  onClick={() => handleRepost(post.id)}
-                >
-                  <div className="p-2 rounded-full group-hover:bg-green-500/10 group-hover:text-green-500 text-green-500">
-                    <Repeat className="w-5 h-5" />
-                  </div>
-                  <span>{formatNumber(post.repostsCount ?? 0)}</span>
-                </button>
+                {post.userId !== AuthUser?.uid && (
+                  <button
+                    className="flex items-center gap-2 group"
+                    onClick={() => handleRepost(post.id)}
+                  >
+                    <div className="p-2 rounded-full group-hover:bg-green-500/10 group-hover:text-green-500 text-green-500">
+                      <Repeat className="w-5 h-5" />
+                    </div>
+                    <span>{formatNumber(post.repostsCount ?? 0)}</span>
+                  </button>
+                )}
                 <button className="group">
                   <div className="p-2 rounded-full group-hover:bg-blue-500/10 group-hover:text-violet-500 text-violet-500">
                     <Share2 className="w-5 h-5" />
@@ -251,7 +248,13 @@ const PostView = () => {
           </div>
         </article>
       ))}
-      {isLoading && <SpinningLoading />}
+
+      {isFetching && (
+        <div className="flex flex-col items-center justify-center bg-transparent pt-2 pb-2">
+          <Loader2 className="animate-spin" />
+        </div>
+      )}
+
       {showRepostDialog && (
         <Dialog
           open={showRepostDialog}

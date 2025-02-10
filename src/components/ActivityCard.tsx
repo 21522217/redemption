@@ -1,9 +1,13 @@
+"use client";
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Heart, MessageCircle, Share } from "lucide-react";
 import { Label } from "./ui/label";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
+import { checkIfFollowing } from "@/lib/firebase/apis/follow.server";
 
 // Định nghĩa các type cho activities
 interface ActivityCardProps {
@@ -31,24 +35,34 @@ interface ActivityCardProps {
     reason: string;
     mutualFollowers: number;
   };
+  onFollow?: (actorId: string) => void;
+  onUnfollow?: (actorId: string) => void;
+  followers?: number;
 }
-
-// Thay đổi cách format số để đảm bảo nhất quán giữa server và client
-// const formatNumber = (num: number) => {
-//   // Sử dụng en-US locale để đảm bảo format nhất quán
-//   return num.toLocaleString("en-US");
-// };
 
 export const ActivityCard: React.FC<ActivityCardProps> = ({
   actor,
   type,
-  // timestamp,
   originalPost,
   reply,
   suggestion,
+  onFollow,
+  onUnfollow,
+  followers,
 }) => {
   const router = useRouter();
+  const { user: AuthUser } = useAuth();
   const [isFollowing, setIsFollowing] = useState(false);
+
+  useEffect(() => {
+    const fetchFollowStatus = async () => {
+      if (AuthUser) {
+        const following = await checkIfFollowing(AuthUser.uid, actor.id);
+        setIsFollowing(following);
+      }
+    };
+    fetchFollowStatus();
+  }, [AuthUser, actor.id]);
 
   const handleProfileClick = () => {
     router.push(`/profile/${actor.id}`);
@@ -119,7 +133,12 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({
                       : "bg-black text-white hover:bg-black/90 dark:bg-foreground dark:text-background"
                   }`}
                 onClick={(e) => {
-                  e.stopPropagation(); // Ngăn sự kiện click lan ra ngoài
+                  e.stopPropagation();
+                  if (isFollowing) {
+                    onUnfollow?.(actor.id);
+                  } else {
+                    onFollow?.(actor.id);
+                  }
                   setIsFollowing(!isFollowing);
                 }}
               >
@@ -141,13 +160,10 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({
         {/* Mutual followers section */}
         {suggestion && (
           <div className="flex items-center space-x-1">
-            <span className="text-sm font-semibold">
-              {suggestion.mutualFollowers}
-            </span>
-            <span className="text-sm text-muted-foreground">
-              mutual followers
-            </span>
+            <span className="text-sm font-semibold">{followers || 0}</span>
+            <span className="text-sm text-muted-foreground">followers</span>
           </div>
+
         )}
 
         {/* Original post with faded style */}

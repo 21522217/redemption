@@ -13,6 +13,14 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  webpack(config, { isServer }) {
+    if (!isServer) {
+      config.module.rules.push({
+        test: /next-dev\.js$/,
+      });
+    }
+    return config;
+  },
 };
 
 export default nextConfig;
