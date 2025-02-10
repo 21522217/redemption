@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import { useLoading } from "@/contexts/LoadingContext";
 import { useRouter } from "next/navigation";
 import { getFriendlyFirebaseErrorMessage } from "./firebaseErrors";
+import { FirebaseError } from "firebase/app";
 
 const auth = getAuth(firebase_app);
 
@@ -25,16 +26,17 @@ export default function useSignIn() {
     setLoadingState(true);
 
     try {
-      const result = await performSignIn(email, password);
+      await performSignIn(email, password);
       toast.success("Logged in successfully!", { position: "top-right" });
       router.push("/");
-      return { result, error: null };
-    } catch (e: any) {
-      const errorMessage = getFriendlyFirebaseErrorMessage(e.code);
+    } catch (error) {
+      const errorMessage =
+        error instanceof FirebaseError
+          ? getFriendlyFirebaseErrorMessage(error.code)
+          : "An unexpected error occurred.";
       toast.error(`Failed to log in: ${errorMessage}`, {
         position: "top-right",
       });
-      return { result: null, error: e };
     } finally {
       setLoadingState(false);
     }

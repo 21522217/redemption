@@ -4,7 +4,6 @@ import { db } from "../config";
 import {
   collection,
   addDoc,
-  updateDoc,
   doc,
   Timestamp,
   increment,
@@ -12,6 +11,7 @@ import {
   getDocs,
   query,
   where,
+  runTransaction,
 } from "firebase/firestore";
 
 export async function createFollow(followerId: string, followingId: string) {
@@ -27,11 +27,15 @@ export async function createFollow(followerId: string, followingId: string) {
     followingId,
     createdAt: timestamp,
   };
-  await addDoc(collection(db, "follows"), followData);
 
-  const followingUserRef = doc(db, "users", followingId);
-  await updateDoc(followingUserRef, {
-    followers: increment(1),
+  await runTransaction(db, async (transaction) => {
+    const followRef = collection(db, "follows");
+    await addDoc(followRef, followData);
+
+    const followingUserRef = doc(db, "users", followingId);
+    transaction.update(followingUserRef, {
+      followers: increment(1),
+    });
   });
 }
 
@@ -56,15 +60,21 @@ export async function deleteFollow(followerId: string, followingId: string) {
   }
 
   const followDoc = followSnapshot.docs[0];
-  await deleteDoc(followDoc.ref);
 
-  const followingUserRef = doc(db, "users", followingId);
-  await updateDoc(followingUserRef, {
-    followers: increment(-1),
+  await runTransaction(db, async (transaction) => {
+    await deleteDoc(followDoc.ref);
+
+    const followingUserRef = doc(db, "users", followingId);
+    transaction.update(followingUserRef, {
+      followers: increment(-1),
+    });
   });
 }
 
-export async function checkIfFollowing(followerId: string, followingId: string): Promise<boolean> {
+export async function checkIfFollowing(
+  followerId: string,
+  followingId: string
+): Promise<boolean> {
   const followQuery = collection(db, "follows");
   const followSnapshot = await getDocs(
     query(
@@ -73,5 +83,17 @@ export async function checkIfFollowing(followerId: string, followingId: string):
       where("followingId", "==", followingId)
     )
   );
-  return followSnapshot.docs.some(doc => doc.exists());
+  return followSnapshot.docs.some((doc) => doc.exists());
+}
+export async function getFollowers(userId: string) {
+  const followersRef = collection(db, "follows");
+  const q = query(followersRef, where("followingId", "==", userId));
+  const followersSnapshot = await getDocs(q);
+  const followerIds = followersSnapshot.docs.map((doc) => doc.data().followerId);
+
+  const usersRef = collection(db, "users");
+  const usersQuery = query(usersRef, where("id", "in", followerIds));
+  const usersSnapshot = await getDocs(usersQuery);
+
+  return usersSnapshot.docs.map((doc) => doc.data());
 }

@@ -36,8 +36,7 @@ const ReportModal: React.FC<ReportModalProps> = ({
       await fetch("/api/send-email", {
         method: "POST",
         body: JSON.stringify({
-          name: "hello its me bitch",
-          //   name: user?.username || "",
+          name: "REPORT REDEMPTION - POST REPORT",
           email: user?.email || "",
           message: reportContent,
           postId,

@@ -6,36 +6,79 @@ import {
   getDocs,
   query,
   where,
-  orderBy,
   doc,
   getDoc,
+  orderBy,
 } from "firebase/firestore";
 import { User } from "@/types/user";
 
-/**
- * Lấy danh sách user suggestions (tất cả user trừ current user)
- * Sắp xếp theo thời gian tạo mới nhất
- * @param currentUserId ID của user hiện tại
- * @returns Danh sách các user được đề xuất
- */
-export async function getUserSuggestions(currentUserId?: string) {
+export async function getUserSuggestions(page: number, currentUserId?: string) {
+  const usersPerPage = 2;
   const usersRef = collection(db, "users");
-  // Thêm orderBy để sắp xếp theo thời gian tạo
-  const q = query(usersRef, orderBy("createdAt", "desc"));
-  const usersSnap = await getDocs(q);
+  const usersSnap = await getDocs(usersRef);
 
-  const users = usersSnap.docs
-    .map(
+  let users = usersSnap.docs.map(
+    (doc) =>
+      ({
+        id: doc.id,
+        ...doc.data(),
+      } as User)
+  );
+
+  // Filter out the current user
+  if (currentUserId) {
+    users = users.filter((user) => user.id !== currentUserId);
+  }
+
+  const startIndex = (page - 1) * usersPerPage;
+  const endIndex = startIndex + usersPerPage;
+
+  return users.slice(startIndex, endIndex);
+}
+
+export async function getAllUserSuggestions(
+  page: number,
+  currentUserId?: string
+) {
+  try {
+    const usersPerPage = 10;
+    const usersRef = collection(db, "users");
+
+    const q = query(usersRef, orderBy("followers", "desc"));
+    const usersSnap = await getDocs(q);
+
+    let users = usersSnap.docs.map(
       (doc) =>
         ({
           id: doc.id,
           ...doc.data(),
         } as User)
-    )
-    // Chỉ lọc currentUser nếu có currentUserId
-    .filter((user) => (currentUserId ? user.id !== currentUserId : true));
+    );
 
-  return users;
+    if (currentUserId) {
+      users = users.filter((user) => user.id !== currentUserId);
+
+      // Filter out already followed users
+      const followsRef = collection(db, "follows");
+      const followsSnap = await getDocs(
+        query(followsRef, where("followerId", "==", currentUserId))
+      );
+      const followedUserIds = followsSnap.docs.map(
+        (doc) => doc.data().followingId
+      );
+
+      users = users.filter((user) => !followedUserIds.includes(user.id));
+    }
+
+    const startIndex = (page - 1) * usersPerPage;
+    const endIndex = startIndex + usersPerPage;
+
+    // Return the paginated users
+    return users.slice(startIndex, endIndex);
+  } catch (error) {
+    console.error("Error fetching user suggestions:", error);
+    throw new Error("Failed to fetch user suggestions");
+  }
 }
 
 /**
@@ -60,18 +103,24 @@ export async function isFollowing(
 }
 
 /**
- * Tìm kiếm users theo tên
+ * Tìm kiếm users theo tên với phân trang
+ * @param page Số trang hiện tại
  * @param searchTerm Từ khóa tìm kiếm
  * @param currentUserId ID của user hiện tại
- * @returns Danh sách users phù hợp với từ khóa
+ * @returns Danh sách users phù hợp với từ khóa trong trang hiện tại
  */
-export async function searchUsers(searchTerm: string, currentUserId?: string) {
+export async function searchUsers(
+  page: number,
+  searchTerm: string,
+  currentUserId?: string
+) {
+  const usersPerPage = 10;
   const usersRef = collection(db, "users");
   const usersSnap = await getDocs(usersRef);
 
   const searchTermLower = searchTerm.toLowerCase();
 
-  const users = usersSnap.docs
+  const filteredUsers = usersSnap.docs
     .map(
       (doc) =>
         ({
@@ -92,7 +141,12 @@ export async function searchUsers(searchTerm: string, currentUserId?: string) {
       );
     });
 
-  return users;
+  // Tính toán chỉ số bắt đầu và kết thúc cho phân trang
+  const startIndex = (page - 1) * usersPerPage;
+  const endIndex = startIndex + usersPerPage;
+
+  // Trả về danh sách users đã phân trang
+  return filteredUsers.slice(startIndex, endIndex);
 }
 
 export async function getProfileCompletion(userId: string) {

@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import {
   fetchPostsWithUsers,
   toggleLikePost,
+  isPostLiked,
 } from "@/lib/firebase/apis/posts.server";
 import { createRepost } from "@/lib/firebase/apis/repost.server";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -81,23 +82,23 @@ const PostView = () => {
     // Update likes state immediately
     setLikes((prevLikes) => {
       const updatedLikes = new Map(prevLikes);
-      updatedLikes.set(postId, !updatedLikes.get(postId));
+      updatedLikes.set(postId, !prevLikes.get(postId));
       return updatedLikes;
     });
 
     queryClient.setQueryData(["postsWithUsers"], (old: any) => {
+      if (!old) return old;
       return {
         ...old,
         pages: old.pages.map((page: any) => ({
           ...page,
           posts: page.posts.map((post: any) => {
             if (post.id === postId) {
+              const isCurrentlyLiked = likes.get(postId);
               return {
                 ...post,
-                likesCount: Math.max(
-                  0,
-                  likes.get(postId) ? post.likesCount - 1 : post.likesCount + 1
-                ),
+                isLiked: !isCurrentlyLiked, // Update the local state
+                likesCount: isCurrentlyLiked ? post.likesCount - 1 : post.likesCount + 1,
               };
             }
             return post;
@@ -186,7 +187,7 @@ const PostView = () => {
                     {getTimeAgo(post.createdAt)}
                   </span>
                 </div>
-                <PostDropdown post={post} />
+                {post.user.id !== AuthUser?.uid && <PostDropdown post={post} />}
               </div>
               <p className="mt-1 break-words whitespace-pre-wrap">
                 {post.content}
@@ -205,7 +206,7 @@ const PostView = () => {
                   </div>
                 </div>
               )}
-              <div className="flex items-center justify-between mt-3 max-w-md text-zinc-500">
+              <div className="flex w-fit items-center justify-between mt-3 space-x-4 text-zinc-500">
                 <button
                   onClick={() => handleLike(post.id)}
                   className="flex items-center gap-2 group"
@@ -227,15 +228,17 @@ const PostView = () => {
                   </div>
                   <span>{formatNumber(post.commentsCount ?? 0)}</span>
                 </button>
-                <button
-                  className="flex items-center gap-2 group"
-                  onClick={() => handleRepost(post.id)}
-                >
-                  <div className="p-2 rounded-full group-hover:bg-green-500/10 group-hover:text-green-500 text-green-500">
-                    <Repeat className="w-5 h-5" />
-                  </div>
-                  <span>{formatNumber(post.repostsCount ?? 0)}</span>
-                </button>
+                {post.userId !== AuthUser?.uid && (
+                  <button
+                    className="flex items-center gap-2 group"
+                    onClick={() => handleRepost(post.id)}
+                  >
+                    <div className="p-2 rounded-full group-hover:bg-green-500/10 group-hover:text-green-500 text-green-500">
+                      <Repeat className="w-5 h-5" />
+                    </div>
+                    <span>{formatNumber(post.repostsCount ?? 0)}</span>
+                  </button>
+                )}
                 <button className="group">
                   <div className="p-2 rounded-full group-hover:bg-blue-500/10 group-hover:text-violet-500 text-violet-500">
                     <Share2 className="w-5 h-5" />

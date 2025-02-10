@@ -1,100 +1,163 @@
 "use client";
 
-import { useState, useCallback, useEffect, useMemo } from "react";
-import { useAuth } from "@/contexts/AuthContext";
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { Input } from "@/components/ui/input";
 import { ActivityCard } from "@/components/ActivityCard";
 import {
   searchUsers,
-  isFollowing,
-  getUserSuggestions,
+  getAllUserSuggestions,
 } from "@/lib/firebase/apis/lam-user.server";
 import { User } from "@/types/user";
 import { Search, Loader2 } from "lucide-react";
-import InfiniteScroll from "react-infinite-scroll-component";
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation } from "@tanstack/react-query";
 import { createFollow, deleteFollow } from "@/lib/firebase/apis/follow.server";
-import { useDebounce } from "@/lib/utils";
-// Hook useDebounce được đặt trong cùng file
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "react-toastify";
 
 interface FollowState {
-  theyFollowMe: boolean; // Họ follow mình
-  iFollowThem: boolean; // Mình follow họ
+  theyFollowMe: boolean;
+  iFollowThem: boolean;
 }
 
 export default function SearchPage() {
-  const { user: AuthUser } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
   const [followStatus, setFollowStatus] = useState<Record<string, FollowState>>(
     {}
   );
-  const [displayCount, setDisplayCount] = useState(5);
+  const { user: AuthUser } = useAuth();
+  const observer = useRef<IntersectionObserver | null>(null);
 
-  const debouncedSearchTerm = useDebounce(searchTerm, 500);
-
-  // Query cho tìm kiếm users
-  const { data: searchResults, isLoading: isSearching } = useQuery({
-    queryKey: ["users", "search", debouncedSearchTerm],
-    queryFn: () => searchUsers(debouncedSearchTerm, AuthUser?.uid),
+  const {
+    data: searchResults,
+    isFetching: isFetchingSearch,
+    fetchNextPage: fetchNextSearchPage,
+    hasNextPage: hasNextSearchPage,
+  } = useInfiniteQuery({
+    queryKey: ["users", "search", searchTerm],
+    queryFn: async ({ pageParam = 1 }) => {
+      const searchedUsers = await searchUsers(pageParam, searchTerm);
+      return {
+        users: searchedUsers,
+        nextPage: searchedUsers.length ? pageParam + 1 : undefined,
+      };
+    },
+    getNextPageParam: (lastPage) => lastPage.nextPage,
+    initialPageParam: 1,
   });
 
-  // Query cho user suggestions
-  const { data: suggestionsData, isLoading: isLoadingSuggestions } = useQuery({
-    queryKey: ["users", "suggestions", AuthUser?.uid],
-    queryFn: () => getUserSuggestions(AuthUser?.uid),
+  const {
+    data: suggestionsData,
+    isFetching: isFetchingSuggestions,
+    fetchNextPage: fetchNextSuggestionsPage,
+    hasNextPage: hasNextSuggestionsPage,
+  } = useInfiniteQuery({
+    queryKey: ["users", "suggestions"],
+    queryFn: async ({ pageParam = 1 }) => {
+      const allUserSuggestions = await getAllUserSuggestions(
+        pageParam,
+        AuthUser?.uid
+      );
+      return {
+        users: allUserSuggestions,
+        nextPage: allUserSuggestions.length ? pageParam + 1 : undefined,
+      };
+    },
+    getNextPageParam: (lastPage) => lastPage.nextPage,
+    initialPageParam: 1,
   });
 
-  // Tách riêng phần random suggestions ra
   const suggestions = useMemo(() => {
     if (!suggestionsData) return [];
-    return [...suggestionsData].sort(() => 0.5 - Math.random());
+    return suggestionsData.pages
+      .flatMap((page) => page.users)
+      .sort(() => 0.5 - Math.random());
   }, [suggestionsData]);
 
-  // Kiểm tra follow status chỉ khi có AuthUser
   useEffect(() => {
     const checkFollowStatus = async (users: User[]) => {
-      if (!AuthUser) {
-        // Nếu không có AuthUser, set tất cả status về false
-        const status: Record<string, FollowState> = {};
-        users.forEach((user) => {
-          status[user.id] = {
-            theyFollowMe: false,
-            iFollowThem: false,
-          };
-        });
-        setFollowStatus(status);
-        return;
-      }
-
       const status: Record<string, FollowState> = {};
-      for (const user of users) {
-        const theyFollowMe = await isFollowing(user.id, AuthUser.uid);
-        const iFollowThem = await isFollowing(AuthUser.uid, user.id);
-
+      users.forEach((user) => {
         status[user.id] = {
-          theyFollowMe,
-          iFollowThem,
+          theyFollowMe: false,
+          iFollowThem: false,
         };
-      }
+      });
       setFollowStatus(status);
     };
 
-    const currentUsers = debouncedSearchTerm ? searchResults : suggestions;
+    const currentUsers = searchTerm
+      ? searchResults?.pages.flatMap((page) => page.users)
+      : suggestions;
 
     if (currentUsers) {
       checkFollowStatus(currentUsers);
     }
-  }, [AuthUser, searchResults, suggestions, debouncedSearchTerm]);
+  }, [searchResults, suggestions, searchTerm]);
 
-  const loadMore = useCallback(() => {
-    setTimeout(() => {
-      setDisplayCount((prev) => prev + 5);
-    }, 350);
-  }, []);
+  const lastUserElementRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      if (isFetchingSearch || isFetchingSuggestions) return;
+      if (observer.current) observer.current.disconnect();
+      observer.current = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting) {
+          if (searchTerm.trim() && hasNextSearchPage) {
+            fetchNextSearchPage();
+          } else if (!searchTerm.trim() && hasNextSuggestionsPage) {
+            fetchNextSuggestionsPage();
+          }
+        }
+      });
+      if (node) observer.current.observe(node);
+    },
+    [isFetchingSearch, isFetchingSuggestions, hasNextSearchPage, hasNextSuggestionsPage, fetchNextSearchPage, fetchNextSuggestionsPage, searchTerm]
+  );
+
+  const followMutation = useMutation({
+    mutationFn: async (userId: string) => {
+      if (!AuthUser) throw new Error("User not authenticated");
+      await createFollow(AuthUser.uid, userId);
+    },
+    onSuccess: () => {
+      toast.success("Followed user successfully");
+    },
+    onError: (error: any) => {
+      console.error("Failed to follow user:", error);
+    },
+  });
+
+  const unfollowMutation = useMutation({
+    mutationFn: async (userId: string) => {
+      if (!AuthUser) throw new Error("User not authenticated");
+      await deleteFollow(AuthUser.uid, userId);
+    },
+    onSuccess: () => {
+      toast.dismiss("Unfollowed user successfully");
+    },
+  });
+
+  const handleFollow = (userId: string) => {
+    setFollowStatus((prevStatus) => ({
+      ...prevStatus,
+      [userId]: {
+        ...prevStatus[userId],
+        iFollowThem: true,
+      },
+    }));
+    followMutation.mutate(userId);
+  };
+
+  const handleUnfollow = (userId: string) => {
+    setFollowStatus((prevStatus) => ({
+      ...prevStatus,
+      [userId]: {
+        ...prevStatus[userId],
+        iFollowThem: false,
+      },
+    }));
+    unfollowMutation.mutate(userId);
+  };
 
   const getFollowButtonText = (userId: string) => {
-    if (!AuthUser) return "Sign in to follow"; // Thêm text cho user chưa đăng nhập
-
     const status = followStatus[userId];
     if (!status) return "Follow";
     if (status.iFollowThem) return "Following";
@@ -102,11 +165,11 @@ export default function SearchPage() {
     return "Follow";
   };
 
-  const currentUsers = debouncedSearchTerm.trim()
-    ? (searchResults || []).slice(0, displayCount)
-    : (suggestions || []).slice(0, displayCount);
+  const currentUsers = searchTerm.trim()
+    ? searchResults?.pages.flatMap((page) => page.users) || []
+    : suggestions || [];
 
-  const isLoading = isSearching || isLoadingSuggestions;
+  const isLoading = isFetchingSearch || isFetchingSuggestions;
 
   return (
     <div className="flex flex-col w-full h-screen bg-zinc-50 dark:bg-background-content overflow-scroll mt-6 rounded-2xl">
@@ -130,22 +193,14 @@ export default function SearchPage() {
           </div>
         ) : (
           <>
-            {debouncedSearchTerm.trim() ? (
-              searchResults?.length ? (
-                <InfiniteScroll
-                  dataLength={currentUsers.length}
-                  next={loadMore}
-                  hasMore={currentUsers.length < (searchResults?.length || 0)}
-                  loader={
-                    <div className="flex justify-center items-center py-4">
-                      <Loader2 className="h-5 w-5 animate-spin text-gray-400" />
-                    </div>
-                  }
-                >
-                  {currentUsers.map((user) => (
+            {searchTerm.trim() ? (
+              currentUsers.length ? (
+                <div>
+                  {currentUsers.map((user, index) => (
                     <div
                       key={user.id}
                       className="border-b border-zinc-200 dark:border-zinc-400/15 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors"
+                      ref={index === currentUsers.length - 1 ? lastUserElementRef : null}
                     >
                       <div className="p-4">
                         <ActivityCard
@@ -162,34 +217,29 @@ export default function SearchPage() {
                             reason: getFollowButtonText(user.id),
                             mutualFollowers: 0,
                           }}
+                          followers={user.followers}
+                          onFollow={() => handleFollow(user.id)}
+                          onUnfollow={() => handleUnfollow(user.id)}
                         />
                       </div>
                     </div>
                   ))}
-                </InfiniteScroll>
+                </div>
               ) : (
                 <div className="flex justify-center items-center py-8 text-gray-500">
                   No users found
                 </div>
               )
             ) : (
-              <InfiniteScroll
-                dataLength={currentUsers.length}
-                next={loadMore}
-                hasMore={currentUsers.length < (suggestions?.length || 0)}
-                loader={
-                  <div className="flex justify-center items-center py-4">
-                    <Loader2 className="h-5 w-5 animate-spin text-gray-400" />
-                  </div>
-                }
-              >
+              <div>
                 <h3 className="px-4 py-2 text-sm font-medium text-gray-500">
                   Suggested for you
                 </h3>
-                {currentUsers.map((user) => (
+                {currentUsers.map((user, index) => (
                   <div
                     key={user.id}
                     className="border-b border-zinc-200 dark:border-zinc-400/15 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors"
+                    ref={index === currentUsers.length - 1 ? lastUserElementRef : null}
                   >
                     <div className="p-4">
                       <ActivityCard
@@ -206,11 +256,14 @@ export default function SearchPage() {
                           reason: getFollowButtonText(user.id),
                           mutualFollowers: 0,
                         }}
+                        followers={user.followers}
+                        onFollow={() => handleFollow(user.id)}
+                        onUnfollow={() => handleUnfollow(user.id)}
                       />
                     </div>
                   </div>
                 ))}
-              </InfiniteScroll>
+              </div>
             )}
           </>
         )}

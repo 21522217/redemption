@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Edit, Image, Pencil, Users } from "lucide-react";
+import { Edit, Image, Loader2, Pencil, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -21,6 +21,7 @@ import PostCard from "../_components/PostCard";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Post } from "@/types/post";
+import Followers from "@/components/Followers";
 
 export default function Profile() {
   const [isModalOpen, setModalOpen] = useState(false);
@@ -55,7 +56,7 @@ export default function Profile() {
   const tabsListClassName = useMemo(() => {
     return visibleTabsCount === 1
       ? "grid w-full h-fit gap-4 grid-cols-1"
-      : "grid w-full h-fit gap-4 grid-cols-2";
+      : "grid w-full h-fit gap-4 grid-cols-3";
   }, [visibleTabsCount]);
 
   const router = useRouter();
@@ -107,6 +108,13 @@ export default function Profile() {
             <UserAvatar userId={currentUser.id} className="h-24 w-24" />
           </div>
         </div>
+        <Button
+          onClick={() => setModalOpen(true)}
+          variant="outline"
+          className="mb-6 w-full rounded-xl font-semibold"
+        >
+          Edit profile
+        </Button>
         <ChangeProfileModal
           isOpen={isModalOpen}
           onChange={setModalOpen}
@@ -133,6 +141,12 @@ export default function Profile() {
                 Reposts
               </TabsTrigger>
             )}
+            <TabsTrigger
+              value="followers"
+              className="font-semibold py-2 border-b-[1px] border-transparent rounded-none data-[state=active]:bg-card data-[state=active]:border-primary"
+            >
+              Followers
+            </TabsTrigger>
           </TabsList>
           <TabsContent value="posts" className="space-y-4 bg-card">
             <div className="flex items-center py-6 bg-card border-b border-zinc-800 pb-4">
@@ -257,12 +271,18 @@ export default function Profile() {
                       </Label>
                     </div>
                   ) : (
-                    userPosts.map((post) => (
-                      <div key={post.id} className="flex flex-col space-y-2">
-                        <PostCard user={currentUser} post={post as Post} />
-                        <Separator className="" />
+                    userPostsLoading ? (
+                      <div className="flex justify-center items-center py-8">
+                        <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
                       </div>
-                    ))
+                    ) : (
+                      userPosts.map((post) => (
+                        <div key={post.id} className="flex flex-col space-y-2">
+                          <PostCard user={currentUser} post={post as Post} />
+                          <Separator className="" />
+                        </div>
+                      ))
+                    )
                   )}
                 </>
               ))
@@ -276,6 +296,9 @@ export default function Profile() {
               <Reposts userId={currentUser.id} />
             </TabsContent>
           )}
+          <TabsContent value="followers">
+            <Followers userId={currentUser.id} />
+          </TabsContent>
         </Tabs>
       </Card>
     </div>

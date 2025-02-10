@@ -17,7 +17,7 @@ interface PostCardProps {
   post: Post;
 }
 
-const PostCard: React.FC<PostCardProps> = ({ user, post }) => {
+const   PostCard: React.FC<PostCardProps> = ({ user, post }) => {
   const router = useRouter();
   const { user: AuthUser } = useAuth();
 
@@ -79,7 +79,7 @@ const PostCard: React.FC<PostCardProps> = ({ user, post }) => {
             <span className="text-zinc-500">·</span>
             <span className="text-zinc-500">{getTimeAgo(post.createdAt)}</span>
           </div>
-          <PostDropdown post={post} />
+          {AuthUser?.uid !== user.id && <PostDropdown post={post} />}
         </div>
         <p className="mt-1 break-words whitespace-pre-wrap">{post.content}</p>
         {post.media && (
@@ -96,7 +96,7 @@ const PostCard: React.FC<PostCardProps> = ({ user, post }) => {
             </div>
           </div>
         )}
-        <div className="flex items-center justify-between mt-3 max-w-md text-zinc-500">
+        <div className="flex items-center justify-between mt-3 w-fit space-x-4 text-zinc-500">
           <button
             onClick={() => handleLike(post.id)}
             className="flex items-center gap-2 group"
@@ -118,15 +118,18 @@ const PostCard: React.FC<PostCardProps> = ({ user, post }) => {
             </div>
             <span>{formatNumber(post.commentsCount)}</span>
           </button>
-          <button
-            className="flex items-center gap-2 group"
-            onClick={() => handleRepost(post.id)}
-          >
-            <div className="p-2 rounded-full group-hover:bg-green-500/10 group-hover:text-green-500 text-green-500">
-              <Repeat className="w-5 h-5" />
-            </div>
-            <span>{formatNumber(post.repostsCount)}</span>
-          </button>
+          {AuthUser?.uid !== user.id && (
+            <button
+              className="flex items-center gap-2 group"
+              onClick={() => handleRepost(post.id)}
+            >
+              <div className="p-2 rounded-full group-hover:bg-green-500/10 group-hover:text-green-500 text-green-500">
+                <Repeat className="w-5 h-5" />
+              </div>
+              <span>{formatNumber(post.repostsCount)}</span>
+            </button>
+          )}
+
           <button className="group">
             <div className="p-2 rounded-full group-hover:bg-blue-500/10 group-hover:text-violet-500 text-violet-500">
               <Share2 className="w-5 h-5" />

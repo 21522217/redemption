@@ -162,7 +162,7 @@ export default function SignupForm() {
             href="/login"
             className="font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300"
           >
-            Sign in
+            Log in
           </Link>
         </p>
       </Card>

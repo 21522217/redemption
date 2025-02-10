@@ -19,7 +19,7 @@ export default function PrivacyPage() {
   }, []);
 
   return (
-    <Card className="w-full max-w-4xl mx-auto p-8 space-y-8 shadow-xl border-0 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm">
+    <Card className="w-full max-w-4xl mx-auto p-8 space-y-8 shadow-xl border-0 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm mt-6">
       <div className="flex items-center justify-between border-b pb-6">
         <div className="flex items-center space-x-4">
           <Button
@@ -167,8 +167,8 @@ export default function PrivacyPage() {
             </p>
             <div className="mt-4 text-gray-600 dark:text-gray-300">
               <p>Email: privacy@redemption.com</p>
-              <p>Address: 123 Privacy Street, Security City, 12345</p>
-              <p>Phone: +1 (555) 123-4567</p>
+              <p>Address: Thu Duc, Ho Chi Minh City</p>
+              <p>Phone: +99 (3453) 9938</p>
             </div>
           </div>
         </section>
