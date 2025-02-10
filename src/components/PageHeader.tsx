@@ -21,16 +21,13 @@ const PageHeader = () => {
   const pathname = usePathname();
   const [title, setTitle] = useState(() => {
     const matchedTitle =
-      titleMatching[window.location.pathname as keyof typeof titleMatching] ||
-      "home";
+      titleMatching[pathname as keyof typeof titleMatching] || "home";
     return matchedTitle;
   });
 
-
   useEffect(() => {
     const matchedTitle =
-      titleMatching[window.location.pathname as keyof typeof titleMatching] ||
-      "home";
+      titleMatching[pathname as keyof typeof titleMatching] || "home";
     setTitle(matchedTitle);
   }, [pathname]);
 
