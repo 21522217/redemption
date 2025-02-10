@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import {
   fetchPostsWithUsers,
   toggleLikePost,
-  isPostLiked,
+  isPostLiked
 } from "@/lib/firebase/apis/posts.server";
 import { createRepost } from "@/lib/firebase/apis/repost.server";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -39,9 +39,9 @@ const PostView = () => {
   const router = useRouter();
   const observer = useRef<IntersectionObserver | null>(null);
 
-  const [likes, setLikes] = useState(new Map<string, boolean>());
   const [showRepostDialog, setShowRepostDialog] = useState(false);
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
+  const [likes, setLikes] = useState(new Map<string, boolean>());
 
   const queryClient = useQueryClient();
 
@@ -76,15 +76,7 @@ const PostView = () => {
     if (!AuthUser) return;
 
     // Optimistic update
-    const oldLikes = new Map(likes);
     const oldPostData = queryClient.getQueryData(["postsWithUsers"]);
-
-    // Update likes state immediately
-    setLikes((prevLikes) => {
-      const updatedLikes = new Map(prevLikes);
-      updatedLikes.set(postId, !prevLikes.get(postId));
-      return updatedLikes;
-    });
 
     queryClient.setQueryData(["postsWithUsers"], (old: any) => {
       if (!old) return old;
@@ -112,7 +104,6 @@ const PostView = () => {
     } catch (error) {
       // Rollback on error
       console.error("Failed to toggle like status:", error);
-      setLikes(oldLikes);
       queryClient.setQueryData(["postsWithUsers"], oldPostData);
     }
   };
@@ -135,6 +126,15 @@ const PostView = () => {
       console.error("Failed to create repost:", error);
     }
   };
+
+  useEffect(() => {
+    if (postsWithUsers.length > 0 && AuthUser) {
+      postsWithUsers.forEach(async (post) => {
+        const isLiked = await isPostLiked(post.id, AuthUser.uid);
+        setLikes((prevLikes) => new Map(prevLikes.set(post.id, isLiked)));
+      });
+    }
+  }, [postsWithUsers, AuthUser]);
 
   return (
     <div className="flex flex-col w-full min-h-screen bg-zinc-50 dark:bg-background-content overflow-scroll mt-6 rounded-2xl">
@@ -228,7 +228,7 @@ const PostView = () => {
                   </div>
                   <span>{formatNumber(post.commentsCount ?? 0)}</span>
                 </button>
-                {post.userId !== AuthUser?.uid && (
+                {post.user.id !== AuthUser?.uid && (
                   <button
                     className="flex items-center gap-2 group"
                     onClick={() => handleRepost(post.id)}

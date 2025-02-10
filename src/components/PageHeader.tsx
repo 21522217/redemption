@@ -19,7 +19,11 @@ const titleMatching = {
 
 const PageHeader = () => {
   const pathname = usePathname();
-  const [title, setTitle] = useState("home");
+  const [title, setTitle] = useState(() => {
+    const matchedTitle =
+      titleMatching[pathname as keyof typeof titleMatching] || "home";
+    return matchedTitle;
+  });
 
   useEffect(() => {
     const matchedTitle =
@@ -29,7 +33,7 @@ const PageHeader = () => {
 
   return (
     <div className="sticky top-0 z-20 flex flex-row w-full bg-background">
-      <h1 className="flex flex-col w-full items-center justify-center text-2xl font-bold h-10">
+      <h1 className="flex flex-col w-full items-center justify-center text-2xl font-bold h-14">
         {title.toUpperCase()}
       </h1>
     </div>
