@@ -36,9 +36,10 @@ const AppSidebar = () => {
       <SidebarProvider
         style={{
           width: "fit-content",
+
         }}
       >
-        <Sidebar className="w-fit h-full px-1 border-none">
+        <Sidebar className="w-fit h-full px-1 border-none z-30">
           <SidebarHeader className="flex items-center justify-center">
             <div 
               className="w-12 h-12 p-2 flex items-center justify-center cursor-pointer" 

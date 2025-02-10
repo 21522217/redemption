@@ -53,14 +53,12 @@ export async function createComment(
 
 export async function updateComment(
   commentId: string,
-  updatedContent: Partial<
-    Omit<Comment, "id" | "createdAt" | "userId" | "postId">
-  >
+  newContent: string
 ): Promise<void> {
   if (!commentId) {
     throw new Error("Invalid commentId: It must be a non-empty string.");
   }
-  if (!updatedContent || !updatedContent.content) {
+  if (!newContent) {
     throw new Error("Invalid content: It must be a non-empty string.");
   }
 
@@ -69,7 +67,7 @@ export async function updateComment(
 
   try {
     await updateDoc(commentRef, {
-      ...updatedContent,
+      content: newContent,
       updatedAt: timestamp,
     });
   } catch (error) {

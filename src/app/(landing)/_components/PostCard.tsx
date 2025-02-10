@@ -17,7 +17,7 @@ interface PostCardProps {
   post: Post;
 }
 
-const PostCard: React.FC<PostCardProps> = ({ user, post }) => {
+const   PostCard: React.FC<PostCardProps> = ({ user, post }) => {
   const router = useRouter();
   const { user: AuthUser } = useAuth();
 

@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Edit, Image, Pencil, Users } from "lucide-react";
+import { Edit, Image, Loader2, Pencil, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -271,12 +271,18 @@ export default function Profile() {
                       </Label>
                     </div>
                   ) : (
-                    userPosts.map((post) => (
-                      <div key={post.id} className="flex flex-col space-y-2">
-                        <PostCard user={currentUser} post={post as Post} />
-                        <Separator className="" />
+                    userPostsLoading ? (
+                      <div className="flex justify-center items-center py-8">
+                        <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
                       </div>
-                    ))
+                    ) : (
+                      userPosts.map((post) => (
+                        <div key={post.id} className="flex flex-col space-y-2">
+                          <PostCard user={currentUser} post={post as Post} />
+                          <Separator className="" />
+                        </div>
+                      ))
+                    )
                   )}
                 </>
               ))

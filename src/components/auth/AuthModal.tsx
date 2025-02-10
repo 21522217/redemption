@@ -15,11 +15,11 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onChange }) => {
   return (
     <Dialog.Root open={isOpen} onOpenChange={onChange}>
       <Dialog.Portal>
-        <Dialog.Overlay className="bg-neutral-900/90 backdrop-blur-sm fixed inset-0">
+        <Dialog.Overlay className="bg-neutral-900/90 backdrop-blur-sm fixed inset-0 z-50">
           <Dialog.Content
             className="fixed drop-shadow-md border border-neutral-200 dark:border-neutral-700 top-1/2 left-1/2 max-h-full 
               h-full md:h-auto md:max-h-[85vh] w-full md:w-[450px] -translate-x-1/2 -translate-y-1/2 rounded-2xl 
-              bg-white dark:bg-neutral-800 p-8 focus:outline-none"
+              bg-white dark:bg-neutral-800 p-8 focus:outline-none z-50"
           >
             <Dialog.Title className="text-2xl text-center font-bold mb-6 text-neutral-900 dark:text-white">
               Welcome to Redemption

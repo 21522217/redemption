@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { Input } from "@/components/ui/input";
 import { ActivityCard } from "@/components/ActivityCard";
 import {
@@ -25,11 +25,13 @@ export default function SearchPage() {
     {}
   );
   const { user: AuthUser } = useAuth();
+  const observer = useRef<IntersectionObserver | null>(null);
 
   const {
     data: searchResults,
     isFetching: isFetchingSearch,
     fetchNextPage: fetchNextSearchPage,
+    hasNextPage: hasNextSearchPage,
   } = useInfiniteQuery({
     queryKey: ["users", "search", searchTerm],
     queryFn: async ({ pageParam = 1 }) => {
@@ -47,6 +49,7 @@ export default function SearchPage() {
     data: suggestionsData,
     isFetching: isFetchingSuggestions,
     fetchNextPage: fetchNextSuggestionsPage,
+    hasNextPage: hasNextSuggestionsPage,
   } = useInfiniteQuery({
     queryKey: ["users", "suggestions"],
     queryFn: async ({ pageParam = 1 }) => {
@@ -91,23 +94,23 @@ export default function SearchPage() {
     }
   }, [searchResults, suggestions, searchTerm]);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      if (
-        window.innerHeight + document.documentElement.scrollTop !==
-        document.documentElement.offsetHeight
-      )
-        return;
-      if (searchTerm.trim()) {
-        fetchNextSearchPage();
-      } else {
-        fetchNextSuggestionsPage();
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [searchTerm, fetchNextSearchPage, fetchNextSuggestionsPage]);
+  const lastUserElementRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      if (isFetchingSearch || isFetchingSuggestions) return;
+      if (observer.current) observer.current.disconnect();
+      observer.current = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting) {
+          if (searchTerm.trim() && hasNextSearchPage) {
+            fetchNextSearchPage();
+          } else if (!searchTerm.trim() && hasNextSuggestionsPage) {
+            fetchNextSuggestionsPage();
+          }
+        }
+      });
+      if (node) observer.current.observe(node);
+    },
+    [isFetchingSearch, isFetchingSuggestions, hasNextSearchPage, hasNextSuggestionsPage, fetchNextSearchPage, fetchNextSuggestionsPage, searchTerm]
+  );
 
   const followMutation = useMutation({
     mutationFn: async (userId: string) => {
@@ -170,7 +173,7 @@ export default function SearchPage() {
 
   return (
     <div className="flex flex-col w-full h-screen bg-zinc-50 dark:bg-background-content overflow-scroll mt-6 rounded-2xl">
-      <div className="sticky top-0 z-10 bg-zinc-50 dark:bg-background-content p-4 border-b border-zinc-200 dark:border-zinc-400/15">
+      <div className="sticky top-0 bg-zinc-50 dark:bg-background-content p-4 border-b border-zinc-200 dark:border-zinc-400/15">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
           <Input
@@ -193,10 +196,11 @@ export default function SearchPage() {
             {searchTerm.trim() ? (
               currentUsers.length ? (
                 <div>
-                  {currentUsers.map((user) => (
+                  {currentUsers.map((user, index) => (
                     <div
                       key={user.id}
                       className="border-b border-zinc-200 dark:border-zinc-400/15 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors"
+                      ref={index === currentUsers.length - 1 ? lastUserElementRef : null}
                     >
                       <div className="p-4">
                         <ActivityCard
@@ -231,10 +235,11 @@ export default function SearchPage() {
                 <h3 className="px-4 py-2 text-sm font-medium text-gray-500">
                   Suggested for you
                 </h3>
-                {currentUsers.map((user) => (
+                {currentUsers.map((user, index) => (
                   <div
                     key={user.id}
                     className="border-b border-zinc-200 dark:border-zinc-400/15 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors"
+                    ref={index === currentUsers.length - 1 ? lastUserElementRef : null}
                   >
                     <div className="p-4">
                       <ActivityCard

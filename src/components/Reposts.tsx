@@ -5,6 +5,9 @@ import { getUserReposts } from "@/lib/firebase/apis/repost.server";
 import { convertTimestamp } from "@/lib/utils";
 import { Post } from "@/types/post";
 import { User } from "@/types/user";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { BadgeCheck } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 const Reposts = ({ userId }: { userId: string }) => {
   const {
@@ -16,25 +19,50 @@ const Reposts = ({ userId }: { userId: string }) => {
     queryFn: async () => await getUserReposts(userId),
   });
 
+  const router = useRouter();
+
   if (isLoading) return <div className="loading">Loading...</div>;
   if (error) return <div className="error">Error loading reposts</div>;
 
   return (
     <div className="reposts-container">
       {reposts?.map((repost) => (
-        <div key={repost.id} className="repost-card">
-          <p className="repost-content">
-            {repost.content || "No content available"}
-          </p>
-          <div className="repost-meta">
-            <span className="repost-author">
-              Author: {repost.user?.username || "Unknown"}
-            </span>
-            <span className="repost-date">
-              Posted on: {convertTimestamp(repost.createdAt)}
-            </span>
+        <article key={repost.id} className="border-b border-zinc-400/15 p-4">
+          <div className="flex items-start">
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 flex-wrap flex-row">
+                <Avatar
+                  onClick={() => router.push(`/profile/${repost.user.id}`)}
+                  className="w-10 h-10"
+                >
+                  <AvatarImage
+                    src={repost.user.profilePicture}
+                    alt={repost.user.username}
+                  />
+                  <AvatarFallback>
+                    {repost.user.username.charAt(0)}
+                  </AvatarFallback>
+                </Avatar>
+                <span
+                  onClick={() => router.push(`/profile/${repost.user.id}`)}
+                  className="font-bold hover:underline"
+                >
+                  {repost.user.username}
+                </span>
+                {repost.user.isVerified && (
+                  <BadgeCheck className="w-4 h-4 text-blue-500" />
+                )}
+                <span className="text-zinc-500">·</span>
+                <span className="text-zinc-500">
+                  {convertTimestamp(repost.createdAt)}
+                </span>
+              </div>
+              <p className="mt-1 break-words whitespace-pre-wrap">
+                {repost.content || "No content available"}
+              </p>
+            </div>
           </div>
-        </div>
+        </article>
       ))}
     </div>
   );
