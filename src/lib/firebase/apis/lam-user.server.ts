@@ -12,16 +12,12 @@ import {
 } from "firebase/firestore";
 import { User } from "@/types/user";
 
-/**
- * Lấy danh sách user suggestions (tất cả user trừ current user)
- * Sắp xếp theo số lượng người theo dõi nhiều nhất
- * @param currentUserId ID của user hiện tại
- * @returns Danh sách các user được đề xuất
- */
-export async function getUserSuggestions(currentUserId?: string) {
+export async function getUserSuggestions(page: number, currentUserId?: string) {
+  const usersPerPage = 10;
   const usersRef = collection(db, "users");
   const q = query(
     usersRef,
+
     where("id", "!=", currentUserId),
     orderBy("followers", "desc")
   );
@@ -45,7 +41,7 @@ export async function getAllUserSuggestions(
   try {
     const usersPerPage = 10;
     const usersRef = collection(db, "users");
-    
+
     const q = query(
       usersRef,
       orderBy("followers", "desc")
@@ -62,6 +58,13 @@ export async function getAllUserSuggestions(
 
     if (currentUserId) {
       users = users.filter(user => user.id !== currentUserId);
+      
+      // Filter out already followed users
+      const followsRef = collection(db, "follows");
+      const followsSnap = await getDocs(query(followsRef, where("followerId", "==", currentUserId)));
+      const followedUserIds = followsSnap.docs.map(doc => doc.data().followingId);
+      
+      users = users.filter(user => !followedUserIds.includes(user.id));
     }
 
     const startIndex = (page - 1) * usersPerPage;

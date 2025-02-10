@@ -37,18 +37,18 @@ const ReportProblemModal: React.FC<ReportProblemModalProps> = ({
         method: "POST",
         body: JSON.stringify({
           name: user?.displayName || "Anonymous User",
-          email: user?.email || "",
+          email: user?.email || "anonymous@redemptionreport.com",
           message: reportContent,
           postId: "general_report",
         }),
       });
 
-      toast("Report submitted successfully!");
+      toast.success("Report submitted successfully!");
       setReportContent("");
       onChange(false);
     } catch (error) {
       console.error("Failed to submit report:", error);
-      toast("Failed to submit report.");
+      toast.error("Failed to submit report.");
     } finally {
       setLoadingState(false);
     }
@@ -91,6 +91,7 @@ const ReportProblemModal: React.FC<ReportProblemModalProps> = ({
               <Button
                 className="bg-neutral-100 text-neutral-900 hover:bg-neutral-200 disabled:bg-neutral-300"
                 onClick={handleReport}
+                type="submit"
               >
                 Submit
               </Button>
