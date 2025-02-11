@@ -1,6 +1,7 @@
 "server only";
 
 import { Post, LikedPost } from "@/types/post";
+import { Repost } from "@/types/repost";
 import { User } from "@/types/user";
 
 import { db } from "../config";
@@ -167,6 +168,16 @@ export async function isPostLiked(
   const likeSnap = await getDoc(likeDoc);
 
   return likeSnap.exists() && (likeSnap.data() as LikedPost).isLiked;
+}
+
+export async function isReposted(
+  postId: string,
+  userId: string
+): Promise<boolean> {
+  const repostDoc = doc(db, "reposted_post", `${userId}_${postId}`);
+  const repostSnap = await getDoc(repostDoc);
+
+  return repostSnap.exists();
 }
 
 export async function fetchPostsByUser() {

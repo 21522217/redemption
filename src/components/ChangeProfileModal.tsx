@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { User } from "@/types/user";
@@ -42,8 +42,7 @@ const ChangeProfileModal: React.FC<ChangeProfileModalProps> = ({
 }) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [bioLength, setBioLength] = useState(currentUser?.bio?.length || 0);
-  const [isSubmitting, setIsSubmitting] = useState(false); // State for loading spinner
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<UserProfileUpdate>({
     resolver: zodResolver(userSettingFormSchema),

@@ -157,7 +157,6 @@ export async function searchUsers(
 }
 
 export async function getProfileCompletion(userId: string) {
-  // Fetch user information
   const userRef = doc(db, "users", userId);
   const userDoc = await getDoc(userRef);
 
@@ -167,27 +166,28 @@ export async function getProfileCompletion(userId: string) {
 
   const userData = userDoc.data() as User;
 
-  // Check the number of posts
   const postsRef = collection(db, "posts");
   const postsQuery = query(postsRef, where("userId", "==", userId));
   const postsSnap = await getDocs(postsQuery);
   const hasPost = !postsSnap.empty;
 
-  // Check the number of followers using user.followers
-  const followerCount = userData.followers || 0;
+  const followsRef = collection(db, "follows");
+  const followsQuery = query(followsRef, where("userId", "==", userId));
+  const followsSnap = await getDocs(followsQuery);
+  const followingCount = followsSnap.size;
 
   return {
     hasPost,
     hasBio: Boolean(userData.bio),
     hasAvatar: userData.profilePicture !== "https://github.com/shadcn.png",
-    hasEnoughFollowing: followerCount >= 3,
-    followingCount: followerCount,
+    hasEnoughFollowing: followingCount >= 3,
+    followingCount: followingCount,
     totalTasks: 4,
     completedTasks: [
       hasPost,
       Boolean(userData.bio),
       userData.profilePicture !== "https://github.com/shadcn.png",
-      followerCount >= 10,
+      followingCount >= 10,
     ].filter(Boolean).length,
   };
 }

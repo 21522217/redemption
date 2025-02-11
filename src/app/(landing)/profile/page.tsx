@@ -41,7 +41,7 @@ export default function Profile() {
   });
 
   const { data: profileCompletion, error: profileCompletionError } = useQuery({
-    queryKey: ["profileCompletion", currentUser?.id],
+    queryKey: ["profileCompletion"],
     queryFn: () => getProfileCompletion(currentUser?.id || ""),
     enabled: !!currentUser?.id,
   });

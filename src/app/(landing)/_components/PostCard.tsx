@@ -10,6 +10,7 @@ import { User } from "@/types/user";
 import { formatNumber, getTimeAgo } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { isPostLiked, toggleLikePost } from "@/lib/firebase/apis/posts.server";
+import { toggleRepost, isReposted } from "@/lib/firebase/apis/repost.server";
 import { useAuth } from "@/contexts/AuthContext";
 
 interface PostCardProps {
@@ -23,15 +24,19 @@ const PostCard: React.FC<PostCardProps> = ({ user, post }) => {
 
   const [likes, setLikes] = useState(new Map<string, boolean>());
   const [likesCount, setLikesCount] = useState(post.likesCount);
+  const [reposts, setReposts] = useState(new Map<string, boolean>());
+  const [repostsCount, setRepostsCount] = useState(post.repostsCount);
 
   useEffect(() => {
-    const fetchLikes = async () => {
+    const fetchLikesAndReposts = async () => {
       if (AuthUser) {
         const isLiked = await isPostLiked(post.id, AuthUser.uid);
+        const isRepostedStatus = await isReposted(post.id, AuthUser.uid);
         setLikes(new Map([[post.id, isLiked]]));
+        setReposts(new Map([[post.id, isRepostedStatus]]));
       }
     };
-    fetchLikes();
+    fetchLikesAndReposts();
   }, [AuthUser, post.id]);
 
   const handleLike = async (postId: string) => {
@@ -59,8 +64,24 @@ const PostCard: React.FC<PostCardProps> = ({ user, post }) => {
     router.push(`/posts/${postId}`);
   };
 
-  const handleRepost = (postId: string) => {
-    router.push(`/posts/${postId}`);
+  const handleRepost = async (postId: string) => {
+    if (!AuthUser) return;
+    try {
+      setRepostsCount((prevCount) =>
+        reposts.get(postId) ? prevCount - 1 : prevCount + 1
+      );
+      setReposts((prevReposts) => {
+        const updatedReposts = new Map(prevReposts);
+        updatedReposts.set(postId, !updatedReposts.get(postId));
+        return updatedReposts;
+      });
+      await toggleRepost(postId, AuthUser.uid);
+    } catch (error) {
+      console.error("Failed to toggle repost status:", error);
+      setRepostsCount((prevCount) =>
+        reposts.get(postId) ? prevCount + 1 : prevCount - 1
+      );
+    }
   };
 
   return (
@@ -132,9 +153,12 @@ const PostCard: React.FC<PostCardProps> = ({ user, post }) => {
               onClick={() => handleRepost(post.id)}
             >
               <div className="p-2 rounded-full group-hover:bg-green-500/10 group-hover:text-green-500 text-green-500">
-                <Repeat className="w-5 h-5" />
+                <Repeat
+                  className="w-5 h-5"
+                  fill={reposts.get(post.id) ? "currentColor" : "none"}
+                />
               </div>
-              <span>{formatNumber(post.repostsCount)}</span>
+              <span>{formatNumber(repostsCount)}</span>
             </button>
           )}
 

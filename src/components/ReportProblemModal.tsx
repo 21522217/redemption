@@ -39,7 +39,6 @@ const ReportProblemModal: React.FC<ReportProblemModalProps> = ({
           name: user?.displayName || "Anonymous User",
           email: user?.email || "anonymous@redemptionreport.com",
           message: reportContent,
-          postId: "general_report",
         }),
       });
 
