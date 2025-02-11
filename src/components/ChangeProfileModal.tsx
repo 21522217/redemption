@@ -13,6 +13,7 @@ import { FormFieldAvatar } from "./FormFieldAvatar";
 import { FormFieldSwitch } from "./FormFieldSwitch";
 import { toast } from "react-toastify";
 import { updateUserProfile } from "@/lib/firebase/apis/user.server";
+import { Loader2 } from "lucide-react"; // Import loading spinner
 
 interface ChangeProfileModalProps {
   isOpen: boolean;
@@ -41,6 +42,7 @@ const ChangeProfileModal: React.FC<ChangeProfileModalProps> = ({
 }) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [bioLength, setBioLength] = useState(currentUser?.bio?.length || 0);
+  const [isSubmitting, setIsSubmitting] = useState(false); // State for loading spinner
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const form = useForm<UserProfileUpdate>({
@@ -82,6 +84,7 @@ const ChangeProfileModal: React.FC<ChangeProfileModalProps> = ({
   };
 
   const onSubmit = async (data: UserProfileUpdate) => {
+    setIsSubmitting(true); // Start loading spinner
     try {
       if (selectedFile) {
         const uploadedAvatarUrl = await handleAvatarUpload(selectedFile);
@@ -100,6 +103,8 @@ const ChangeProfileModal: React.FC<ChangeProfileModalProps> = ({
       onProfileUpdate?.();
     } catch (error) {
       console.error(error);
+    } finally {
+      setIsSubmitting(false); // Stop loading spinner
     }
   };
 
@@ -197,8 +202,13 @@ const ChangeProfileModal: React.FC<ChangeProfileModalProps> = ({
                 variant="default"
                 type="submit"
                 className="rounded-xl py-6 text-md font-semibold"
+                disabled={isSubmitting} // Disable button when submitting
               >
-                Save
+                {isSubmitting ? (
+                  <Loader2 className="animate-spin mr-2" /> // Show loading spinner
+                ) : (
+                  "Save"
+                )}
               </Button>
             </form>
           </Form>

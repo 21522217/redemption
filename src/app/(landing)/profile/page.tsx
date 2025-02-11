@@ -13,7 +13,6 @@ import { User } from "@/types/user";
 import ChangeProfileModal from "@/components/ChangeProfileModal";
 import Reposts from "@/components/Reposts";
 import { Skeleton } from "@/components/ui/skeleton";
-import UserAvatar from "@/components/UserAvatar";
 import { getProfileCompletion } from "@/lib/firebase/apis/lam-user.server";
 import { useRouter } from "next/navigation";
 import { fetchPostsByUserId } from "@/lib/firebase/apis/posts.server";
@@ -28,7 +27,7 @@ import { useAuth } from "@/contexts/AuthContext";
 export default function Profile() {
   const [isModalOpen, setModalOpen] = useState(false);
   const [showRepostTab, setShowRepostTab] = useState(true);
-  const { user, isLoading: authLoading, isLogin } = useAuth();
+  const { isLoading: authLoading, isLogin } = useAuth();
   const router = useRouter();
 
   const {

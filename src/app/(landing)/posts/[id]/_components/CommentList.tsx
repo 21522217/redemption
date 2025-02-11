@@ -269,13 +269,21 @@ export default function CommentList({ postId, userId }: CommentListProps) {
               {postWithUser.media && (
                 <div className="mt-3 rounded-2xl overflow-hidden border border-zinc-800">
                   <div className="relative w-full h-auto">
-                    <Image
-                      src={postWithUser.media}
-                      alt="Post media"
-                      width={700}
-                      height={475}
-                      className="object-cover"
-                    />
+                    {postWithUser.type === "video" ? (
+                      <video
+                        src={postWithUser.media}
+                        controls
+                        className="object-cover w-full h-full"
+                      />
+                    ) : (
+                      <Image
+                        src={postWithUser.media}
+                        alt="Post media"
+                        width={700}
+                        height={475}
+                        className="object-cover"
+                      />
+                    )}
                   </div>
                 </div>
               )}

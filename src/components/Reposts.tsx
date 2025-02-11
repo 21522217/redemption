@@ -36,7 +36,7 @@ const Reposts = ({ userId }: { userId: string }) => {
   return (
     <div className="reposts-container">
       {reposts.map((repost) => (
-        <article key={repost.id} className="border-b border-zinc-400/15 p-4">
+        <article key={repost.id} className="border-b border-zinc-400/15 p-4 hover:bg-background-secondary">
           <div className="flex items-start">
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 flex-wrap flex-row">
