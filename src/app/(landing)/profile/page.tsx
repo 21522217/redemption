@@ -119,7 +119,7 @@ export default function Profile() {
         </div>
         <Button
           onClick={() => setModalOpen(true)}
-          variant="outline"
+          variant="default"
           className="mb-6 w-full rounded-xl font-semibold"
         >
           Edit profile

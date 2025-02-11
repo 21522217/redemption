@@ -13,15 +13,6 @@ import { FormFieldAvatar } from "./FormFieldAvatar";
 import { FormFieldSwitch } from "./FormFieldSwitch";
 import { toast } from "react-toastify";
 import { updateUserProfile } from "@/lib/firebase/apis/user.server";
-import { Camera } from "lucide-react";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { UserIcon } from "lucide-react";
 
 interface ChangeProfileModalProps {
   isOpen: boolean;
