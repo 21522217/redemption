@@ -1,6 +1,6 @@
 "use client";
 
-import { Menu } from "lucide-react";
+import { Menu, Moon, Sun } from "lucide-react";
 import { Button } from "./ui/button";
 import {
   DropdownMenuTrigger,
@@ -13,10 +13,12 @@ import ThemeSwitcher from "./ThemeToggle";
 import useLogout from "@/lib/firebase/logout";
 import { useAuth } from "@/contexts/AuthContext";
 import { showAuthModal } from "./auth/AuthModal";
+import { useTheme } from "next-themes";
 
 export default function SettingButton() {
   const { logout } = useLogout();
   const { isLogin } = useAuth();
+  const { setTheme } = useTheme()
 
   return (
     <DropdownMenu>

@@ -128,7 +128,7 @@ export default function Activity() {
   );
 
   return (
-    <div className="flex flex-col w-full min-h-screen bg-zinc-50 dark:bg-background-content overflow-scroll mt-6 rounded-2xl">
+    <div className="flex flex-col w-full min-h-screen bg-card overflow-scroll mt-6 rounded-2xl">
       <div className="flex flex-col w-full">
         {isLoading ? (
           <div className="flex justify-center items-center py-8">
@@ -138,7 +138,7 @@ export default function Activity() {
           suggestions.map((user, index) => (
             <article
               key={user.id}
-              className="border-b border-zinc-200 dark:border-zinc-400/15 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors"
+              className="border-b hover:bg-accent transition-colors"
               ref={index === suggestions.length - 1 ? lastElementRef : null}
             >
               <div className="p-4">

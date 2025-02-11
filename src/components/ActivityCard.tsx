@@ -94,7 +94,7 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({
 
   return (
     <div
-      className="flex gap-4 py-2 cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors"
+      className="flex gap-4 py-2 cursor-pointer hover:bg-accent transition-colors"
       onClick={handleProfileClick}
     >
       <Avatar className="h-10 w-10">
@@ -128,10 +128,9 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({
                 }
                 size="sm"
                 className={`rounded-[10px] font-semibold px-6 py-1.5 text-sm self-center cursor-pointer
-                  ${
-                    actionInfo.button === "Following"
-                      ? "bg-transparent hover:bg-background border-[#999999] text-foreground"
-                      : "bg-black text-white hover:bg-black/90 dark:bg-foreground dark:text-background"
+                  ${actionInfo.button === "Following"
+                    ? "dark:hover:bg-zinc-900 border-primary hover:"
+                    : "bg-primary text-primary-foreground"
                   }`}
                 onClick={(e) => {
                   e.stopPropagation();

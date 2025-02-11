@@ -58,7 +58,7 @@ export default function SignupForm() {
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center ">
-      <Card className="w-full min-w-[448px] p-8 space-y-6 animate-fadeIn shadow-xl border-0 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
+      <Card className="w-full min-w-[448px] p-8 space-y-6 animate-fadeIn shadow-xl border-0 bg-card backdrop-blur-sm">
         <div className="flex flex-col items-center space-y-3">
           <Image
             src="/redemption-logo.svg"
@@ -101,8 +101,8 @@ export default function SignupForm() {
               </div>
             </TooltipTrigger>
             <TooltipContent>
-              Please use an email of yours otherwise this account would be belong to someone else, 
-              as our dev did not have much time to improve. Thanks for your understanding. 
+              Please use an email of yours otherwise this account would be belong to someone else,
+              as our dev did not have much time to improve. Thanks for your understanding.
               Contact me on discord for any issues.
             </TooltipContent>
           </Tooltip>
@@ -120,7 +120,7 @@ export default function SignupForm() {
                       <Input
                         placeholder="First name"
                         {...field}
-                        className="h-12 bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 focus:border-indigo-500 dark:focus:border-indigo-400 transition-colors"
+                        className="h-12 border-[1px] dark:border-muted focus:border-indigo-500 dark:focus:border-indigo-400 transition-colors"
                       />
                     </FormControl>
                     <FormMessage />
@@ -136,7 +136,7 @@ export default function SignupForm() {
                       <Input
                         placeholder="Last name"
                         {...field}
-                        className="h-12 bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 focus:border-indigo-500 dark:focus:border-indigo-400 transition-colors"
+                        className="h-12 border-[1px] dark:border-muted focus:border-indigo-500 dark:focus:border-indigo-400 transition-colors"
                       />
                     </FormControl>
                     <FormMessage />
@@ -160,20 +160,20 @@ export default function SignupForm() {
                               ? "email"
                               : name === "password" ||
                                 name === "confirmPassword"
-                              ? "password"
-                              : "text"
+                                ? "password"
+                                : "text"
                           }
                           placeholder={
                             name === "username"
                               ? "Username"
                               : name === "email"
-                              ? "Email address"
-                              : name === "password"
-                              ? "Password"
-                              : "Confirm password"
+                                ? "Email address"
+                                : name === "password"
+                                  ? "Password"
+                                  : "Confirm password"
                           }
                           {...field}
-                          className="h-12 bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 focus:border-indigo-500 dark:focus:border-indigo-400 transition-colors"
+                          className="h-12 border-[1px] dark:border-muted focus:border-indigo-500 dark:focus:border-indigo-400 transition-colors"
                         />
                       </FormControl>
                       <FormMessage />
