@@ -44,8 +44,10 @@ export async function getAllUserSuggestions(
     const usersPerPage = 10;
     const usersRef = collection(db, "users");
 
-    const q = query(usersRef, orderBy("followers", "desc"));
-    const usersSnap = await getDocs(q);
+    // Fetch all users ordered by followers count
+    const usersSnap = await getDocs(
+      query(usersRef, orderBy("followers", "desc"))
+    );
 
     let users = usersSnap.docs.map(
       (doc) =>
@@ -56,20 +58,25 @@ export async function getAllUserSuggestions(
     );
 
     if (currentUserId) {
+      // Filter out the current user
       users = users.filter((user) => user.id !== currentUserId);
 
-      // Filter out already followed users
-      const followsRef = collection(db, "follows");
+      // Fetch the list of users already followed by the current user
       const followsSnap = await getDocs(
-        query(followsRef, where("followerId", "==", currentUserId))
+        query(
+          collection(db, "follows"),
+          where("followerId", "==", currentUserId)
+        )
       );
-      const followedUserIds = followsSnap.docs.map(
-        (doc) => doc.data().followingId
+      const followedUserIds = new Set(
+        followsSnap.docs.map((doc) => doc.data().followingId)
       );
 
-      users = users.filter((user) => !followedUserIds.includes(user.id));
+      // Filter out users that are already followed
+      users = users.filter((user) => !followedUserIds.has(user.id));
     }
 
+    // Calculate pagination indices
     const startIndex = (page - 1) * usersPerPage;
     const endIndex = startIndex + usersPerPage;
 
@@ -173,7 +180,7 @@ export async function getProfileCompletion(userId: string) {
     hasPost,
     hasBio: Boolean(userData.bio),
     hasAvatar: userData.profilePicture !== "https://github.com/shadcn.png",
-    hasEnoughFollowing: followerCount >= 10,
+    hasEnoughFollowing: followerCount >= 3,
     followingCount: followerCount,
     totalTasks: 4,
     completedTasks: [

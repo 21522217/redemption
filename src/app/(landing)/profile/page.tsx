@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Edit, Image, Loader2, Pencil, Users } from "lucide-react";
+import { Edit, Image, Loader2, Pencil, UserIcon, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -22,6 +22,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Post } from "@/types/post";
 import Followers from "@/components/Followers";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export default function Profile() {
   const [isModalOpen, setModalOpen] = useState(false);
@@ -60,6 +61,12 @@ export default function Profile() {
   }, [visibleTabsCount]);
 
   const router = useRouter();
+
+  useEffect(() => {
+    if (!isLoading && !currentUser) {
+      router.push("/login");
+    }
+  }, [isLoading, currentUser, router]);
 
   if (isLoading) {
     return (
@@ -104,13 +111,21 @@ export default function Profile() {
               </div>
             </div>
           </div>
-          <div className="flex-shrink-0">
-            <UserAvatar userId={currentUser.id} className="h-24 w-24" />
+          <div className="flex items-center gap-4">
+            <Avatar className="h-20 w-20">
+              <AvatarImage
+                src={currentUser?.profilePicture}
+                alt="Profile picture"
+              />
+              <AvatarFallback className="[&_svg]:size-7">
+                <UserIcon />
+              </AvatarFallback>
+            </Avatar>
           </div>
         </div>
         <Button
           onClick={() => setModalOpen(true)}
-          variant="outline"
+          variant="default"
           className="mb-6 w-full rounded-xl font-semibold"
         >
           Edit profile
@@ -150,7 +165,13 @@ export default function Profile() {
           </TabsList>
           <TabsContent value="posts" className="space-y-4 bg-card">
             <div className="flex items-center py-6 bg-card border-b border-zinc-800 pb-4">
-              <UserAvatar userId={currentUser.id} />
+              <Avatar className="h-10 w-10">
+                <AvatarImage
+                  src={currentUser.profilePicture}
+                  alt="Profile picture"
+                />
+                <AvatarFallback>KT</AvatarFallback>
+              </Avatar>
               <div className="flex-1">
                 <Input
                   readOnly
@@ -173,7 +194,7 @@ export default function Profile() {
             ) : (
               profileCompletion &&
               (profileCompletion.completedTasks <
-              profileCompletion.totalTasks ? (
+                profileCompletion.totalTasks ? (
                 <div className="flex flex-col space-y-4 rounded-xl p-4 bg-card">
                   <div className="flex items-center justify-between bg-card">
                     <h2 className="text-lg font-semibold">
@@ -211,7 +232,7 @@ export default function Profile() {
                             <Users className="h-6 w-6" />
                           </div>
                           <h3 className="font-medium">
-                            Follow {10 - profileCompletion.followingCount} more
+                            Follow {3 - profileCompletion.followingCount} more
                             people
                           </h3>
                           <p className="text-sm text-zinc-400">

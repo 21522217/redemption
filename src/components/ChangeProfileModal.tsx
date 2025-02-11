@@ -13,15 +13,6 @@ import { FormFieldAvatar } from "./FormFieldAvatar";
 import { FormFieldSwitch } from "./FormFieldSwitch";
 import { toast } from "react-toastify";
 import { updateUserProfile } from "@/lib/firebase/apis/user.server";
-import { Camera } from "lucide-react";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { UserIcon } from "lucide-react";
 
 interface ChangeProfileModalProps {
   isOpen: boolean;
@@ -132,31 +123,11 @@ const ChangeProfileModal: React.FC<ChangeProfileModalProps> = ({
                   name="username"
                   label="Username"
                 />
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <div className="relative group cursor-pointer">
-                        <Avatar className="h-16 w-16 transition-opacity group-hover:opacity-75">
-                          <AvatarImage
-                            src={currentUser?.profilePicture}
-                            alt="Profile picture"
-                          />
-                          <AvatarFallback>
-                            <UserIcon className="h-8 w-8" />
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                          <div className="rounded-full bg-black/50 p-2">
-                            <Camera className="h-6 w-6 text-white" />
-                          </div>
-                        </div>
-                      </div>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Click to change avatar</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
+                <FormFieldAvatar
+                  control={form.control}
+                  name="profilePicture"
+                  setSelectedFile={setSelectedFile}
+                />
               </div>
 
               {/* User Details */}

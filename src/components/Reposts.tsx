@@ -29,9 +29,13 @@ const Reposts = ({ userId }: { userId: string }) => {
     );
   if (error) return <div className="error">Error loading reposts</div>;
 
+  if (!reposts || reposts.length === 0) {
+    return <div className="text-center text-gray-500">No reposts yet.</div>;
+  }
+
   return (
     <div className="reposts-container">
-      {reposts?.map((repost) => (
+      {reposts.map((repost) => (
         <article key={repost.id} className="border-b border-zinc-400/15 p-4">
           <div className="flex items-start">
             <div className="flex-1 min-w-0">

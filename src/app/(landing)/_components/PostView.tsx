@@ -200,14 +200,22 @@ const PostView = () => {
                 {post.media && (
                   <div className="mt-3 rounded-2xl overflow-hidden border border-zinc-800">
                     <div className="relative w-full h-auto">
-                      <Image
-                        src={post.media || "/placeholder.svg"}
-                        alt="Post media"
-                        layout="responsive"
-                        width={700}
-                        height={475}
-                        className="object-cover"
-                      />
+                      {post.media.endsWith(".mp4") ? (
+                        <video
+                          src={post.media}
+                          controls
+                          className="w-full h-auto object-cover"
+                        />
+                      ) : (
+                        <Image
+                          src={post.media || "/placeholder.svg"}
+                          alt="Post media"
+                          layout="responsive"
+                          width={700}
+                          height={475}
+                          className="object-cover"
+                        />
+                      )}
                     </div>
                   </div>
                 )}

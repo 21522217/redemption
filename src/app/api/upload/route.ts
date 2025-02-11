@@ -5,9 +5,10 @@ import { ImgurUploadResponse } from "@/lib/utils/upload-image"; // Adjust import
 export async function POST(req: NextRequest) {
   // Parse the incoming form data
   const formData = await req.formData();
-  const file = formData.get("image") as File;
+  const imageFile = formData.get("image") as File;
+  const videoFile = formData.get("video") as File;
 
-  if (!file) {
+  if (!imageFile && !videoFile) {
     return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
   }
 
@@ -21,9 +22,12 @@ export async function POST(req: NextRequest) {
 
   const apiUrl = "https://api.imgur.com/3/upload";
   const form = new FormData();
-  form.append("image", file);
-  
-
+  if (imageFile) {
+    form.append("image", imageFile);
+  }
+  if (videoFile) {
+    form.append("video", videoFile);
+  }
 
   try {
     const response = await fetch(apiUrl, {
@@ -42,9 +46,9 @@ export async function POST(req: NextRequest) {
     const result: ImgurUploadResponse = await response.json();
     return NextResponse.json(result);
   } catch (error) {
-    console.error("Error uploading image to Imgur:", error);
+    console.error("Error uploading file to Imgur:", error);
     return NextResponse.json(
-      { error: "Failed to upload image" },
+      { error: "Failed to upload file" },
       { status: 500 }
     );
   }

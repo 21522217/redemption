@@ -17,7 +17,7 @@ interface PostCardProps {
   post: Post;
 }
 
-const   PostCard: React.FC<PostCardProps> = ({ user, post }) => {
+const PostCard: React.FC<PostCardProps> = ({ user, post }) => {
   const router = useRouter();
   const { user: AuthUser } = useAuth();
 
@@ -85,14 +85,22 @@ const   PostCard: React.FC<PostCardProps> = ({ user, post }) => {
         {post.media && (
           <div className="mt-3 rounded-2xl overflow-hidden border border-zinc-800">
             <div className="relative w-full h-auto">
-              <Image
-                src={post.media || "/placeholder.svg"}
-                alt="Post media"
-                layout="responsive"
-                width={700}
-                height={475}
-                className="object-cover"
-              />
+              {post.media.endsWith(".mp4") ? (
+                <video
+                  src={post.media}
+                  controls
+                  className="object-cover w-full h-auto"
+                />
+              ) : (
+                <Image
+                  src={post.media || "/placeholder.svg"}
+                  alt="Post media"
+                  layout="responsive"
+                  width={700}
+                  height={475}
+                  className="object-cover"
+                />
+              )}
             </div>
           </div>
         )}
