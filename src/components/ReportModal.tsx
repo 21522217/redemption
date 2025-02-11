@@ -20,7 +20,7 @@ const ReportModal: React.FC<ReportModalProps> = ({
   postId,
 }) => {
   const { user } = useAuth();
-  const { setLoadingState } = useLoading();
+  const { setLoadingState, isLoading } = useLoading();
 
   const [reportContent, setReportContent] = useState<string>("");
 
@@ -89,10 +89,11 @@ const ReportModal: React.FC<ReportModalProps> = ({
                 Your report will be reviewed
               </p>
               <Button
-                className="bg-neutral-100 text-neutral-900 hover:bg-neutral-200 disabled:bg-neutral-300"
+                className={`bg-neutral-100 text-neutral-900 hover:bg-neutral-200 disabled:bg-neutral-300`}
                 onClick={handleReport}
+                disabled={isLoading}
               >
-                Submit
+                {isLoading ? "Submitting..." : "Submit"}
               </Button>
             </div>
           </Dialog.Content>

@@ -8,22 +8,22 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { Button } from "@/components/ui/button";
 import { toast } from "react-toastify";
 
-// Interface cho props của modal
+// Interface for modal props
 interface ReportProblemModalProps {
   isOpen: boolean;
   onChange: (open: boolean) => void;
 }
 
-// Component chính của modal
+// Main component of the modal
 const ReportProblemModal: React.FC<ReportProblemModalProps> = ({
   isOpen,
   onChange,
 }) => {
   const { user } = useAuth();
-  const { setLoadingState } = useLoading();
+  const { setLoadingState, isLoading } = useLoading();
   const [reportContent, setReportContent] = useState<string>("");
 
-  // Xử lý khi submit report
+  // Handle report submission
   const handleReport = async () => {
     setLoadingState(true);
     if (!reportContent.trim()) {
@@ -89,11 +89,12 @@ const ReportProblemModal: React.FC<ReportProblemModalProps> = ({
                 Our team will review your report
               </p>
               <Button
-                className="bg-neutral-100 text-neutral-900 hover:bg-neutral-200 disabled:bg-neutral-300"
+                className={`bg-neutral-100 text-neutral-900 hover:bg-neutral-200 disabled:bg-neutral-300`}
                 onClick={handleReport}
                 type="submit"
+                disabled={isLoading}
               >
-                Submit
+                {isLoading ? "Submitting..." : "Submit"}
               </Button>
             </div>
           </Dialog.Content>
@@ -103,7 +104,7 @@ const ReportProblemModal: React.FC<ReportProblemModalProps> = ({
   );
 };
 
-// Hàm helper để show modal
+// Helper function to show modal
 export const showReportProblemModal = () => {
   const modalContainer = document.createElement("div");
   document.body.appendChild(modalContainer);
