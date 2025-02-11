@@ -53,11 +53,11 @@ export async function getUserReposts(
 }
 
 export async function toggleRepost(postId: string, userId: string) {
-  if (!postId) {
+  if (!postId || typeof postId !== 'string') {
     throw new Error("Invalid postId: It must be a non-empty string.");
   }
 
-  if (!userId) {
+  if (!userId || typeof userId !== 'string') {
     throw new Error("Invalid userId: It must be a non-empty string.");
   }
 
@@ -77,6 +77,7 @@ export async function toggleRepost(postId: string, userId: string) {
         transaction.set(repostDoc, {
           userId,
           originalPostId: postId,
+          isReposted: true,
           createdAt: Timestamp.now(),
         });
         transaction.update(postDoc, { repostsCount: increment(1) });
@@ -86,8 +87,8 @@ export async function toggleRepost(postId: string, userId: string) {
       }
     });
   } catch (error) {
-    console.error("Error toggling repost: ", error);
-    throw error;
+    console.error("Error toggling repost:", error);
+    throw new Error("Failed to toggle repost.");
   }
 }
 
@@ -95,11 +96,11 @@ export async function isReposted(
   postId: string,
   userId: string
 ): Promise<boolean> {
-  if (!postId) {
+  if (!postId || typeof postId !== 'string') {
     throw new Error("Invalid postId: It must be a non-empty string.");
   }
 
-  if (!userId) {
+  if (!userId || typeof userId !== 'string') {
     throw new Error("Invalid userId: It must be a non-empty string.");
   }
 
@@ -109,7 +110,7 @@ export async function isReposted(
     const repostSnap = await getDoc(repostDoc);
     return repostSnap.exists();
   } catch (error) {
-    console.error("Error checking repost status: ", error);
-    throw error;
+    console.error("Error checking repost status:", error);
+    throw new Error("Failed to check repost status.");
   }
 }

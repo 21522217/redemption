@@ -3,67 +3,7 @@
 @tailwind utilities;
 
 @layer base {
-  /* :root[data-theme="dark"] {
-    --background: 229 41% 4%;
-    --background-secondary: 229 41% 4%;
-    --content-background: 220 15% 15%;
-    --foreground: 229 23% 99%;
-    --muted: 229 12% 14%;
-    --muted-foreground: 229 10% 63%;
-    --popover: 229 41% 5%;
-    --popover-foreground: 0 0% 100%;
-    --card: 229 41% 5%;
-    --card-foreground: 0 0% 100%;
-    --border: 215 28% 17%;
-    --input: 215 28% 17%;
-    --primary: 0 0% 100%;
-    --primary-foreground: 0 0% 0%;
-    --secondary: 229 14% 8%;
-    --secondary-foreground: 229 14% 68%;
-    --accent: 229 23% 17%;
-    --accent-foreground: 229 23% 77%;
-    --destructive: 3 89% 54%;
-    --destructive-foreground: 0 0% 100%;
-    --ring: 229 100% 62%;
-    --chart-1: 229 100% 62%;
-    --chart-2: 229 14% 8%;
-    --chart-3: 229 23% 17%;
-    --chart-4: 229 14% 11%;
-    --chart-5: 229 103% 62%;
-    --radius: 0.5rem;
-  }
-
-  .light[data-theme="light"] {
-    --background: 229 41% 4%;
-    --background-secondary: 229 57% 100%;
-    --content-background: 0 0% 80%;
-    --foreground: 229 63% 4%;
-    --muted: 229 12% 86%;
-    --muted-foreground: 229 10% 37%;
-    --popover: 0 0% 99%;
-    --popover-foreground: 229 63% 3%;
-    --card: 220 33% 98%;
-    --card-foreground: 229 63% 3%;
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --primary: 229 100% 62%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 229 20% 90%;
-    --secondary-foreground: 229 20% 30%;
-    --accent: 229 28% 85%;
-    --accent-foreground: 229 28% 25%;
-    --destructive: 3 100% 50%;
-    --destructive-foreground: 3 0% 100%;
-    --ring: 229 100% 62%;
-    --chart-1: 229 100% 62%;
-    --chart-2: 229 20% 90%;
-    --chart-3: 229 28% 85%;
-    --chart-4: 229 20% 93%;
-    --chart-5: 229 103% 62%;
-  } */
-
   :root {
-    /* --background: 229 57% 100%; */
     --background: 220 33% 90%;
     --background-secondary: 229 57% 100%;
     --content-background: 0 0% 80%;
@@ -72,7 +12,6 @@
     --muted-foreground: 229 10% 37%;
     --popover: 0 0% 99%;
     --popover-foreground: 229 63% 3%;
-    /* --card: 220 33% 90%; */
     --card: 229 57% 100%;
     --card-foreground: 229 63% 3%;
     --border: 220 13% 91%;
@@ -134,14 +73,18 @@
     height: 100%;
     font-family: Arial, Helvetica, sans-serif;
     transition: background-color 0.3s ease, color 0.3s ease;
+  }
 
-    popover {
-      @apply bg-popover text-popover-foreground;
-    }
+  popover {
+    @apply bg-popover text-popover-foreground;
+  }
 
-    toggle {
-      @apply bg-primary text-card-foreground;
-    }
+  toggle {
+    @apply bg-primary text-card-foreground;
+  }
+
+  article, form {
+    @apply bg-card text-card-foreground;
   }
 }
 

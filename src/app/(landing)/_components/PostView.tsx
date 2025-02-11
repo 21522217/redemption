@@ -136,7 +136,7 @@ const PostView = () => {
     try {
       await toggleRepost(postId, AuthUser.uid);
       setReposts(
-        (prevReposts) => new Map(prevReposts.set(postId, !reposts.get(postId)))
+        (prevReposts) => new Map(prevReposts.set(postId, !prevReposts.get(postId)))
       );
     } catch (error) {
       // Rollback on error
