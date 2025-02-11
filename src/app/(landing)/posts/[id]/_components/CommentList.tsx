@@ -216,7 +216,7 @@ export default function CommentList({ postId, userId }: CommentListProps) {
 
   if (isPostLoading || isCommentsLoading) {
     return (
-      <div className="flex flex-col w-full h-screen bg-zinc-50 dark:bg-background-content overflow-scroll mt-6 rounded-2xl">
+      <div className="flex flex-col w-full h-screen bg-card overflow-scroll mt-6 rounded-2xl">
         <PostSkeleton />
         {[...Array(3)].map((_, i) => (
           <CommentSkeleton key={i} />
@@ -228,7 +228,7 @@ export default function CommentList({ postId, userId }: CommentListProps) {
   if (commentsError) return <div>Error: {commentsError.message}</div>;
 
   return (
-    <div className="flex flex-col w-full h-screen bg-zinc-50 dark:bg-background-content overflow-scroll mt-6 rounded-2xl">
+    <div className="flex flex-col w-full h-screen bg-card overflow-scroll mt-6 rounded-2xl">
       {/* Original Post */}
       {postWithUser && (
         <article className="border-b border-zinc-400/15 p-4">
