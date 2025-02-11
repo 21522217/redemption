@@ -204,11 +204,11 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
   return (
     <Dialog.Root open={isOpen} onOpenChange={onChange}>
       <Dialog.Portal>
-        <Dialog.Overlay className="z-50 bg-neutral-900/90 backdrop-blur-sm fixed inset-0">
+        <Dialog.Overlay className="z-50 backdrop-blur-sm fixed inset-0">
           <Dialog.Content
-            className="fixed drop-shadow-md border border-neutral-200 dark:border-neutral-700 top-1/2 left-1/2
+            className="fixed drop-shadow-md border top-1/2 left-1/2
             w-full md:w-[600px] md:min-h-[300px] md:max-h-[80vh] -translate-x-1/2 -translate-y-1/2 rounded-xl p-6 
-            focus:outline-none bg-white dark:bg-neutral-800 overflow-y-auto"
+            focus:outline-none bg-card overflow-y-auto"
           >
             <div className="flex justify-between items-center mb-4 p-4">
               <span

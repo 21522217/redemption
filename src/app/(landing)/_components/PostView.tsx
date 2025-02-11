@@ -160,7 +160,7 @@ const PostView = () => {
   }, [postsWithUsers, AuthUser]);
 
   return (
-    <div className="flex flex-col w-full min-h-screen bg-zinc-50 dark:bg-background-content overflow-scroll mt-6 rounded-2xl">
+    <div className="flex flex-col w-full min-h-screen bg-card  overflow-scroll mt-6 rounded-2xl">
       {isLogin && <PostCond />}
       {postsWithUsers.length === 0 ? (
         <div className="flex items-center justify-center h-full">

@@ -2,12 +2,13 @@
 
 import React from "react";
 
-import { ThemeProvider } from "@/contexts/ThemeContext";
+//import { ThemeProvider } from "@/contexts/ThemeContext";
 import { AuthContextProvider } from "@/contexts/AuthContext";
 import { Bounce } from "react-toastify";
 import { ToastContainer } from "react-toastify";
 import { LoadingProvider } from "@/contexts/LoadingContext";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ThemeProvider } from "@/components/ThemeProvider";
 
 interface ProviderProps {
   children: React.ReactNode;
@@ -33,7 +34,13 @@ const Providers: React.FC<ProviderProps> = ({ children }) => {
     <QueryClientProvider client={queryClient}>
       <LoadingProvider>
         <AuthContextProvider>
-          <ThemeProvider>{children}</ThemeProvider>
+          {/* <ThemeProvider>{children}</ThemeProvider> */}
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="dark"
+          >
+            {children}
+          </ThemeProvider>
           <ToastContainer
             position="bottom-center"
             autoClose={5000}

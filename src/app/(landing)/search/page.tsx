@@ -172,8 +172,8 @@ export default function SearchPage() {
   const isLoading = isFetchingSearch || isFetchingSuggestions;
 
   return (
-    <div className="flex flex-col w-full h-screen bg-zinc-50 dark:bg-background-content overflow-scroll mt-6 rounded-2xl">
-      <div className="sticky top-0 bg-zinc-50 dark:bg-background-content p-4 border-b border-zinc-200 dark:border-zinc-400/15 z-10">
+    <div className="flex flex-col w-full h-screen bg-card overflow-scroll mt-6 rounded-2xl">
+      <div className="sticky top-0 p-4 border-b z-10">
         <div className="relative">
 
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
@@ -182,7 +182,7 @@ export default function SearchPage() {
             placeholder="Search users..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 bg-transparent"
+            className="pl-10 bg-transparent shadow-none"
           />
         </div>
       </div>
@@ -200,7 +200,7 @@ export default function SearchPage() {
                   {currentUsers.map((user, index) => (
                     <div
                       key={user.id}
-                      className="border-b border-zinc-200 dark:border-zinc-400/15 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors"
+                      className="border-b  transition-colors"
                       ref={index === currentUsers.length - 1 ? lastUserElementRef : null}
                     >
                       <div className="p-4">
@@ -239,7 +239,7 @@ export default function SearchPage() {
                 {currentUsers.map((user, index) => (
                   <div
                     key={user.id}
-                    className="border-b border-zinc-200 dark:border-zinc-400/15 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors"
+                    className="border-b hover:bg-accent transition-colors"
                     ref={index === currentUsers.length - 1 ? lastUserElementRef : null}
                   >
                     <div className="p-4">
