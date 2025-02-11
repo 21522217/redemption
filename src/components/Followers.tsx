@@ -19,7 +19,11 @@ const Followers = ({ userId }: FollowersProps) => {
     const fetchFollowers = async () => {
       try {
         const followersData = await getFollowers(userId);
-        setFollowers(followersData as User[]);
+        if (Array.isArray(followersData)) {
+          setFollowers(followersData as User[]);
+        } else {
+          console.error("Unexpected data format:", followersData);
+        }
       } catch (error) {
         console.error("Error fetching followers:", error);
       } finally {

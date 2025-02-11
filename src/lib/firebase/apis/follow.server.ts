@@ -85,15 +85,29 @@ export async function checkIfFollowing(
   );
   return followSnapshot.docs.some((doc) => doc.exists());
 }
+
 export async function getFollowers(userId: string) {
   const followersRef = collection(db, "follows");
   const q = query(followersRef, where("followingId", "==", userId));
   const followersSnapshot = await getDocs(q);
+
+  if (followersSnapshot.empty) {
+    return [];
+  }
+
   const followerIds = followersSnapshot.docs.map((doc) => doc.data().followerId);
+
+  if (followerIds.length === 0) {
+    return [];
+  }
 
   const usersRef = collection(db, "users");
   const usersQuery = query(usersRef, where("id", "in", followerIds));
   const usersSnapshot = await getDocs(usersQuery);
+
+  if (usersSnapshot.empty) {
+    return [];
+  }
 
   return usersSnapshot.docs.map((doc) => doc.data());
 }

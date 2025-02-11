@@ -106,7 +106,17 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
       toast.info("Large media will be resized to fit the post.");
     }
 
-    setMedia(selectedFile);
+    if (selectedFile.type.startsWith("video/")) {
+      const fileBlob = await fetch(URL.createObjectURL(selectedFile)).then(
+        (r) => r.blob()
+      );
+      const videoFile = new File([fileBlob], "video.mp4", {
+        type: "video/mp4",
+      });
+      setMedia(videoFile);
+    } else {
+      setMedia(selectedFile);
+    }
   };
 
   const handlePost = async () => {
@@ -124,9 +134,10 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
         const formData = new FormData();
         formData.append(
           media.type.startsWith("image/") ? "image" : "video",
-          media
+          media,
+          media.name
         );
-
+        
         const response = await fetch("/api/upload", {
           method: "POST",
           body: formData,

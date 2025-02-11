@@ -264,25 +264,23 @@ export default function Profile() {
                 </div>
               ) : (
                 <>
-                  {!userPosts || userPosts.length === 0 || !currentUser ? (
+                  {!userPosts || userPosts.length === 0 ? (
                     <div className="w-full h-full bg-card text-center content-center">
                       <Label className="text-md text-accent-foreground">
                         No post yet
                       </Label>
                     </div>
+                  ) : userPostsLoading ? (
+                    <div className="flex justify-center items-center py-8">
+                      <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+                    </div>
                   ) : (
-                    userPostsLoading ? (
-                      <div className="flex justify-center items-center py-8">
-                        <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+                    userPosts.map((post) => (
+                      <div key={post.id} className="flex flex-col space-y-2">
+                        <PostCard user={currentUser} post={post as Post} />
+                        <Separator className="" />
                       </div>
-                    ) : (
-                      userPosts.map((post) => (
-                        <div key={post.id} className="flex flex-col space-y-2">
-                          <PostCard user={currentUser} post={post as Post} />
-                          <Separator className="" />
-                        </div>
-                      ))
-                    )
+                    ))
                   )}
                 </>
               ))
