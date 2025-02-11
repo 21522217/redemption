@@ -139,10 +139,9 @@ export default function Profile() {
         </div>
         <Button
           className={`w-1/4 rounded-[10px] font-semibold cursor-pointer
-            ${
-              isFollowing
-                ? "bg-transparent hover:bg-background border-[#999999] text-foreground"
-                : "bg-black text-white hover:bg-black/90 dark:bg-foreground dark:text-background"
+            ${isFollowing
+              ? "dark:hover:bg-zinc-900 border-primary hover:"
+              : "bg-primary text-primary-foreground"
             }`}
           variant={isFollowing ? "outline" : "default"}
           onClick={() => followMutation.mutate()}
@@ -178,7 +177,7 @@ export default function Profile() {
               userPosts.map((post) => (
                 <div key={post.id} className="flex flex-col space-y-2">
                   <PostCard user={user} post={post as Post} />
-                  <Separator className=""/>
+                  <Separator className="" />
                 </div>
               ))
             )}
