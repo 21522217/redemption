@@ -34,7 +34,7 @@
   }
 
   .light[data-theme="light"] {
-    --background: 229 57% 100%;
+    --background: 229 41% 4%;
     --background-secondary: 229 57% 100%;
     --content-background: 0 0% 80%;
     --foreground: 229 63% 4%;

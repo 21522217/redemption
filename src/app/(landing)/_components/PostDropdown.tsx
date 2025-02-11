@@ -37,15 +37,6 @@ const PostDropdown = ({ post }: { post: Post }) => {
       >
         <DropdownMenuItem
           className="flex justify-between w-full px-4 py-2.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 cursor-pointer transition-colors"
-          onClick={() => {
-            toast.error("This feature is not available yet");
-          }}
-        >
-          <span className="text-[15px] font-medium text-red-500">Block</span>
-          <Lock className="w-4 h-4 text-red-500" />
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          className="flex justify-between w-full px-4 py-2.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 cursor-pointer transition-colors"
           onClick={() => showReportModal(post.id)}
         >
           <span className="text-[15px] font-medium text-red-500">Report</span>
