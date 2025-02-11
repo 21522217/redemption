@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState, useRef } from "react";
-import { AuthContextProvider, useAuth } from "@/contexts/AuthContext";
-import { useLoading, LoadingProvider } from "@/contexts/LoadingContext";
+import React, { useState, useRef, useCallback } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import { useLoading } from "@/contexts/LoadingContext";
 import { createRoot } from "react-dom/client";
 import * as Dialog from "@radix-ui/react-dialog";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,8 @@ import Image from "next/image";
 import { Post } from "@/types/post";
 import { toast } from "react-toastify";
 import { X } from "lucide-react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import Providers from "@/app/providers";
 
 interface CreatePostModalProps {
   isOpen: boolean;
@@ -25,9 +27,11 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
 }) => {
   const { user } = useAuth();
   const { setLoadingState, isLoading } = useLoading();
+  const queryClient = useQueryClient();
 
   const [content, setContent] = useState<string>("");
   const [media, setMedia] = useState<File | null>(null);
+  const [mediaUrl, setMediaUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const MAX_VIDEO_SIZE_MB = 100;
@@ -107,9 +111,31 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
     }
 
     setMedia(selectedFile);
+    setMediaUrl(URL.createObjectURL(selectedFile));
   };
 
-  const handlePost = async () => {
+  const createPostMutation = useMutation({
+    mutationFn: async (newPost: Post) => {
+      await createPost(newPost);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["postsWithUsers"] });
+      toast("Post created successfully!");
+      setContent("");
+      setMedia(null);
+      setMediaUrl(null);
+      onChange(false);
+    },
+    onError: (error: any) => {
+      console.error("Failed to create post:", error);
+      toast("Failed to create post.");
+    },
+    onSettled: () => {
+      setLoadingState(false);
+    },
+  });
+
+  const handlePost = useCallback(async () => {
     setLoadingState(true);
     if (!content.trim()) {
       toast("Please add some text to your post.");
@@ -124,7 +150,8 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
         const formData = new FormData();
         formData.append(
           media.type.startsWith("image/") ? "image" : "video",
-          media
+          media,
+          media.name
         );
 
         const response = await fetch("/api/upload", {
@@ -159,19 +186,20 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
         ...(uploadedMediaUrl ? { media: uploadedMediaUrl } : {}),
       };
 
-      await createPost(newPost);
-
-      toast("Post created successfully!");
-      setContent("");
-      setMedia(null);
-      onChange(false);
+      createPostMutation.mutate(newPost);
     } catch (error) {
       console.error("Failed to create post:", error);
       toast("Failed to create post.");
-    } finally {
       setLoadingState(false);
     }
-  };
+  }, [
+    content,
+    media,
+    onChange,
+    setLoadingState,
+    user?.uid,
+    createPostMutation,
+  ]);
 
   return (
     <Dialog.Root open={isOpen} onOpenChange={onChange}>
@@ -205,12 +233,12 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
                   disabled={isLoading}
                 />
                 <div className="flex flex-col gap-2">
-                  {media && (
+                  {media && mediaUrl && (
                     <div className="relative w-full rounded-lg bg-neutral-100 dark:bg-neutral-900">
                       {media.type.startsWith("image/") ? (
                         <div className="relative w-full">
                           <Image
-                            src={URL.createObjectURL(media)}
+                            src={mediaUrl}
                             alt="Uploaded Media"
                             width={600}
                             height={400}
@@ -220,13 +248,16 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
                         </div>
                       ) : (
                         <video
-                          src={URL.createObjectURL(media)}
+                          src={mediaUrl}
                           controls
                           className="w-full rounded-lg object-contain max-h-[400px]"
                         />
                       )}
                       <button
-                        onClick={() => setMedia(null)}
+                        onClick={() => {
+                          setMedia(null);
+                          setMediaUrl(null);
+                        }}
                         className="absolute top-2 right-2 p-1.5 rounded-full bg-black/50 hover:bg-black/70"
                       >
                         <X className="w-4 h-4 text-white" />
@@ -300,11 +331,9 @@ export const showCreatePostModal = () => {
     };
 
     return (
-      <LoadingProvider>
-        <AuthContextProvider>
-          <CreatePostModal isOpen={isOpen} onChange={handleOpenChange} />
-        </AuthContextProvider>
-      </LoadingProvider>
+      <Providers>
+        <CreatePostModal isOpen={isOpen} onChange={handleOpenChange} />
+      </Providers>
     );
   };
 

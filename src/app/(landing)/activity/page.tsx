@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect, useRef, useCallback } from "react";
+import { useState, useMemo, useRef, useCallback, useEffect } from "react";
 import { ActivityCard } from "@/components/ActivityCard";
 import {
   getUserSuggestions,
@@ -115,7 +115,7 @@ export default function Activity() {
 
   const lastElementRef = useCallback(
     (node: HTMLDivElement | null) => {
-      if (isLoading) return;
+      if (typeof window === "undefined" || isLoading) return;
       if (observerRef.current) observerRef.current.disconnect();
       observerRef.current = new IntersectionObserver((entries) => {
         if (entries[0].isIntersecting && hasNextPage) {

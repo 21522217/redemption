@@ -20,6 +20,12 @@ import {
 import useSignUp from "@/lib/firebase/signup";
 import { useLoading } from "@/contexts/LoadingContext";
 import Image from "next/image";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+  TooltipProvider,
+} from "@/components/ui/tooltip"; // Assuming you have a Tooltip component
 
 export default function SignupForm() {
   const { isLoading } = useLoading();
@@ -70,6 +76,37 @@ export default function SignupForm() {
             </p>
           </div>
         </div>
+
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger>
+              <div className="flex flex-row items-center gap-2 group">
+                <span className="font-bold text-gray-500 group-hover:text-gray-700">
+                  Caution
+                </span>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-6 w-6 text-gray-500 group-hover:text-gray-700"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13 16h-1v-4h-1m1-4h.01M12 18h.01M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"
+                  />
+                </svg>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent>
+              Please use an email of yours otherwise this account would be belong to someone else, 
+              as our dev did not have much time to improve. Thanks for your understanding. 
+              Contact me on discord for any issues.
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">

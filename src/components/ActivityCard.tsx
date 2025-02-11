@@ -121,7 +121,7 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({
                 </p>
               )}
             </div>
-            {(type === "follow" || type === "suggestion") && (
+            {(type === "follow" || type === "suggestion") && AuthUser && (
               <Button
                 variant={
                   actionInfo.button === "Following" ? "outline" : "default"

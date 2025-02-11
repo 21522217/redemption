@@ -6,7 +6,7 @@ import { convertTimestamp } from "@/lib/utils";
 import { Post } from "@/types/post";
 import { User } from "@/types/user";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { BadgeCheck } from "lucide-react";
+import { BadgeCheck, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 const Reposts = ({ userId }: { userId: string }) => {
@@ -21,12 +21,21 @@ const Reposts = ({ userId }: { userId: string }) => {
 
   const router = useRouter();
 
-  if (isLoading) return <div className="loading">Loading...</div>;
+  if (isLoading)
+    return (
+      <div className="loading">
+        <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+      </div>
+    );
   if (error) return <div className="error">Error loading reposts</div>;
+
+  if (!reposts || reposts.length === 0) {
+    return <div className="text-center text-gray-500">No reposts yet.</div>;
+  }
 
   return (
     <div className="reposts-container">
-      {reposts?.map((repost) => (
+      {reposts.map((repost) => (
         <article key={repost.id} className="border-b border-zinc-400/15 p-4">
           <div className="flex items-start">
             <div className="flex-1 min-w-0">
