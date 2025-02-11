@@ -23,18 +23,22 @@ import { Separator } from "@/components/ui/separator";
 import { Post } from "@/types/post";
 import Followers from "@/components/Followers";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function Profile() {
   const [isModalOpen, setModalOpen] = useState(false);
   const [showRepostTab, setShowRepostTab] = useState(true);
+  const { user, isLoading: authLoading, isLogin } = useAuth();
+  const router = useRouter();
 
   const {
     data: currentUser,
-    isLoading,
+    isLoading: userDataLoading,
     refetch: refetchUser,
   } = useQuery<User | null>({
     queryKey: ["currentUser"],
     queryFn: async () => await fetchCurrentUser(),
+    enabled: !!isLogin,
   });
 
   const { data: profileCompletion, error: profileCompletionError } = useQuery({
@@ -60,15 +64,13 @@ export default function Profile() {
       : "grid w-full h-fit gap-4 grid-cols-3";
   }, [visibleTabsCount]);
 
-  const router = useRouter();
-
   useEffect(() => {
-    if (!isLoading && !currentUser) {
+    if (!authLoading && !isLogin) {
       router.push("/login");
     }
-  }, [isLoading, currentUser, router]);
+  }, [authLoading, isLogin, router]);
 
-  if (isLoading) {
+  if (authLoading || userDataLoading) {
     return (
       <div className="h-full min-h-[90vh] min-w-[700px] rounded-3xl">
         <Card className="flex flex-col h-full bg-card px-8 py-6 rounded-3xl space-y-6">
@@ -78,7 +80,7 @@ export default function Profile() {
     );
   }
 
-  if (!currentUser) {
+  if (!isLogin || !currentUser) {
     return null;
   }
 
@@ -194,7 +196,7 @@ export default function Profile() {
             ) : (
               profileCompletion &&
               (profileCompletion.completedTasks <
-                profileCompletion.totalTasks ? (
+              profileCompletion.totalTasks ? (
                 <div className="flex flex-col space-y-4 rounded-xl p-4 bg-card">
                   <div className="flex items-center justify-between bg-card">
                     <h2 className="text-lg font-semibold">
