@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Edit, Image, Loader2, Pencil, Users } from "lucide-react";
+import { Edit, Image, Loader2, Pencil, UserIcon, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -13,7 +13,6 @@ import { User } from "@/types/user";
 import ChangeProfileModal from "@/components/ChangeProfileModal";
 import Reposts from "@/components/Reposts";
 import { Skeleton } from "@/components/ui/skeleton";
-import UserAvatar from "@/components/UserAvatar";
 import { getProfileCompletion } from "@/lib/firebase/apis/lam-user.server";
 import { useRouter } from "next/navigation";
 import { fetchPostsByUserId } from "@/lib/firebase/apis/posts.server";
@@ -22,22 +21,27 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Post } from "@/types/post";
 import Followers from "@/components/Followers";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function Profile() {
   const [isModalOpen, setModalOpen] = useState(false);
   const [showRepostTab, setShowRepostTab] = useState(true);
+  const { isLoading: authLoading, isLogin } = useAuth();
+  const router = useRouter();
 
   const {
     data: currentUser,
-    isLoading,
+    isLoading: userDataLoading,
     refetch: refetchUser,
   } = useQuery<User | null>({
     queryKey: ["currentUser"],
     queryFn: async () => await fetchCurrentUser(),
+    enabled: !!isLogin,
   });
 
   const { data: profileCompletion, error: profileCompletionError } = useQuery({
-    queryKey: ["profileCompletion", currentUser?.id],
+    queryKey: ["profileCompletion"],
     queryFn: () => getProfileCompletion(currentUser?.id || ""),
     enabled: !!currentUser?.id,
   });
@@ -59,9 +63,13 @@ export default function Profile() {
       : "grid w-full h-fit gap-4 grid-cols-3";
   }, [visibleTabsCount]);
 
-  const router = useRouter();
+  useEffect(() => {
+    if (!authLoading && !isLogin) {
+      router.push("/login");
+    }
+  }, [authLoading, isLogin, router]);
 
-  if (isLoading) {
+  if (authLoading || userDataLoading) {
     return (
       <div className="h-full min-h-[90vh] min-w-[700px] rounded-3xl">
         <Card className="flex flex-col h-full bg-card px-8 py-6 rounded-3xl space-y-6">
@@ -71,7 +79,7 @@ export default function Profile() {
     );
   }
 
-  if (!currentUser) {
+  if (!isLogin || !currentUser) {
     return null;
   }
 
@@ -104,13 +112,21 @@ export default function Profile() {
               </div>
             </div>
           </div>
-          <div className="flex-shrink-0">
-            <UserAvatar userId={currentUser.id} className="h-24 w-24" />
+          <div className="flex items-center gap-4">
+            <Avatar className="h-20 w-20">
+              <AvatarImage
+                src={currentUser?.profilePicture}
+                alt="Profile picture"
+              />
+              <AvatarFallback className="[&_svg]:size-7">
+                <UserIcon />
+              </AvatarFallback>
+            </Avatar>
           </div>
         </div>
         <Button
           onClick={() => setModalOpen(true)}
-          variant="outline"
+          variant="default"
           className="mb-6 w-full rounded-xl font-semibold"
         >
           Edit profile
@@ -150,7 +166,13 @@ export default function Profile() {
           </TabsList>
           <TabsContent value="posts" className="space-y-4 bg-card">
             <div className="flex items-center py-6 bg-card border-b border-zinc-800 pb-4">
-              <UserAvatar userId={currentUser.id} />
+              <Avatar className="h-10 w-10">
+                <AvatarImage
+                  src={currentUser.profilePicture}
+                  alt="Profile picture"
+                />
+                <AvatarFallback>KT</AvatarFallback>
+              </Avatar>
               <div className="flex-1">
                 <Input
                   readOnly
@@ -211,7 +233,7 @@ export default function Profile() {
                             <Users className="h-6 w-6" />
                           </div>
                           <h3 className="font-medium">
-                            Follow {10 - profileCompletion.followingCount} more
+                            Follow {3 - profileCompletion.followingCount} more
                             people
                           </h3>
                           <p className="text-sm text-zinc-400">
@@ -264,25 +286,23 @@ export default function Profile() {
                 </div>
               ) : (
                 <>
-                  {!userPosts || userPosts.length === 0 || !currentUser ? (
+                  {!userPosts || userPosts.length === 0 ? (
                     <div className="w-full h-full bg-card text-center content-center">
                       <Label className="text-md text-accent-foreground">
                         No post yet
                       </Label>
                     </div>
+                  ) : userPostsLoading ? (
+                    <div className="flex justify-center items-center py-8">
+                      <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+                    </div>
                   ) : (
-                    userPostsLoading ? (
-                      <div className="flex justify-center items-center py-8">
-                        <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+                    userPosts.map((post) => (
+                      <div key={post.id} className="flex flex-col space-y-2">
+                        <PostCard user={currentUser} post={post as Post} />
+                        <Separator className="" />
                       </div>
-                    ) : (
-                      userPosts.map((post) => (
-                        <div key={post.id} className="flex flex-col space-y-2">
-                          <PostCard user={currentUser} post={post as Post} />
-                          <Separator className="" />
-                        </div>
-                      ))
-                    )
+                    ))
                   )}
                 </>
               ))

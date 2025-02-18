@@ -44,8 +44,10 @@ export async function getAllUserSuggestions(
     const usersPerPage = 10;
     const usersRef = collection(db, "users");
 
-    const q = query(usersRef, orderBy("followers", "desc"));
-    const usersSnap = await getDocs(q);
+    // Fetch all users ordered by followers count
+    const usersSnap = await getDocs(
+      query(usersRef, orderBy("followers", "desc"))
+    );
 
     let users = usersSnap.docs.map(
       (doc) =>
@@ -56,20 +58,25 @@ export async function getAllUserSuggestions(
     );
 
     if (currentUserId) {
+      // Filter out the current user
       users = users.filter((user) => user.id !== currentUserId);
 
-      // Filter out already followed users
-      const followsRef = collection(db, "follows");
+      // Fetch the list of users already followed by the current user
       const followsSnap = await getDocs(
-        query(followsRef, where("followerId", "==", currentUserId))
+        query(
+          collection(db, "follows"),
+          where("followerId", "==", currentUserId)
+        )
       );
-      const followedUserIds = followsSnap.docs.map(
-        (doc) => doc.data().followingId
+      const followedUserIds = new Set(
+        followsSnap.docs.map((doc) => doc.data().followingId)
       );
 
-      users = users.filter((user) => !followedUserIds.includes(user.id));
+      // Filter out users that are already followed
+      users = users.filter((user) => !followedUserIds.has(user.id));
     }
 
+    // Calculate pagination indices
     const startIndex = (page - 1) * usersPerPage;
     const endIndex = startIndex + usersPerPage;
 
@@ -150,7 +157,6 @@ export async function searchUsers(
 }
 
 export async function getProfileCompletion(userId: string) {
-  // Fetch user information
   const userRef = doc(db, "users", userId);
   const userDoc = await getDoc(userRef);
 
@@ -160,27 +166,28 @@ export async function getProfileCompletion(userId: string) {
 
   const userData = userDoc.data() as User;
 
-  // Check the number of posts
   const postsRef = collection(db, "posts");
   const postsQuery = query(postsRef, where("userId", "==", userId));
   const postsSnap = await getDocs(postsQuery);
   const hasPost = !postsSnap.empty;
 
-  // Check the number of followers using user.followers
-  const followerCount = userData.followers || 0;
+  const followsRef = collection(db, "follows");
+  const followsQuery = query(followsRef, where("userId", "==", userId));
+  const followsSnap = await getDocs(followsQuery);
+  const followingCount = followsSnap.size;
 
   return {
     hasPost,
     hasBio: Boolean(userData.bio),
     hasAvatar: userData.profilePicture !== "https://github.com/shadcn.png",
-    hasEnoughFollowing: followerCount >= 10,
-    followingCount: followerCount,
+    hasEnoughFollowing: followingCount >= 3,
+    followingCount: followingCount,
     totalTasks: 4,
     completedTasks: [
       hasPost,
       Boolean(userData.bio),
       userData.profilePicture !== "https://github.com/shadcn.png",
-      followerCount >= 10,
+      followingCount >= 10,
     ].filter(Boolean).length,
   };
 }

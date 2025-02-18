@@ -13,7 +13,6 @@ import {
   isPostLiked,
   toggleLikePost,
 } from "@/lib/firebase/apis/posts.server";
-import { createRepost } from "@/lib/firebase/apis/repost.server";
 import { getTimeAgo, formatNumber } from "@/lib/utils";
 import { Comment } from "@/types/comment";
 import { User } from "@/types/user";
@@ -41,6 +40,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { toggleRepost, isReposted } from "@/lib/firebase/apis/repost.server";
 
 interface CommentListProps {
   postId: string;
@@ -55,6 +55,7 @@ export default function CommentList({ postId, userId }: CommentListProps) {
   const queryClient = useQueryClient();
 
   const [likes, setLikes] = useState(new Map<string, boolean>());
+  const [reposts, setReposts] = useState(new Map<string, boolean>());
   const [showRepostDialog, setShowRepostDialog] = useState(false);
 
   const {
@@ -68,7 +69,9 @@ export default function CommentList({ postId, userId }: CommentListProps) {
       const post = await getPostAndUserById(postId);
       if (AuthUser) {
         const isLiked = await isPostLiked(postId, AuthUser.uid);
+        const isRepostedByUser = await isReposted(postId, AuthUser.uid);
         setLikes(new Map([[postId, isLiked]]));
+        setReposts(new Map([[postId, isRepostedByUser]]));
       }
       return post;
     },
@@ -195,18 +198,33 @@ export default function CommentList({ postId, userId }: CommentListProps) {
     queryClient.invalidateQueries({ queryKey: ["comments", postId] });
   };
 
-  const handleRepost = () => {
-    setShowRepostDialog(true);
-  };
-
-  const confirmRepost = async () => {
+  const handleRepost = async (postId: string) => {
     if (!AuthUser) return;
+
+    // Optimistic update
+    const oldReposts = new Map(reposts);
+    const oldPostData = queryClient.getQueryData(["post", postId]);
+
+    // Update reposts state immediately
+    setReposts((prevReposts) => {
+      const updatedReposts = new Map(prevReposts);
+      updatedReposts.set(postId, !updatedReposts.get(postId));
+      return updatedReposts;
+    });
+
+    // Update post reposts count immediately
+    queryClient.setQueryData(["post", postId], (old: any) => ({
+      ...old,
+      repostsCount: reposts.get(postId) ? old.repostsCount - 1 : old.repostsCount + 1,
+    }));
+
     try {
-      await createRepost(postId, AuthUser.uid);
-      setShowRepostDialog(false);
-      refetch();
+      await toggleRepost(postId, AuthUser.uid);
     } catch (error) {
-      console.error("Failed to create repost:", error);
+      // Rollback on error
+      console.error("Failed to toggle repost status:", error);
+      setReposts(oldReposts);
+      queryClient.setQueryData(["post", postId], oldPostData);
     }
   };
 
@@ -269,13 +287,21 @@ export default function CommentList({ postId, userId }: CommentListProps) {
               {postWithUser.media && (
                 <div className="mt-3 rounded-2xl overflow-hidden border border-zinc-800">
                   <div className="relative w-full h-auto">
-                    <Image
-                      src={postWithUser.media}
-                      alt="Post media"
-                      width={700}
-                      height={475}
-                      className="object-cover"
-                    />
+                    {postWithUser.type === "video" ? (
+                      <video
+                        src={postWithUser.media}
+                        controls
+                        className="object-cover w-full h-full"
+                      />
+                    ) : (
+                      <Image
+                        src={postWithUser.media}
+                        alt="Post media"
+                        width={700}
+                        height={475}
+                        className="object-cover"
+                      />
+                    )}
                   </div>
                 </div>
               )}
@@ -304,10 +330,13 @@ export default function CommentList({ postId, userId }: CommentListProps) {
                 {AuthUser?.uid !== postWithUser.userId && (
                   <button
                     className="flex items-center gap-2 group"
-                    onClick={handleRepost}
+                    onClick={() => handleRepost(postId)}
                   >
                     <div className="p-2 rounded-full group-hover:bg-green-500/10 group-hover:text-green-500 text-green-500">
-                      <Repeat className="w-5 h-5" />
+                      <Repeat
+                        className="w-5 h-5"
+                        fill={reposts.get(postId) ? "currentColor" : "none"}
+                      />
                     </div>
                     <span>{formatNumber(postWithUser.repostsCount ?? 0)}</span>
                   </button>
@@ -465,7 +494,7 @@ export default function CommentList({ postId, userId }: CommentListProps) {
               >
                 Cancel
               </Button>
-              <Button onClick={confirmRepost}>Repost</Button>
+              <Button onClick={() => handleRepost(postId)}>Repost</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>

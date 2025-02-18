@@ -38,11 +38,9 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
 
   const toggleTheme = () => {
     const newTheme = theme === "light" ? "dark" : "light";
-    if (newTheme !== theme) {
-      setTheme(newTheme);
-      document.documentElement.setAttribute("data-theme", newTheme);
-      localStorage.setItem("theme", newTheme);
-    }
+    setTheme(newTheme);
+    document.documentElement.setAttribute("data-theme", newTheme);
+    localStorage.setItem("theme", newTheme);
   };
 
   const value = useMemo(() => ({ theme, toggleTheme }), [theme]);

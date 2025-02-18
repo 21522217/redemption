@@ -20,6 +20,12 @@ import {
 import useSignUp from "@/lib/firebase/signup";
 import { useLoading } from "@/contexts/LoadingContext";
 import Image from "next/image";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+  TooltipProvider,
+} from "@/components/ui/tooltip"; // Assuming you have a Tooltip component
 
 export default function SignupForm() {
   const { isLoading } = useLoading();
@@ -52,7 +58,7 @@ export default function SignupForm() {
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center ">
-      <Card className="w-full min-w-[448px] p-8 space-y-6 animate-fadeIn shadow-xl border-0 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
+      <Card className="w-full min-w-[448px] p-8 space-y-6 animate-fadeIn shadow-xl border-0 bg-card backdrop-blur-sm">
         <div className="flex flex-col items-center space-y-3">
           <Image
             src="/redemption-logo.svg"
@@ -71,6 +77,37 @@ export default function SignupForm() {
           </div>
         </div>
 
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger>
+              <div className="flex flex-row items-center gap-2 group">
+                <span className="font-bold text-gray-500 group-hover:text-gray-700">
+                  Caution
+                </span>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-6 w-6 text-gray-500 group-hover:text-gray-700"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13 16h-1v-4h-1m1-4h.01M12 18h.01M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"
+                  />
+                </svg>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent>
+              Please use an email of yours otherwise this account would be belong to someone else,
+              as our dev did not have much time to improve. Thanks for your understanding.
+              Contact me on discord for any issues.
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
@@ -83,7 +120,7 @@ export default function SignupForm() {
                       <Input
                         placeholder="First name"
                         {...field}
-                        className="h-12 bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 focus:border-indigo-500 dark:focus:border-indigo-400 transition-colors"
+                        className="h-12 border-[1px] dark:border-muted focus:border-indigo-500 dark:focus:border-indigo-400 transition-colors"
                       />
                     </FormControl>
                     <FormMessage />
@@ -99,7 +136,7 @@ export default function SignupForm() {
                       <Input
                         placeholder="Last name"
                         {...field}
-                        className="h-12 bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 focus:border-indigo-500 dark:focus:border-indigo-400 transition-colors"
+                        className="h-12 border-[1px] dark:border-muted focus:border-indigo-500 dark:focus:border-indigo-400 transition-colors"
                       />
                     </FormControl>
                     <FormMessage />
@@ -123,20 +160,20 @@ export default function SignupForm() {
                               ? "email"
                               : name === "password" ||
                                 name === "confirmPassword"
-                              ? "password"
-                              : "text"
+                                ? "password"
+                                : "text"
                           }
                           placeholder={
                             name === "username"
                               ? "Username"
                               : name === "email"
-                              ? "Email address"
-                              : name === "password"
-                              ? "Password"
-                              : "Confirm password"
+                                ? "Email address"
+                                : name === "password"
+                                  ? "Password"
+                                  : "Confirm password"
                           }
                           {...field}
-                          className="h-12 bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 focus:border-indigo-500 dark:focus:border-indigo-400 transition-colors"
+                          className="h-12 border-[1px] dark:border-muted focus:border-indigo-500 dark:focus:border-indigo-400 transition-colors"
                         />
                       </FormControl>
                       <FormMessage />

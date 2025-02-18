@@ -24,7 +24,7 @@ interface LayoutProps {
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
-    <html lang="en" className={geistSans.variable}>
+    <html lang="en" className={geistSans.variable} suppressHydrationWarning>
       <body className="font-sans">
         <Providers>
           <div className="flex flex-col w-full items-center">

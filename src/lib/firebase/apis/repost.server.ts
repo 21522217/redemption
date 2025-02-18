@@ -1,14 +1,13 @@
 import { db } from "../config";
 import {
   collection,
-  deleteDoc,
   doc,
   getDoc,
   getDocs,
+  increment,
   query,
-  setDoc,
+  runTransaction,
   Timestamp,
-  updateDoc,
   where,
 } from "firebase/firestore";
 import { Post } from "@/types/post";
@@ -53,53 +52,65 @@ export async function getUserReposts(
   }
 }
 
-export async function createRepost(postId: string, userId: string) {
-  try {
-    const repostRef = doc(collection(db, "reposts"));
-    await setDoc(repostRef, {
-      id: repostRef.id,
-      originalPostId: postId,
-      userId,
-      createdAt: Timestamp.now(),
-    });
+export async function toggleRepost(postId: string, userId: string) {
+  if (!postId || typeof postId !== 'string') {
+    throw new Error("Invalid postId: It must be a non-empty string.");
+  }
 
-    const postRef = doc(db, "posts", postId);
-    const postDoc = await getDoc(postRef);
-    if (postDoc.exists()) {
-      const currentRepostsCount = postDoc.data().repostsCount || 0;
-      await updateDoc(postRef, { repostsCount: currentRepostsCount + 1 });
-    }
+  if (!userId || typeof userId !== 'string') {
+    throw new Error("Invalid userId: It must be a non-empty string.");
+  }
+
+  const repostDoc = doc(db, "reposts", `${userId}_${postId}`);
+  const postDoc = doc(db, "posts", postId);
+
+  try {
+    await runTransaction(db, async (transaction) => {
+      const repostSnap = await transaction.get(repostDoc);
+      const postSnap = await transaction.get(postDoc);
+
+      if (!postSnap.exists()) {
+        throw new Error("Post does not exist");
+      }
+
+      if (!repostSnap.exists()) {
+        transaction.set(repostDoc, {
+          userId,
+          originalPostId: postId,
+          isReposted: true,
+          createdAt: Timestamp.now(),
+        });
+        transaction.update(postDoc, { repostsCount: increment(1) });
+      } else {
+        transaction.delete(repostDoc);
+        transaction.update(postDoc, { repostsCount: increment(-1) });
+      }
+    });
   } catch (error) {
-    console.error("Error creating repost:", error);
-    throw new Error("Failed to create repost.");
+    console.error("Error toggling repost:", error);
+    throw new Error("Failed to toggle repost.");
   }
 }
 
-export async function deleteRepost(originalPostId: string, userId: string) {
-  try {
-    const repostsRef = collection(db, "reposts");
-    const q = query(
-      repostsRef,
-      where("originalPostId", "==", originalPostId),
-      where("userId", "==", userId)
-    );
-    const querySnapshot = await getDocs(q);
-    if (!querySnapshot.empty) {
-      const repostDoc = querySnapshot.docs[0];
-      await deleteDoc(repostDoc.ref);
+export async function isReposted(
+  postId: string,
+  userId: string
+): Promise<boolean> {
+  if (!postId || typeof postId !== 'string') {
+    throw new Error("Invalid postId: It must be a non-empty string.");
+  }
 
-      const postRef = doc(db, "posts", originalPostId);
-      const postDoc = await getDoc(postRef);
-      if (postDoc.exists()) {
-        const currentRepostsCount = postDoc.data().repostsCount || 0;
-        const newRepostsCount = Math.max(currentRepostsCount - 1, 0);
-        await updateDoc(postRef, { repostsCount: newRepostsCount });
-      }
-    } else {
-      console.warn("No repost found to delete for the given user and post.");
-    }
+  if (!userId || typeof userId !== 'string') {
+    throw new Error("Invalid userId: It must be a non-empty string.");
+  }
+
+  const repostDoc = doc(db, "reposts", `${userId}_${postId}`);
+
+  try {
+    const repostSnap = await getDoc(repostDoc);
+    return repostSnap.exists();
   } catch (error) {
-    console.error("Error deleting repost:", error);
-    throw new Error("Failed to delete repost.");
+    console.error("Error checking repost status:", error);
+    throw new Error("Failed to check repost status.");
   }
 }

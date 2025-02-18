@@ -14,6 +14,7 @@ import firebase_app from "@/lib/firebase/config";
 interface AuthContextValue {
   user: User | null;
   isLogin: boolean;
+  isLoading: boolean;
 }
 
 interface AuthContextProviderProps {
@@ -41,30 +42,38 @@ export const AuthContextProvider: React.FC<AuthContextProviderProps> = ({
 }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLogin, setIsLogin] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const { setLoadingState } = useLoading();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      if (firebaseUser) {
-        setUser(firebaseUser);
-        setIsLogin(true);
+      try {
+        if (firebaseUser) {
+          setUser(firebaseUser);
+          setIsLogin(true);
 
-        const token = await firebaseUser.getIdToken();
-        document.cookie = `firebaseAuthToken=${token}; path=/; max-age=3600`;
-      } else {
+          const token = await firebaseUser.getIdToken();
+          document.cookie = `firebaseAuthToken=${token}; path=/; max-age=3600`;
+        } else {
+          setUser(null);
+          setIsLogin(false);
+          document.cookie = "firebaseAuthToken=; path=/; max-age=0";
+        }
+      } catch (error) {
+        console.error("Auth state change error:", error);
         setUser(null);
         setIsLogin(false);
-
-        document.cookie = "firebaseAuthToken=; path=/; max-age=0";
+      } finally {
+        setIsLoading(false);
+        setLoadingState(false);
       }
-      setLoadingState(false);
     });
 
     return () => unsubscribe();
-  }, [auth]);
+  }, []);
 
   return (
-    <AuthContext.Provider value={{ user, isLogin }}>
+    <AuthContext.Provider value={{ user, isLogin, isLoading }}>
       {children}
     </AuthContext.Provider>
   );

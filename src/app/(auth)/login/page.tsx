@@ -47,7 +47,7 @@ export default function LoginForm() {
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center">
-      <Card className="w-full min-w-[468px] p-8 space-y-6 animate-fadeIn shadow-xl border-0 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
+      <Card className="w-full min-w-[468px] p-8 space-y-6 animate-fadeIn shadow-xl border-0 bg-card backdrop-blur-sm">
         {/* Logo section */}
         <div className="flex flex-col items-center space-y-3">
           <Image
@@ -69,8 +69,8 @@ export default function LoginForm() {
 
         {/* Social login */}
         <Button
-          variant="outline"
-          className="w-full h-12 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 transition-all duration-200"
+          variant="default"
+          className="w-full h-12 "
           onClick={() => signInWithGoogle()}
         >
           <FaGoogle className="mr-2 h-5 w-5 text-red-500" />
@@ -96,7 +96,7 @@ export default function LoginForm() {
                     <Input
                       placeholder="Email address"
                       {...field}
-                      className="h-12 bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 focus:border-indigo-500 dark:focus:border-indigo-400 transition-colors"
+                      className="h-12 border-[1px] dark:border-muted focus:border-indigo-500 dark:focus:border-indigo-400 transition-colors"
                     />
                   </FormControl>
                   <FormMessage />
@@ -113,7 +113,7 @@ export default function LoginForm() {
                       type="password"
                       placeholder="Password"
                       {...field}
-                      className="h-12 bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 focus:border-indigo-500 dark:focus:border-indigo-400 transition-colors"
+                      className="h-12 border-[1px] dark:border-muted focus:border-indigo-500 dark:focus:border-indigo-400 transition-colors"
                     />
                   </FormControl>
                   <FormMessage />

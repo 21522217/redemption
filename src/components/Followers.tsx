@@ -6,12 +6,14 @@ import { User } from "@/types/user";
 import { Loader2 } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { UserIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 interface FollowersProps {
   userId: string;
 }
 
 const Followers = ({ userId }: FollowersProps) => {
+  const router = useRouter();
   const [followers, setFollowers] = useState<User[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -19,7 +21,11 @@ const Followers = ({ userId }: FollowersProps) => {
     const fetchFollowers = async () => {
       try {
         const followersData = await getFollowers(userId);
-        setFollowers(followersData as User[]);
+        if (Array.isArray(followersData)) {
+          setFollowers(followersData as User[]);
+        } else {
+          console.error("Unexpected data format:", followersData);
+        }
       } catch (error) {
         console.error("Error fetching followers:", error);
       } finally {
@@ -47,13 +53,21 @@ const Followers = ({ userId }: FollowersProps) => {
       {followers.map((follower) => (
         <div key={follower.id} className="flex items-center space-x-4">
           <Avatar className="h-10 w-10">
-            <AvatarImage src={follower.profilePicture} alt={follower.username} />
+            <AvatarImage
+              src={follower.profilePicture}
+              alt={follower.username}
+            />
             <AvatarFallback>
               <UserIcon className="h-5 w-5" />
             </AvatarFallback>
           </Avatar>
           <div>
-            <div className="font-semibold">
+            <div
+              className="font-semibold hover:underline cursor-pointer"
+              onClick={() => {
+                router.push(`/profile/${follower.id}`);
+              }}
+            >
               {follower.firstName} {follower.lastName}
             </div>
             <div className="text-sm text-gray-500">@{follower.username}</div>

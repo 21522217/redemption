@@ -25,7 +25,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={geistSans.variable}>
+    <html lang="en" className={geistSans.variable} suppressHydrationWarning>
       <body>
         <Providers>
           <div className="flex flex-row">
